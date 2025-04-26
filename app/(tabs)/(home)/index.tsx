@@ -14,6 +14,8 @@ import {
 import { Feather, AntDesign } from "@expo/vector-icons";
 import { Appearance, useColorScheme } from "react-native"; // Import Appearance
 import { Link } from "expo-router";
+import HomeCategorySection from "@/components/homeScreen/categorySection";
+import HomeBestSelling from "@/components/homeScreen/bestSelling";
 
 // Get device dimensions for responsive design
 const { width } = Dimensions.get("window");
@@ -26,49 +28,6 @@ export default function HomeScreen() {
     const newScheme = colorScheme === "dark" ? "light" : "dark";
     Appearance.setColorScheme(newScheme); // Override the system color scheme
   };
-
-  // Sample data for categories and products
-  const categories = [
-    {
-      id: "1",
-      name: "Fruits",
-      icon: "https://cdn-icons-png.flaticon.com/512/415/415682.png",
-    },
-    {
-      id: "2",
-      name: "Vegetables",
-      icon: "https://cdn-icons-png.flaticon.com/512/2153/2153788.png",
-    },
-    {
-      id: "3",
-      name: "Cheeses",
-      icon: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png",
-    },
-    {
-      id: "4",
-      name: "Meat",
-      icon: "https://cdn-icons-png.flaticon.com/512/3143/3143643.png",
-    },
-  ];
-
-  const products = [
-    {
-      id: "1",
-      name: "Bell Pepper Red",
-      image:
-        "https://images.unsplash.com/photo-1601648764658-cf37e8c89b70?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-      weight: "1kg",
-      price: "5.99$",
-    },
-    {
-      id: "2",
-      name: "Lamb Meat",
-      image:
-        "https://images.unsplash.com/photo-1603048588665-791ca8aea617?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-      weight: "1kg",
-      price: "44.99$",
-    },
-  ];
 
   return (
     <SafeAreaView
@@ -186,64 +145,8 @@ export default function HomeScreen() {
         </View>
 
         {/* Categories Section */}
-        <View style={styles.sectionHeader}>
-          <View style={styles.sectionTitleContainer}>
-            <Text
-              style={[
-                styles.sectionTitle,
-                { color: colorScheme === "dark" ? "#fff" : "#333" },
-              ]}
-            >
-              Categories
-            </Text>
-            <Text style={styles.emoji}>😊</Text>
-          </View>
-
-          <TouchableOpacity>
-            <Link href={"/category"}>
-              <Text style={styles.seeAllText}>See all</Text>
-            </Link>
-          </TouchableOpacity>
-        </View>
-
+        <HomeCategorySection />
         {/* Category Icons */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.categoriesContainer}
-          contentContainerStyle={styles.categoriesContent}
-        >
-          {categories.map((category) => (
-            <View key={category.id} style={styles.categoryItem}>
-              <View
-                style={[
-                  styles.categoryIconContainer,
-                  { backgroundColor: colorScheme === "dark" ? "#444" : "#fff" },
-                ]}
-              >
-                <Image
-                  source={{ uri: category.icon }}
-                  style={styles.categoryIcon}
-                  // defaultSource={require("../assets/images/placeholder.png")}
-                  onError={(e) =>
-                    console.log(
-                      `Category icon load error (${category.name}):`,
-                      e.nativeEvent.error
-                    )
-                  }
-                />
-              </View>
-              <Text
-                style={[
-                  styles.categoryText,
-                  { color: colorScheme === "dark" ? "#fff" : "#333" },
-                ]}
-              >
-                {category.name}
-              </Text>
-            </View>
-          ))}
-        </ScrollView>
 
         {/* Best Selling Section */}
         <View style={styles.sectionHeader}>
@@ -264,52 +167,7 @@ export default function HomeScreen() {
         </View>
 
         {/* Product Cards */}
-        <View style={styles.productsContainer}>
-          {products.map((product) => (
-            <View
-              key={product.id}
-              style={[
-                styles.productCard,
-                { backgroundColor: colorScheme === "dark" ? "#333" : "#fff" },
-              ]}
-            >
-              <Image
-                source={{ uri: product.image }}
-                style={styles.productImage}
-                resizeMode="cover"
-                // defaultSource={require("../assets/images/placeholder.png")}
-                onError={(e) =>
-                  console.log(
-                    `Product image load error (${product.name}):`,
-                    e.nativeEvent.error
-                  )
-                }
-              />
-              <Text
-                style={[
-                  styles.productName,
-                  { color: colorScheme === "dark" ? "#fff" : "#333" },
-                ]}
-              >
-                {product.name}
-              </Text>
-              <View style={styles.productPriceRow}>
-                <Text
-                  style={[
-                    styles.productWeight,
-                    { color: colorScheme === "dark" ? "#aaa" : "#888" },
-                  ]}
-                >
-                  {product.weight},
-                </Text>
-                <Text style={styles.productPrice}>{product.price}</Text>
-                <TouchableOpacity style={styles.addButton}>
-                  <Feather name="plus" size={20} color="#fff" />
-                </TouchableOpacity>
-              </View>
-            </View>
-          ))}
-        </View>
+        <HomeBestSelling />
       </ScrollView>
     </SafeAreaView>
   );
@@ -454,87 +312,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#27ae60",
     fontWeight: "500",
-  },
-  categoriesContainer: {
-    paddingLeft: 16,
-    marginBottom: 24,
-  },
-  categoriesContent: {
-    paddingRight: 16,
-  },
-  categoryItem: {
-    alignItems: "center",
-    marginRight: 20,
-  },
-  categoryIconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  categoryIcon: {
-    width: 30,
-    height: 30,
-  },
-  categoryText: {
-    fontSize: 14,
-  },
-  productsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    paddingHorizontal: 16,
-    justifyContent: "space-between",
-    marginBottom: 80,
-  },
-  productCard: {
-    width: (width - 48) / 2,
-    borderRadius: 16,
-    padding: 12,
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  productImage: {
-    width: "100%",
-    height: 120,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  productName: {
-    fontSize: 16,
-    fontWeight: "500",
-    marginBottom: 8,
-  },
-  productPriceRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  productWeight: {
-    fontSize: 14,
-    marginRight: 4,
-  },
-  productPrice: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#ff6b6b",
-    flex: 1,
-  },
-  addButton: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: "#27ae60",
-    justifyContent: "center",
-    alignItems: "center",
   },
 });

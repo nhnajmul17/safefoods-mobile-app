@@ -1,11 +1,9 @@
-import { Link } from "expo-router";
 import { View, Text, StyleSheet } from "react-native";
 
-export default function HomeScreen() {
+export default function MeatScreen() {
   return (
     <View style={styles.container}>
-      <Text>Category </Text>
-      <Link href="/details">View details</Link>
+      <Text>All Meat Here</Text>
     </View>
   );
 }

@@ -15,14 +15,13 @@ export default function CategoryLayout() {
     >
       <Stack.Screen
         name="index"
-        options={
-          { headerShown: false, title: "Category" } // false to Hide the header for the category screen
-        }
+        options={{ headerShown: false, title: "Category" }}
       />
-      <Stack.Screen
-        name="/(tabs)/category/details"
-        options={{ title: "Details" }}
-      />
+      <Stack.Screen name="details" options={{ title: "Details" }} />
+      <Stack.Screen name="fruits" options={{ title: "Fruits" }} />
+      <Stack.Screen name="vegetables" options={{ title: "Vegetables" }} />
+      <Stack.Screen name="cheese" options={{ title: "Chesses" }} />
+      <Stack.Screen name="meat" options={{ title: "Meat" }} />
     </Stack>
   );
 }
