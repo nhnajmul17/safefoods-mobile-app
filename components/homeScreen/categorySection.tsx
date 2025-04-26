@@ -10,7 +10,7 @@ import {
   useColorScheme,
 } from "react-native";
 
-type CategoryType = {
+export type CategoryType = {
   id: string;
   name: string;
   href:

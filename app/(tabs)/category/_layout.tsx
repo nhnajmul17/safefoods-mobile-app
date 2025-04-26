@@ -1,6 +1,8 @@
 import { Stack } from "expo-router";
+import { useColorScheme } from "react-native";
 
 export default function CategoryLayout() {
+  const colorScheme = useColorScheme();
   return (
     <Stack
       screenOptions={{
@@ -15,7 +17,18 @@ export default function CategoryLayout() {
     >
       <Stack.Screen
         name="index"
-        options={{ headerShown: false, title: "Category" }}
+        options={{
+          headerShown: true,
+          title: "Category",
+          headerStyle: {
+            backgroundColor: colorScheme === "dark" ? "#1a1a1a" : "#87ceeb",
+          },
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 24,
+          },
+        }}
+        // options={{ headerShown: false, title: "Category" }}
       />
       <Stack.Screen name="details" options={{ title: "Details" }} />
       <Stack.Screen
