@@ -48,7 +48,6 @@ export default function HomeBestSelling() {
               source={{ uri: product.image }}
               style={styles.productImage}
               resizeMode="cover"
-              // defaultSource={require("../assets/images/placeholder.png")}
               onError={(e) =>
                 console.log(
                   `Product image load error (${product.name}):`,
