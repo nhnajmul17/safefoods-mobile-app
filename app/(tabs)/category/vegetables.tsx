@@ -10,12 +10,13 @@ import {
   ScrollView,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { Link } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
 const products = [
   {
-    id: "1",
+    id: "13",
     name: "Bell Pepper Red",
     image:
       "https://images.unsplash.com/photo-1601648764658-cf37e8c89b70?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
@@ -23,7 +24,7 @@ const products = [
     price: "5.99$",
   },
   {
-    id: "2",
+    id: "14",
     name: "Broccoli",
     image:
       "https://plus.unsplash.com/premium_photo-1702403157830-9df749dc6c1e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8YnJvY2NvbGl8ZW58MHx8MHx8fDA%3D",
@@ -31,7 +32,7 @@ const products = [
     price: "2.79$",
   },
   {
-    id: "3",
+    id: "15",
     name: "Papaya",
     image:
       "https://plus.unsplash.com/premium_photo-1675639895212-696149c275f9?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cGFwYXlhfGVufDB8fDB8fHww",
@@ -39,7 +40,7 @@ const products = [
     price: "3.49$",
   },
   {
-    id: "4",
+    id: "16",
     name: "Lettuce",
     image:
       "https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bGV0dHVjZXxlbnwwfHwwfHx8MA%3D%3D",
@@ -47,7 +48,7 @@ const products = [
     price: "1.99$",
   },
   {
-    id: "5",
+    id: "17",
     name: "Carrot",
     image:
       "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
@@ -55,7 +56,7 @@ const products = [
     price: "2.49$",
   },
   {
-    id: "6",
+    id: "18",
     name: "Cabbage",
     image:
       "https://images.unsplash.com/photo-1730815046052-75a1b90117e2?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y2FiYmFnZXxlbnwwfHwwfHx8MA%3D%3D",
@@ -63,7 +64,7 @@ const products = [
     price: "2.99$",
   },
   {
-    id: "7",
+    id: "19",
     name: "Tomato",
     image:
       "https://images.unsplash.com/photo-1582284540020-8acbe03f4924?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8dG9tYXRvfGVufDB8fDB8fHww",
@@ -71,7 +72,7 @@ const products = [
     price: "3.29$",
   },
   {
-    id: "8",
+    id: "20",
     name: "Zucchini",
     image:
       "https://images.unsplash.com/photo-1596056094719-10ba4f7ea650?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8enVjY2hpbml8ZW58MHx8MHx8fDA%3D",
@@ -93,17 +94,19 @@ export default function VegetableScreen() {
               { backgroundColor: colorScheme === "dark" ? "#333" : "#fff" },
             ]}
           >
-            <Image
-              source={{ uri: product.image }}
-              style={styles.productImage}
-              resizeMode="cover"
-              onError={(e) =>
-                console.log(
-                  `Product image load error (${product.name}):`,
-                  e.nativeEvent.error
-                )
-              }
-            />
+            <Link href={`/(tabs)/category/${product.id}`}>
+              <Image
+                source={{ uri: product.image }}
+                style={styles.productImage}
+                resizeMode="cover"
+                onError={(e) =>
+                  console.log(
+                    `Product image load error (${product.name}):`,
+                    e.nativeEvent.error
+                  )
+                }
+              />
+            </Link>
             <Text
               style={[
                 styles.productName,

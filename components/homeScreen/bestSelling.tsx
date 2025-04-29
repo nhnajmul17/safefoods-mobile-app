@@ -9,25 +9,26 @@ import {
   useColorScheme,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { Link } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
 const products = [
   {
     id: "1",
-    name: "Bell Pepper Red",
+    name: "Apple",
     image:
-      "https://images.unsplash.com/photo-1601648764658-cf37e8c89b70?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+      "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
     weight: "1kg",
-    price: "5.99$",
+    price: "3.99$",
   },
   {
-    id: "2",
-    name: "Lamb Meat",
+    id: "6",
+    name: "Beef Steak",
     image:
-      "https://images.unsplash.com/photo-1603048588665-791ca8aea617?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+      "https://images.unsplash.com/photo-1680538491591-7ce20c900f4f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YmVhZnxlbnwwfHwwfHx8MA%3D%3D",
     weight: "1kg",
-    price: "44.99$",
+    price: "14.99$",
   },
 ];
 
@@ -44,17 +45,19 @@ export default function HomeBestSelling() {
               { backgroundColor: colorScheme === "dark" ? "#333" : "#fff" },
             ]}
           >
-            <Image
-              source={{ uri: product.image }}
-              style={styles.productImage}
-              resizeMode="cover"
-              onError={(e) =>
-                console.log(
-                  `Product image load error (${product.name}):`,
-                  e.nativeEvent.error
-                )
-              }
-            />
+            <Link href={`/(tabs)/category/${product.id}`}>
+              <Image
+                source={{ uri: product.image }}
+                style={styles.productImage}
+                resizeMode="cover"
+                onError={(e) =>
+                  console.log(
+                    `Product image load error (${product.name}):`,
+                    e.nativeEvent.error
+                  )
+                }
+              />
+            </Link>
             <Text
               style={[
                 styles.productName,

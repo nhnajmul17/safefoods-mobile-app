@@ -10,6 +10,7 @@ import {
   ScrollView,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { Link } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
@@ -61,17 +62,19 @@ export default function FruitScreen() {
               { backgroundColor: colorScheme === "dark" ? "#333" : "#fff" },
             ]}
           >
-            <Image
-              source={{ uri: product.image }}
-              style={styles.productImage}
-              resizeMode="cover"
-              onError={(e) =>
-                console.log(
-                  `Product image load error (${product.name}):`,
-                  e.nativeEvent.error
-                )
-              }
-            />
+            <Link href={`/(tabs)/category/${product.id}`}>
+              <Image
+                source={{ uri: product.image }}
+                style={styles.productImage}
+                resizeMode="cover"
+                onError={(e) =>
+                  console.log(
+                    `Product image load error (${product.name}):`,
+                    e.nativeEvent.error
+                  )
+                }
+              />
+            </Link>
             <Text
               style={[
                 styles.productName,

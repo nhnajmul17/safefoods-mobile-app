@@ -30,7 +30,16 @@ export default function CategoryLayout() {
         }}
         // options={{ headerShown: false, title: "Category" }}
       />
-      <Stack.Screen name="details" options={{ title: "Details" }} />
+      <Stack.Screen
+        name="[productId]"
+        options={{
+          headerShown: true,
+          title: "Product Details",
+          headerStyle: {
+            backgroundColor: colorScheme === "dark" ? "#1a1a1a" : "#87ceeb",
+          },
+        }}
+      />
       <Stack.Screen
         name="fruits"
         options={{

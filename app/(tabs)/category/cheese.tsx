@@ -10,12 +10,13 @@ import {
   ScrollView,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { Link } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
 const products = [
   {
-    id: "1",
+    id: "9",
     name: "Cheddar",
     image:
       "https://images.unsplash.com/photo-1683314573422-649a3c6ad784?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y2hlZGRhciUyMGNoZWVzZXxlbnwwfHwwfHx8MA%3D%3D",
@@ -23,7 +24,7 @@ const products = [
     price: "7.99$",
   },
   {
-    id: "2",
+    id: "10",
     name: "Brie",
     image:
       "https://images.unsplash.com/photo-1607127368565-0fc09ac36028?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Z291ZGElMjBjaGVlc2V8ZW58MHx8MHx8fDA%3D",
@@ -31,7 +32,7 @@ const products = [
     price: "9.49$",
   },
   {
-    id: "3",
+    id: "11",
     name: "Gouda",
     image:
       "https://images.unsplash.com/photo-1632200729570-1043effd1b77?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fHBhcm1lYXNhbiUyMGNoZWVzZXxlbnwwfHwwfHx8MA%3D%3D",
@@ -39,7 +40,7 @@ const products = [
     price: "8.99$",
   },
   {
-    id: "4",
+    id: "12",
     name: "Parmesan",
     image:
       "https://images.unsplash.com/photo-1669908978664-485e69bc26cd?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8cGFybWVhc2FuJTIwY2hlZXNlfGVufDB8fDB8fHww",
@@ -61,17 +62,19 @@ export default function CheeseScreen() {
               { backgroundColor: colorScheme === "dark" ? "#333" : "#fff" },
             ]}
           >
-            <Image
-              source={{ uri: product.image }}
-              style={styles.productImage}
-              resizeMode="cover"
-              onError={(e) =>
-                console.log(
-                  `Product image load error (${product.name}):`,
-                  e.nativeEvent.error
-                )
-              }
-            />
+            <Link href={`/(tabs)/category/${product.id}`}>
+              <Image
+                source={{ uri: product.image }}
+                style={styles.productImage}
+                resizeMode="cover"
+                onError={(e) =>
+                  console.log(
+                    `Product image load error (${product.name}):`,
+                    e.nativeEvent.error
+                  )
+                }
+              />
+            </Link>
             <Text
               style={[
                 styles.productName,

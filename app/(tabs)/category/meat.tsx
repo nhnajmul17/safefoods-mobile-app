@@ -10,12 +10,13 @@ import {
   ScrollView,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { Link } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
 const products = [
   {
-    id: "1",
+    id: "5",
     name: "Chicken Breast",
     image:
       "https://images.unsplash.com/photo-1604503468506-a8da13d82791?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
@@ -23,7 +24,7 @@ const products = [
     price: "9.99$",
   },
   {
-    id: "2",
+    id: "6",
     name: "Beef Steak",
     image:
       "https://images.unsplash.com/photo-1680538491591-7ce20c900f4f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YmVhZnxlbnwwfHwwfHx8MA%3D%3D",
@@ -31,7 +32,7 @@ const products = [
     price: "14.99$",
   },
   {
-    id: "3",
+    id: "7",
     name: "Mutton Leg",
     image:
       "https://images.unsplash.com/photo-1630334337820-84afb05acf3a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bGFtYiUyMG1lYXR8ZW58MHx8MHx8fDA%3D",
@@ -39,7 +40,7 @@ const products = [
     price: "12.49$",
   },
   {
-    id: "4",
+    id: "8",
     name: "Lamb Chop",
     image:
       "https://plus.unsplash.com/premium_photo-1667545932065-59f39c3c4f2c?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8bGFtYiUyMG1lYXR8ZW58MHx8MHx8fDA%3D",
@@ -61,17 +62,19 @@ export default function MeatScreen() {
               { backgroundColor: colorScheme === "dark" ? "#333" : "#fff" },
             ]}
           >
-            <Image
-              source={{ uri: product.image }}
-              style={styles.productImage}
-              resizeMode="cover"
-              onError={(e) =>
-                console.log(
-                  `Product image load error (${product.name}):`,
-                  e.nativeEvent.error
-                )
-              }
-            />
+            <Link href={`/(tabs)/category/${product.id}`}>
+              <Image
+                source={{ uri: product.image }}
+                style={styles.productImage}
+                resizeMode="cover"
+                onError={(e) =>
+                  console.log(
+                    `Product image load error (${product.name}):`,
+                    e.nativeEvent.error
+                  )
+                }
+              />
+            </Link>
             <Text
               style={[
                 styles.productName,
@@ -80,6 +83,7 @@ export default function MeatScreen() {
             >
               {product.name}
             </Text>
+
             <View style={styles.productPriceRow}>
               <Text
                 style={[
