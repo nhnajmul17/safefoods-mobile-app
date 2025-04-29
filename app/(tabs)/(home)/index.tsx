@@ -12,164 +12,166 @@ import {
   Dimensions,
 } from "react-native";
 import { Feather, AntDesign } from "@expo/vector-icons";
-import { Appearance, useColorScheme } from "react-native"; // Import Appearance
+import { Appearance, useColorScheme } from "react-native";
 import { Link } from "expo-router";
+import { GestureHandlerRootView } from "react-native-gesture-handler"; // Import GestureHandlerRootView
 import HomeCategorySection from "@/components/homeScreen/categorySection";
 import HomeBestSelling from "@/components/homeScreen/bestSelling";
+import WhySafeFoodsSection from "@/components/homeScreen/whySafefoods";
 
 // Get device dimensions for responsive design
 const { width } = Dimensions.get("window");
 
 export default function HomeScreen() {
-  const colorScheme = useColorScheme(); // Get the current color scheme (system or overridden)
+  const colorScheme = useColorScheme();
 
   // Toggle theme on button press
   const toggleTheme = () => {
     const newScheme = colorScheme === "dark" ? "light" : "dark";
-    Appearance.setColorScheme(newScheme); // Override the system color scheme
+    Appearance.setColorScheme(newScheme);
   };
 
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        { backgroundColor: colorScheme === "dark" ? "#1a1a1a" : "#f5f5f5" },
-      ]}
-    >
-      <StatusBar
-        barStyle={colorScheme === "dark" ? "light-content" : "dark-content"}
-        backgroundColor={colorScheme === "dark" ? "#1a1a1a" : "#f5f5f5"}
-      />
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaView
+        style={[
+          styles.container,
+          { backgroundColor: colorScheme === "dark" ? "#1a1a1a" : "#f5f5f5" },
+        ]}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.userInfo}>
-            <Image
-              source={{
-                uri: "https://randomuser.me/api/portraits/men/44.jpg",
-              }}
-              style={styles.avatar}
-              // defaultSource={require("../assets/images/placeholder.png")}
-              onError={(e) =>
-                console.log("Avatar load error:", e.nativeEvent.error)
-              }
+        <StatusBar
+          barStyle={colorScheme === "dark" ? "light-content" : "dark-content"}
+          backgroundColor={colorScheme === "dark" ? "#1a1a1a" : "#f5f5f5"}
+        />
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {/* Header */}
+          <View style={styles.header}>
+            <View style={styles.userInfo}>
+              <Image
+                source={{
+                  uri: "https://randomuser.me/api/portraits/men/44.jpg",
+                }}
+                style={styles.avatar}
+                onError={(e) =>
+                  console.log("Avatar load error:", e.nativeEvent.error)
+                }
+              />
+              <View>
+                <Text
+                  style={[
+                    styles.greeting,
+                    { color: colorScheme === "dark" ? "#aaa" : "#888" },
+                  ]}
+                >
+                  Good morning
+                </Text>
+                <Text
+                  style={[
+                    styles.userName,
+                    { color: colorScheme === "dark" ? "#fff" : "#333" },
+                  ]}
+                >
+                  MSajib
+                </Text>
+              </View>
+            </View>
+            <TouchableOpacity
+              style={[
+                styles.themeButton,
+                { backgroundColor: colorScheme === "dark" ? "#333" : "#fff" },
+              ]}
+              onPress={toggleTheme}
+            >
+              <Feather
+                name={colorScheme === "dark" ? "sun" : "moon"}
+                size={24}
+                color={colorScheme === "dark" ? "#fff" : "#000"}
+              />
+            </TouchableOpacity>
+          </View>
+
+          {/* Search Bar */}
+          <View
+            style={[
+              styles.searchContainer,
+              { backgroundColor: colorScheme === "dark" ? "#333" : "#fff" },
+            ]}
+          >
+            <Feather
+              name="search"
+              size={20}
+              color={colorScheme === "dark" ? "#ccc" : "#aaa"}
+              style={styles.searchIcon}
             />
-            <View>
+            <TextInput
+              style={[
+                styles.searchInput,
+                { color: colorScheme === "dark" ? "#fff" : "#333" },
+              ]}
+              placeholder="Search category"
+              placeholderTextColor={colorScheme === "dark" ? "#ccc" : "#aaa"}
+            />
+          </View>
+
+          {/* Promotion Banner */}
+          <View
+            style={[
+              styles.bannerContainer,
+              { backgroundColor: colorScheme === "dark" ? "#333" : "#fff" },
+            ]}
+          >
+            <View style={styles.bannerImageContainer}>
+              <Image
+                source={{
+                  uri: "https://images.unsplash.com/photo-1467453678174-768ec283a940?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                }}
+                style={styles.bannerImage}
+                resizeMode="cover"
+                onError={(e) =>
+                  console.log("Banner load error:", e.nativeEvent.error)
+                }
+              />
+            </View>
+            <View style={styles.bannerContent}>
+              <Text style={styles.bannerSmallText}>Ramadan Offers</Text>
+              <Text style={styles.bannerLargeText}>Get 25%</Text>
+              <TouchableOpacity style={styles.grabButton}>
+                <Text style={styles.grabButtonText}>Grab Offer</Text>
+                <AntDesign name="arrowright" size={16} color="#27ae60" />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Categories Section */}
+          <HomeCategorySection />
+
+          {/* Best Selling Section */}
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionTitleContainer}>
               <Text
                 style={[
-                  styles.greeting,
-                  { color: colorScheme === "dark" ? "#aaa" : "#888" },
-                ]}
-              >
-                Good morning
-              </Text>
-              <Text
-                style={[
-                  styles.userName,
+                  styles.sectionTitle,
                   { color: colorScheme === "dark" ? "#fff" : "#333" },
                 ]}
               >
-                MSajib
+                Best selling
               </Text>
+              <Text style={styles.emoji}>🔥</Text>
             </View>
-          </View>
-          <TouchableOpacity
-            style={[
-              styles.themeButton,
-              { backgroundColor: colorScheme === "dark" ? "#333" : "#fff" },
-            ]}
-            onPress={toggleTheme}
-          >
-            <Feather
-              name={colorScheme === "dark" ? "sun" : "moon"}
-              size={24}
-              color={colorScheme === "dark" ? "#fff" : "#000"}
-            />
-          </TouchableOpacity>
-        </View>
-
-        {/* Search Bar */}
-        <View
-          style={[
-            styles.searchContainer,
-            { backgroundColor: colorScheme === "dark" ? "#333" : "#fff" },
-          ]}
-        >
-          <Feather
-            name="search"
-            size={20}
-            color={colorScheme === "dark" ? "#ccc" : "#aaa"}
-            style={styles.searchIcon}
-          />
-          <TextInput
-            style={[
-              styles.searchInput,
-              { color: colorScheme === "dark" ? "#fff" : "#333" },
-            ]}
-            placeholder="Search category"
-            placeholderTextColor={colorScheme === "dark" ? "#ccc" : "#aaa"}
-          />
-        </View>
-
-        {/* Promotion Banner */}
-        <View
-          style={[
-            styles.bannerContainer,
-            { backgroundColor: colorScheme === "dark" ? "#333" : "#fff" },
-          ]}
-        >
-          <View style={styles.bannerImageContainer}>
-            <Image
-              source={{
-                uri: "https://images.unsplash.com/photo-1467453678174-768ec283a940?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-              }}
-              style={styles.bannerImage}
-              resizeMode="cover"
-              // defaultSource={require("../assets/images/placeholder.png")}
-              onError={(e) =>
-                console.log("Banner load error:", e.nativeEvent.error)
-              }
-            />
-          </View>
-          <View style={styles.bannerContent}>
-            <Text style={styles.bannerSmallText}>Ramadan Offers</Text>
-            <Text style={styles.bannerLargeText}>Get 25%</Text>
-            <TouchableOpacity style={styles.grabButton}>
-              <Text style={styles.grabButtonText}>Grab Offer</Text>
-              <AntDesign name="arrowright" size={16} color="#27ae60" />
+            <TouchableOpacity>
+              <Text style={styles.seeAllText}>See all</Text>
             </TouchableOpacity>
           </View>
-        </View>
 
-        {/* Categories Section */}
-        <HomeCategorySection />
-        {/* Category Icons */}
-
-        {/* Best Selling Section */}
-        <View style={styles.sectionHeader}>
-          <View style={styles.sectionTitleContainer}>
-            <Text
-              style={[
-                styles.sectionTitle,
-                { color: colorScheme === "dark" ? "#fff" : "#333" },
-              ]}
-            >
-              Best selling
-            </Text>
-            <Text style={styles.emoji}>🔥</Text>
-          </View>
-          <TouchableOpacity>
-            <Text style={styles.seeAllText}>See all</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Product Cards */}
-        <HomeBestSelling />
-      </ScrollView>
-    </SafeAreaView>
+          {/* Product Cards */}
+          <HomeBestSelling />
+          <WhySafeFoodsSection />
+        </ScrollView>
+      </SafeAreaView>
+    </GestureHandlerRootView>
   );
 }
 
