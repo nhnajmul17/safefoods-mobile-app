@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { Link } from "expo-router";
+import { useCartStore } from "@/store/cartStore";
 
 const { width } = Dimensions.get("window");
 
@@ -34,6 +35,17 @@ const products = [
 
 export default function HomeBestSelling() {
   const colorScheme = useColorScheme();
+  const { addItem } = useCartStore();
+
+  const handleAddToCart = () => {
+    const newItem = {
+      id: "1",
+      name: "Apple",
+      price: 0.99,
+      quantity: 1,
+    };
+    addItem(newItem);
+  };
   return (
     <>
       <View style={styles.productsContainer}>
@@ -76,7 +88,10 @@ export default function HomeBestSelling() {
                 {product.weight},
               </Text>
               <Text style={styles.productPrice}>{product.price}</Text>
-              <TouchableOpacity style={styles.addButton}>
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={handleAddToCart}
+              >
                 <Feather name="plus" size={20} color="#fff" />
               </TouchableOpacity>
             </View>

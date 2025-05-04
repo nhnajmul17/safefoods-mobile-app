@@ -3,6 +3,7 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Tabs } from "expo-router";
 import { View, TouchableOpacity, StyleSheet, Text } from "react-native";
 import type { BottomTabNavigationOptions } from "@react-navigation/bottom-tabs";
+import { useCartStore } from "@/store/cartStore";
 
 // Define navigation prop type
 type TabNavigation = {
@@ -28,6 +29,7 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({
   descriptors,
   navigation,
 }) => {
+  const totalItems = useCartStore((state) => state.getTotalItems());
   return (
     <View style={styles.tabBarContainer}>
       {/* Left-side tabs (Home, Category) and Right-side tab (Settings) */}
@@ -94,7 +96,7 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({
         <View style={styles.cartIconContainer}>
           <IconSymbol size={28} name="house.fill" color="#fff" />
           <View style={styles.badge}>
-            <Text style={styles.badgeText}>0</Text>
+            <Text style={styles.badgeText}>{totalItems}</Text>
           </View>
         </View>
       </TouchableOpacity>
