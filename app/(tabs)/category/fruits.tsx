@@ -8,9 +8,12 @@ import {
   Dimensions,
   useColorScheme,
   ScrollView,
+  ToastAndroid,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { Link } from "expo-router";
+import { useCartStore } from "@/store/cartStore";
+import { Product } from "@/constants/types";
 
 const { width } = Dimensions.get("window");
 
@@ -21,7 +24,7 @@ const products = [
     image:
       "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
     weight: "1kg",
-    price: "3.99$",
+    price: 3.99,
   },
   {
     id: "2",
@@ -29,7 +32,7 @@ const products = [
     image:
       "https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8YmFuYW5hfGVufDB8fDB8fHww",
     weight: "1kg",
-    price: "2.49$",
+    price: 2.49,
   },
   {
     id: "3",
@@ -37,7 +40,7 @@ const products = [
     image:
       "https://images.unsplash.com/photo-1582979512210-99b6a53386f9?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
     weight: "1kg",
-    price: "3.29$",
+    price: 3.29,
   },
   {
     id: "4",
@@ -45,12 +48,25 @@ const products = [
     image:
       "https://plus.unsplash.com/premium_photo-1667049291185-6270613405aa?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8c3RyYXdiZWVyeXxlbnwwfHwwfHx8MA%3D%3D",
     weight: "500g",
-    price: "4.99$",
+    price: 4.99,
   },
 ];
 
 export default function FruitScreen() {
   const colorScheme = useColorScheme();
+  const { addItem } = useCartStore();
+
+  const handleAddToCart = (product: Product) => {
+    const newItem = {
+      id: product.id,
+      name: product.name,
+      image: product.image,
+      price: product.price,
+      quantity: 1, // Start with a quantity of 1
+    };
+    addItem(newItem);
+    ToastAndroid.show(`1 ${product.name} added to cart!`, ToastAndroid.SHORT);
+  };
   return (
     <ScrollView>
       <View style={styles.productsContainer}>
@@ -93,7 +109,10 @@ export default function FruitScreen() {
                 {product.weight},
               </Text>
               <Text style={styles.productPrice}>{product.price}</Text>
-              <TouchableOpacity style={styles.addButton}>
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={() => handleAddToCart(product)}
+              >
                 <Feather name="plus" size={20} color="#fff" />
               </TouchableOpacity>
             </View>

@@ -8,9 +8,12 @@ import {
   Dimensions,
   useColorScheme,
   ScrollView,
+  ToastAndroid,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { Link } from "expo-router";
+import { useCartStore } from "@/store/cartStore";
+import { Product } from "@/constants/types";
 
 const { width } = Dimensions.get("window");
 
@@ -21,7 +24,7 @@ const products = [
     image:
       "https://images.unsplash.com/photo-1604503468506-a8da13d82791?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
     weight: "1kg",
-    price: "9.99$",
+    price: 9.99,
   },
   {
     id: "6",
@@ -29,7 +32,7 @@ const products = [
     image:
       "https://images.unsplash.com/photo-1680538491591-7ce20c900f4f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YmVhZnxlbnwwfHwwfHx8MA%3D%3D",
     weight: "1kg",
-    price: "14.99$",
+    price: 14.99,
   },
   {
     id: "7",
@@ -37,7 +40,7 @@ const products = [
     image:
       "https://images.unsplash.com/photo-1630334337820-84afb05acf3a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bGFtYiUyMG1lYXR8ZW58MHx8MHx8fDA%3D",
     weight: "1kg",
-    price: "12.49$",
+    price: 12.49,
   },
   {
     id: "8",
@@ -45,12 +48,25 @@ const products = [
     image:
       "https://plus.unsplash.com/premium_photo-1667545932065-59f39c3c4f2c?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8bGFtYiUyMG1lYXR8ZW58MHx8MHx8fDA%3D",
     weight: "1kg",
-    price: "19.99$",
+    price: 19.99,
   },
 ];
 
 export default function MeatScreen() {
   const colorScheme = useColorScheme();
+  const { addItem } = useCartStore();
+
+  const handleAddToCart = (product: Product) => {
+    const newItem = {
+      id: product.id,
+      name: product.name,
+      image: product.image,
+      price: product.price,
+      quantity: 1,
+    };
+    addItem(newItem);
+    ToastAndroid.show(`1 ${product.name} added to cart!`, ToastAndroid.SHORT);
+  };
   return (
     <ScrollView>
       <View style={styles.productsContainer}>
@@ -94,7 +110,10 @@ export default function MeatScreen() {
                 {product.weight},
               </Text>
               <Text style={styles.productPrice}>{product.price}</Text>
-              <TouchableOpacity style={styles.addButton}>
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={() => handleAddToCart(product)}
+              >
                 <Feather name="plus" size={20} color="#fff" />
               </TouchableOpacity>
             </View>

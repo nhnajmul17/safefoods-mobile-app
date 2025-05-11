@@ -8,9 +8,12 @@ import {
   Dimensions,
   useColorScheme,
   ScrollView,
+  ToastAndroid,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { Link } from "expo-router";
+import { useCartStore } from "@/store/cartStore";
+import { Product } from "@/constants/types";
 
 const { width } = Dimensions.get("window");
 
@@ -21,7 +24,7 @@ const products = [
     image:
       "https://images.unsplash.com/photo-1683314573422-649a3c6ad784?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y2hlZGRhciUyMGNoZWVzZXxlbnwwfHwwfHx8MA%3D%3D",
     weight: "500g",
-    price: "7.99$",
+    price: 7.99,
   },
   {
     id: "10",
@@ -29,7 +32,7 @@ const products = [
     image:
       "https://images.unsplash.com/photo-1607127368565-0fc09ac36028?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Z291ZGElMjBjaGVlc2V8ZW58MHx8MHx8fDA%3D",
     weight: "500g",
-    price: "9.49$",
+    price: 9.49,
   },
   {
     id: "11",
@@ -37,7 +40,7 @@ const products = [
     image:
       "https://images.unsplash.com/photo-1632200729570-1043effd1b77?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fHBhcm1lYXNhbiUyMGNoZWVzZXxlbnwwfHwwfHx8MA%3D%3D",
     weight: "500g",
-    price: "8.99$",
+    price: 8.99,
   },
   {
     id: "12",
@@ -45,12 +48,25 @@ const products = [
     image:
       "https://images.unsplash.com/photo-1669908978664-485e69bc26cd?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8cGFybWVhc2FuJTIwY2hlZXNlfGVufDB8fDB8fHww",
     weight: "500g",
-    price: "10.99$",
+    price: 10.99,
   },
 ];
 
 export default function CheeseScreen() {
   const colorScheme = useColorScheme();
+  const { addItem } = useCartStore();
+
+  const handleAddToCart = (product: Product) => {
+    const newItem = {
+      id: product.id,
+      name: product.name,
+      image: product.image,
+      price: product.price,
+      quantity: 1, // Start with a quantity of 1
+    };
+    addItem(newItem);
+    ToastAndroid.show(`1 ${product.name} added to cart!`, ToastAndroid.SHORT);
+  };
   return (
     <ScrollView>
       <View style={styles.productsContainer}>
@@ -93,7 +109,10 @@ export default function CheeseScreen() {
                 {product.weight},
               </Text>
               <Text style={styles.productPrice}>{product.price}</Text>
-              <TouchableOpacity style={styles.addButton}>
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={() => handleAddToCart(product)}
+              >
                 <Feather name="plus" size={20} color="#fff" />
               </TouchableOpacity>
             </View>

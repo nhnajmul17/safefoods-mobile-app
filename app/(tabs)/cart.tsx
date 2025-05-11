@@ -4,24 +4,58 @@ import {
   FlatList,
   StyleSheet,
   TouchableOpacity,
+  Image,
 } from "react-native";
 import { useCartStore } from "@/store/cartStore";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { useRouter } from "expo-router";
 
 export default function CartScreen() {
   const { cartItems, removeItem, updateQuantity, clearCart, getTotalPrice } =
     useCartStore();
+  const router = useRouter();
+
+  const handleOrderNow = () => {
+    console.log("Cart Items on Order Now:", cartItems);
+    console.log("total price:", getTotalPrice());
+
+    alert("Order placed successfully!");
+    clearCart();
+    router.push("/(tabs)/(home)");
+  };
 
   const renderItem = ({
     item,
   }: {
-    item: { id: string; name: string; price: number; quantity: number };
+    item: {
+      id: string;
+      name: string;
+      image: string;
+      price: number;
+      quantity: number;
+    };
   }) => (
     <View style={styles.cartItem}>
-      <Text style={styles.itemName}>{item.name}</Text>
-      <Text style={styles.itemPrice}>
-        ${item.price} x {item.quantity}
-      </Text>
+      {/* Product Image */}
+      <Image
+        source={{ uri: item.image }}
+        style={styles.itemImage}
+        resizeMode="cover" // Changed to "cover" to fill the space while maintaining aspect ratio
+        onError={(e) =>
+          console.log(
+            `Cart item image load error (${item.name}):`,
+            e.nativeEvent.error
+          )
+        }
+      />
+      {/* Product Details */}
+      <View style={styles.itemDetails}>
+        <Text style={styles.itemName}>{item.name}</Text>
+        <Text style={styles.itemPrice}>
+          ${(item.price * item.quantity).toFixed(2)}
+        </Text>
+      </View>
+      {/* Quantity Controls */}
       <View style={styles.quantityContainer}>
         <TouchableOpacity
           onPress={() => updateQuantity(item.id, item.quantity - 1)}
@@ -37,16 +71,40 @@ export default function CartScreen() {
           <Text style={styles.quantityText}>+</Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity onPress={() => removeItem(item.id)}>
-        <IconSymbol name="trash.fill" size={24} color="#FF0000" />
+      {/* Remove Button (Cross) */}
+      <TouchableOpacity
+        onPress={() => removeItem(item.id)}
+        style={styles.removeButton}
+      >
+        <Text style={styles.removeButtonText}>X</Text>
+        {/* <IconSymbol name="xmark.circle.fill" size={24} color="#FF0000" /> */}
       </TouchableOpacity>
     </View>
   );
 
   return (
     <View style={styles.container}>
+      {/* Header with Clear Cart */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Cart ({cartItems.length})</Text>
+        {cartItems.length > 0 && (
+          <TouchableOpacity onPress={clearCart} style={styles.clearButton}>
+            <Text style={styles.clearButtonText}>Clear Cart</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {/* Cart Items List */}
       {cartItems.length === 0 ? (
-        <Text style={styles.emptyText}>Your cart is empty</Text>
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>Your cart is empty</Text>
+          <TouchableOpacity
+            style={styles.shopNowButton}
+            onPress={() => router.push("/(tabs)/(home)")}
+          >
+            <Text style={styles.shopNowButtonText}>Shop Now</Text>
+          </TouchableOpacity>
+        </View>
       ) : (
         <>
           <FlatList
@@ -55,12 +113,16 @@ export default function CartScreen() {
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.list}
           />
+          {/* Footer with Total and Order Now */}
           <View style={styles.footer}>
             <Text style={styles.totalText}>
               Total: ${getTotalPrice().toFixed(2)}
             </Text>
-            <TouchableOpacity style={styles.clearButton} onPress={clearCart}>
-              <Text style={styles.clearButtonText}>Clear Cart</Text>
+            <TouchableOpacity
+              style={styles.orderButton}
+              onPress={handleOrderNow}
+            >
+              <Text style={styles.orderButtonText}>Order Now</Text>
             </TouchableOpacity>
           </View>
         </>
@@ -73,51 +135,118 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f5f5f5",
-    padding: 16,
   },
-  emptyText: {
-    textAlign: "center",
-    marginTop: 50,
-    fontSize: 18,
-    color: "#666",
-  },
-  cartItem: {
+  header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#fff",
     padding: 16,
-    marginBottom: 10,
-    borderRadius: 8,
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
   },
-  itemName: {
-    fontSize: 16,
+  headerTitle: {
+    fontSize: 20,
     fontWeight: "bold",
     color: "#333",
   },
+  clearButton: {
+    backgroundColor: "#FF0000",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+  clearButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyText: {
+    fontSize: 18,
+    color: "#666",
+    marginBottom: 20,
+  },
+  shopNowButton: {
+    backgroundColor: "#27ae60",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  shopNowButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  cartItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    padding: 12,
+    marginHorizontal: 16,
+    marginVertical: 8,
+    borderRadius: 12,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  itemImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 12,
+    overflow: "hidden",
+  },
+  itemDetails: {
+    flex: 1,
+  },
+  itemName: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 4,
+  },
   itemPrice: {
     fontSize: 14,
-    color: "#666",
+    color: "#ff6b6b",
+    fontWeight: "500",
   },
   quantityContainer: {
     flexDirection: "row",
     alignItems: "center",
+    backgroundColor: "#f0f0f0",
+    borderRadius: 20,
+    paddingHorizontal: 8,
+    marginRight: 12,
   },
   quantityButton: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
   },
   quantityText: {
     fontSize: 16,
     color: "#333",
-    marginHorizontal: 5,
+    fontWeight: "600",
+    marginHorizontal: 8,
+  },
+  removeButton: {
+    padding: 8,
+    backgroundColor: "#FF0000",
+    borderRadius: 12,
+  },
+  removeButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
   },
   list: {
+    paddingTop: 8,
     paddingBottom: 80,
   },
   footer: {
@@ -138,13 +267,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#333",
   },
-  clearButton: {
-    backgroundColor: "#FF0000",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+  orderButton: {
+    backgroundColor: "#27ae60",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
     borderRadius: 8,
   },
-  clearButtonText: {
+  orderButtonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",

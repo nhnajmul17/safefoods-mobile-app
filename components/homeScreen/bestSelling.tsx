@@ -11,6 +11,7 @@ import {
 import { Feather } from "@expo/vector-icons";
 import { Link } from "expo-router";
 import { useCartStore } from "@/store/cartStore";
+import { Product } from "@/constants/types";
 
 const { width } = Dimensions.get("window");
 
@@ -21,7 +22,7 @@ const products = [
     image:
       "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
     weight: "1kg",
-    price: "3.99$",
+    price: 3.99,
   },
   {
     id: "6",
@@ -29,7 +30,7 @@ const products = [
     image:
       "https://images.unsplash.com/photo-1680538491591-7ce20c900f4f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YmVhZnxlbnwwfHwwfHx8MA%3D%3D",
     weight: "1kg",
-    price: "14.99$",
+    price: 14.99,
   },
 ];
 
@@ -37,15 +38,17 @@ export default function HomeBestSelling() {
   const colorScheme = useColorScheme();
   const { addItem } = useCartStore();
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (product: Product) => {
     const newItem = {
-      id: "1",
-      name: "Apple",
-      price: 0.99,
-      quantity: 1,
+      id: product.id,
+      name: product.name,
+      image: product.image,
+      price: product.price,
+      quantity: 1, // Start with a quantity of 1
     };
     addItem(newItem);
   };
+
   return (
     <>
       <View style={styles.productsContainer}>
@@ -90,7 +93,7 @@ export default function HomeBestSelling() {
               <Text style={styles.productPrice}>{product.price}</Text>
               <TouchableOpacity
                 style={styles.addButton}
-                onPress={handleAddToCart}
+                onPress={() => handleAddToCart(product)}
               >
                 <Feather name="plus" size={20} color="#fff" />
               </TouchableOpacity>

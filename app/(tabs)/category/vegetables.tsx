@@ -8,9 +8,12 @@ import {
   Dimensions,
   useColorScheme,
   ScrollView,
+  ToastAndroid,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { Link } from "expo-router";
+import { useCartStore } from "@/store/cartStore";
+import { Product } from "@/constants/types";
 
 const { width } = Dimensions.get("window");
 
@@ -21,7 +24,7 @@ const products = [
     image:
       "https://images.unsplash.com/photo-1601648764658-cf37e8c89b70?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
     weight: "1kg",
-    price: "5.99$",
+    price: 5.99,
   },
   {
     id: "14",
@@ -29,7 +32,7 @@ const products = [
     image:
       "https://plus.unsplash.com/premium_photo-1702403157830-9df749dc6c1e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8YnJvY2NvbGl8ZW58MHx8MHx8fDA%3D",
     weight: "500g",
-    price: "2.79$",
+    price: 2.79,
   },
   {
     id: "15",
@@ -37,7 +40,7 @@ const products = [
     image:
       "https://plus.unsplash.com/premium_photo-1675639895212-696149c275f9?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cGFwYXlhfGVufDB8fDB8fHww",
     weight: "1kg",
-    price: "3.49$",
+    price: 3.49,
   },
   {
     id: "16",
@@ -45,7 +48,7 @@ const products = [
     image:
       "https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bGV0dHVjZXxlbnwwfHwwfHx8MA%3D%3D",
     weight: "500g",
-    price: "1.99$",
+    price: 1.99,
   },
   {
     id: "17",
@@ -53,7 +56,7 @@ const products = [
     image:
       "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
     weight: "1kg",
-    price: "2.49$",
+    price: 2.49,
   },
   {
     id: "18",
@@ -61,7 +64,7 @@ const products = [
     image:
       "https://images.unsplash.com/photo-1730815046052-75a1b90117e2?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y2FiYmFnZXxlbnwwfHwwfHx8MA%3D%3D",
     weight: "1kg",
-    price: "2.99$",
+    price: 2.99,
   },
   {
     id: "19",
@@ -69,7 +72,7 @@ const products = [
     image:
       "https://images.unsplash.com/photo-1582284540020-8acbe03f4924?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8dG9tYXRvfGVufDB8fDB8fHww",
     weight: "1kg",
-    price: "3.29$",
+    price: 3.29,
   },
   {
     id: "20",
@@ -77,12 +80,25 @@ const products = [
     image:
       "https://images.unsplash.com/photo-1596056094719-10ba4f7ea650?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8enVjY2hpbml8ZW58MHx8MHx8fDA%3D",
     weight: "1kg",
-    price: "2.69$",
+    price: 2.69,
   },
 ];
 
 export default function VegetableScreen() {
   const colorScheme = useColorScheme();
+  const { addItem } = useCartStore();
+
+  const handleAddToCart = (product: Product) => {
+    const newItem = {
+      id: product.id,
+      name: product.name,
+      image: product.image,
+      price: product.price,
+      quantity: 1, // Start with a quantity of 1
+    };
+    addItem(newItem);
+    ToastAndroid.show(`1 ${product.name} added to cart!`, ToastAndroid.SHORT);
+  };
   return (
     <ScrollView>
       <View style={styles.productsContainer}>
@@ -125,7 +141,10 @@ export default function VegetableScreen() {
                 {product.weight},
               </Text>
               <Text style={styles.productPrice}>{product.price}</Text>
-              <TouchableOpacity style={styles.addButton}>
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={() => handleAddToCart(product)}
+              >
                 <Feather name="plus" size={20} color="#fff" />
               </TouchableOpacity>
             </View>
