@@ -9,6 +9,7 @@ import {
 import { useCartStore } from "@/store/cartStore";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useRouter } from "expo-router";
+import Toast from "react-native-toast-message";
 
 export default function CartScreen() {
   const { cartItems, removeItem, updateQuantity, clearCart, getTotalPrice } =
@@ -73,7 +74,16 @@ export default function CartScreen() {
       </View>
       {/* Remove Button (Cross) */}
       <TouchableOpacity
-        onPress={() => removeItem(item.id)}
+        onPress={() => {
+          removeItem(item.id);
+          Toast.show({
+            type: "error",
+            text1: "Removed from Cart",
+            text2: `${item.name} removed from your cart.`,
+            text1Style: { fontSize: 16, fontWeight: "bold" },
+            text2Style: { fontSize: 14, fontWeight: "bold" },
+          });
+        }}
         style={styles.removeButton}
       >
         <Text style={styles.removeButtonText}>X</Text>

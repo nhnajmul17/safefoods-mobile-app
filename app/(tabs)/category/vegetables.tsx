@@ -8,12 +8,12 @@ import {
   Dimensions,
   useColorScheme,
   ScrollView,
-  ToastAndroid,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { Link } from "expo-router";
 import { useCartStore } from "@/store/cartStore";
 import { Product } from "@/constants/types";
+import Toast from "react-native-toast-message";
 
 const { width } = Dimensions.get("window");
 
@@ -97,7 +97,13 @@ export default function VegetableScreen() {
       quantity: 1, // Start with a quantity of 1
     };
     addItem(newItem);
-    ToastAndroid.show(`1 ${product.name} added to cart!`, ToastAndroid.SHORT);
+    Toast.show({
+      type: "success",
+      text1: "Added to Cart",
+      text2: `1 ${product.name}(s) added to your cart.`,
+      text1Style: { fontSize: 16, fontWeight: "bold" },
+      text2Style: { fontSize: 14, fontWeight: "bold" },
+    });
   };
   return (
     <ScrollView>

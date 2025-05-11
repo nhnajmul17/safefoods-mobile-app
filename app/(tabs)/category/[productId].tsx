@@ -14,6 +14,8 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from "react-native-reanimated";
+import { useCartStore } from "@/store/cartStore";
+import Toast from "react-native-toast-message";
 
 const products = [
   // Fruits
@@ -288,7 +290,8 @@ export default function ProductDetailsScreen() {
   const { productId } = useLocalSearchParams();
   const colorScheme = useColorScheme();
   const [quantity, setQuantity] = useState(0);
-
+  // Access the cart store
+  const { addItem } = useCartStore();
   // Animation values for buttons
   const decrementScale = useSharedValue(1);
   const incrementScale = useSharedValue(1);
@@ -320,7 +323,38 @@ export default function ProductDetailsScreen() {
   };
 
   const handleAddToCart = () => {
-    console.log(`Added ${quantity} of ${product.name} to cart`);
+    if (quantity > 0) {
+      const cartItem = {
+        id: product.id,
+        name: product.name,
+        image: product.image,
+        price: parseFloat(product.price.replace("$", "")), // Convert price string to number
+        quantity: quantity,
+      };
+      addItem(cartItem);
+      console.log(`Added ${quantity} ${product.name}(s) to cart`, cartItem);
+
+      // Show toast notification (optional)
+      Toast.show({
+        type: "success",
+        text1: "Added to Cart",
+        text2: `${quantity} ${product.name}(s) added to your cart.`,
+        text1Style: { fontSize: 16, fontWeight: "bold" },
+        text2Style: { fontSize: 14, fontWeight: "bold" },
+      });
+
+      // Reset quantity after adding to cart (optional)
+      setQuantity(0);
+    } else {
+      Toast.show({
+        type: "error",
+        text1: "Invalid Quantity",
+        text2: "Please select a quantity greater than 0.",
+        text1Style: { fontSize: 16, fontWeight: "bold" },
+        text2Style: { fontSize: 14, fontWeight: "bold" },
+      });
+    }
+
     addToCartScale.value = withSpring(0.95, {}, () => {
       addToCartScale.value = withSpring(1);
     });
@@ -542,220 +576,3 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
-
-// export default function ProductDetailsScreen() {
-//   const { productId } = useLocalSearchParams();
-//   const colorScheme = useColorScheme();
-//   const [quantity, setQuantity] = useState(0);
-
-//   // Find the product by ID
-//   const product = products.find((p) => p.id === productId);
-
-//   if (!product) {
-//     return (
-//       <View style={styles.container}>
-//         <Text>Product not found</Text>
-//       </View>
-//     );
-//   }
-
-//   const handleIncrement = () => setQuantity(quantity + 1);
-//   const handleDecrement = () => setQuantity(quantity > 0 ? quantity - 1 : 0);
-//   const handleAddToCart = () => {
-//     // Add to cart logic (e.g., update a global state or local storage)
-//     console.log(`Added ${quantity} of ${product.name} to cart`);
-//   };
-
-//   return (
-//     <SafeAreaView style={styles.container}>
-//       <View style={styles.content}>
-//         <View style={styles.imageContainer}>
-//           <Image
-//             source={{ uri: product.image }}
-//             style={styles.productImage}
-//             onError={(e) =>
-//               console.log(
-//                 `Product image load error (${product.name}):`,
-//                 e.nativeEvent.error
-//               )
-//             }
-//           />
-//         </View>
-//         <View style={styles.detailsContainer}>
-//           <View style={styles.header}>
-//             <Text style={styles.name}>{product.name}</Text>
-//             <View style={styles.quantityContainer}>
-//               <TouchableOpacity
-//                 onPress={handleDecrement}
-//                 style={styles.quantityButton}
-//               >
-//                 <Text style={styles.quantityText}>-</Text>
-//               </TouchableOpacity>
-//               <Text style={styles.quantity}>{quantity}</Text>
-//               <TouchableOpacity
-//                 onPress={handleIncrement}
-//                 style={styles.quantityButton}
-//               >
-//                 <Text style={styles.quantityText}>+</Text>
-//               </TouchableOpacity>
-//             </View>
-//           </View>
-//           <Text
-//             style={styles.weightPrice}
-//           >{`${product.weight}, ${product.price}`}</Text>
-//           <Text style={styles.description}>{product.description}</Text>
-//           <View style={styles.infoGrid}>
-//             <View style={styles.infoItem}>
-//               <Image
-//                 source={{
-//                   uri: "https://cdn-icons-png.flaticon.com/512/2927/2927216.png",
-//                 }}
-//                 style={styles.infoIcon}
-//               />
-//               <Text style={styles.infoText}>{product.organic}</Text>
-//             </View>
-//             <View style={styles.infoItem}>
-//               <Image
-//                 source={{
-//                   uri: "https://cdn-icons-png.flaticon.com/512/2927/2927217.png",
-//                 }}
-//                 style={styles.infoIcon}
-//               />
-//               <Text style={styles.infoText}>{product.expiration}</Text>
-//             </View>
-//             <View style={styles.infoItem}>
-//               <Image
-//                 source={{
-//                   uri: "https://cdn-icons-png.flaticon.com/512/1828/1828884.png",
-//                 }}
-//                 style={styles.infoIcon}
-//               />
-//               <Text style={styles.infoText}>{product.reviews}</Text>
-//             </View>
-//             <View style={styles.infoItem}>
-//               <Image
-//                 source={{
-//                   uri: "https://cdn-icons-png.flaticon.com/512/3170/3170733.png",
-//                 }}
-//                 style={styles.infoIcon}
-//               />
-//               <Text style={styles.infoText}>{product.calories}</Text>
-//             </View>
-//           </View>
-//         </View>
-//       </View>
-//       <TouchableOpacity
-//         style={styles.addToCartButton}
-//         onPress={handleAddToCart}
-//       >
-//         <Text style={styles.addToCartText}>Add to cart</Text>
-//       </TouchableOpacity>
-//     </SafeAreaView>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: "#fff",
-//   },
-//   content: {
-//     flex: 1,
-//   },
-//   imageContainer: {
-//     width: "100%", // Full width
-//     backgroundColor: "#f5f5f5",
-//     borderBottomLeftRadius: 30,
-//     borderBottomRightRadius: 30,
-//   },
-//   productImage: {
-//     width: "100%", // Full width
-//     height: 200,
-//     resizeMode: "cover",
-//     borderBottomLeftRadius: 30,
-//     borderBottomRightRadius: 30, // Rounded edges
-//   },
-//   detailsContainer: {
-//     flex: 1,
-//     padding: 16,
-//   },
-//   header: {
-//     flexDirection: "row",
-//     justifyContent: "space-between",
-//     alignItems: "center",
-//     marginBottom: 8,
-//   },
-//   name: {
-//     fontSize: 24,
-//     fontWeight: "bold",
-//     color: "#333",
-//   },
-//   quantityContainer: {
-//     flexDirection: "row",
-//     alignItems: "center",
-//     backgroundColor: "#f0f0f0",
-//     borderRadius: 20,
-//     paddingHorizontal: 8,
-//   },
-//   quantityButton: {
-//     padding: 8,
-//   },
-//   quantityText: {
-//     fontSize: 18,
-//     color: "#27ae60",
-//   },
-//   quantity: {
-//     fontSize: 18,
-//     marginHorizontal: 12,
-//     color: "#333",
-//   },
-//   weightPrice: {
-//     fontSize: 16,
-//     color: "#27ae60",
-//     marginBottom: 16,
-//   },
-//   description: {
-//     fontSize: 14,
-//     color: "#666",
-//     marginBottom: 16,
-//     lineHeight: 20,
-//   },
-//   infoGrid: {
-//     flexDirection: "row",
-//     flexWrap: "wrap",
-//     justifyContent: "space-between",
-//     marginBottom: 24,
-//   },
-//   infoItem: {
-//     width: "48%",
-//     flexDirection: "row",
-//     alignItems: "center",
-//     marginBottom: 12,
-//   },
-//   infoIcon: {
-//     width: 24,
-//     height: 24,
-//     marginRight: 8,
-//   },
-//   infoText: {
-//     fontSize: 14,
-//     color: "#333",
-//   },
-//   addToCartButton: {
-//     position: "absolute",
-//     bottom: 0, // Pin to bottom
-//     left: 0,
-//     right: 0,
-//     backgroundColor: "#27ae60",
-//     paddingVertical: 16,
-//     borderRadius: 25,
-//     alignItems: "center",
-//     marginHorizontal: 16, // Padding on sides
-//     marginBottom: 16, // Space above bottom nav bar
-//   },
-//   addToCartText: {
-//     fontSize: 16,
-//     color: "#fff",
-//     fontWeight: "bold",
-//   },
-// });

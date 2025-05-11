@@ -1,4 +1,5 @@
 import { CategoryType } from "@/components/homeScreen/categorySection";
+import { lightGreenColor } from "@/constants/Colors";
 import { Link } from "expo-router";
 import {
   View,
@@ -45,7 +46,10 @@ export default function CategoryScreen() {
     <SafeAreaView
       style={[
         styles.container,
-        { backgroundColor: colorScheme === "dark" ? "#1a1a1a" : "#87ceeb" },
+        {
+          backgroundColor:
+            colorScheme === "dark" ? lightGreenColor : lightGreenColor,
+        }, //"#1a1a1a" "#87ceeb"
       ]}
     >
       <StatusBar
