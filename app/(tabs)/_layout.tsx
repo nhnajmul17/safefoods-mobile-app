@@ -156,6 +156,13 @@ export default function TabLayout() {
   );
 }
 
+{
+  /* <Stack.Screen
+            name="(tabs)/checkout"
+            options={{ headerShown: false }}
+          /> */
+}
+
 const styles = StyleSheet.create({
   tabBarContainer: {
     flexDirection: "row",

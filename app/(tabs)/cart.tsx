@@ -16,13 +16,18 @@ export default function CartScreen() {
     useCartStore();
   const router = useRouter();
 
+  // const handleOrderNow = () => {
+  //   console.log("Cart Items on Order Now:", cartItems);
+  //   console.log("total price:", getTotalPrice());
+
+  //   alert("Order placed successfully!");
+  //   clearCart();
+  //   router.push("/(tabs)/(home)");
+  // };
+
   const handleOrderNow = () => {
     console.log("Cart Items on Order Now:", cartItems);
-    console.log("total price:", getTotalPrice());
-
-    alert("Order placed successfully!");
-    clearCart();
-    router.push("/(tabs)/(home)");
+    router.push("/checkout");
   };
 
   const renderItem = ({
