@@ -1,4 +1,3 @@
-import { Colors } from "@/constants/Colors";
 import { Stack } from "expo-router";
 import { useColorScheme } from "react-native";
 
@@ -22,7 +21,6 @@ export default function CategoryLayout() {
           headerShown: true,
           title: "Category",
           headerStyle: { backgroundColor: "#98fb98" },
-
           // headerStyle: {
           //   backgroundColor:
           //     colorScheme === "dark" ? lightGreenColor : lightGreenColor,
@@ -64,7 +62,7 @@ export default function CategoryLayout() {
         name="[productId]"
         options={{
           headerShown: true,
-          title: "Details",
+          title: "",
           headerStyle: { backgroundColor: "#98fb98" },
         }}
       />

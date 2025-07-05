@@ -540,27 +540,36 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    marginBottom: 8, // Reduced margin
+    padding: 8,
   },
   infoItem: {
-    width: "48%",
+    width: "48%", // Maintains two columns
+    backgroundColor: "#f9f9f9", // Light background like the image
+    borderRadius: 12, // Rounded corners
+    padding: 20,
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8, // Reduced margin
+    marginBottom: 12,
+    elevation: 2, // Slight shadow for card effect (Android)
+    shadowColor: "#000", // Shadow for iOS
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   infoIcon: {
-    width: 30, // Increased icon size
-    height: 30,
-    marginRight: 10,
+    width: 24, // Adjusted icon size
+    height: 24,
+    marginRight: 8,
   },
   infoText: {
-    fontSize: 16, // Increased font size
-    fontWeight: "bold",
-    color: "#333",
+    fontSize: 16,
+    fontWeight: "500", // Slightly lighter than bold
+    color: "#666", // Grayish color like the image
+    textAlign: "center", // Center text for better alignment
   },
   addToCartButton: {
     position: "absolute",
-    bottom: 0,
+    bottom: 20,
     left: 0,
     right: 0,
     backgroundColor: "#27ae60",
