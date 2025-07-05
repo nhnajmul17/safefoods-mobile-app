@@ -1,3 +1,4 @@
+import { Colors } from "@/constants/Colors";
 import { Link } from "expo-router";
 import React from "react";
 import {
@@ -54,12 +55,7 @@ export default function HomeCategorySection() {
       {/* Categories Section */}
       <View style={styles.sectionHeader}>
         <View style={styles.sectionTitleContainer}>
-          <Text
-            style={[
-              styles.sectionTitle,
-              { color: colorScheme === "dark" ? "#fff" : "#333" },
-            ]}
-          >
+          <Text style={[styles.sectionTitle, { color: Colors.light.text }]}>
             Categories
           </Text>
           <Text style={styles.emoji}>😊</Text>
@@ -84,7 +80,7 @@ export default function HomeCategorySection() {
             <View
               style={[
                 styles.categoryIconContainer,
-                { backgroundColor: colorScheme === "dark" ? "#444" : "#fff" },
+                { backgroundColor: Colors.light.background },
               ]}
             >
               <Link key={category.id} href={category.href}>
@@ -101,12 +97,7 @@ export default function HomeCategorySection() {
                 />
               </Link>
             </View>
-            <Text
-              style={[
-                styles.categoryText,
-                { color: colorScheme === "dark" ? "#fff" : "#333" },
-              ]}
-            >
+            <Text style={[styles.categoryText, { color: Colors.light.text }]}>
               {category.name}
             </Text>
           </View>

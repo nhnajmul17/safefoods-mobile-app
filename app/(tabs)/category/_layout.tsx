@@ -1,4 +1,4 @@
-import { lightGreenColor } from "@/constants/Colors";
+import { Colors } from "@/constants/Colors";
 import { Stack } from "expo-router";
 import { useColorScheme } from "react-native";
 
@@ -21,10 +21,12 @@ export default function CategoryLayout() {
         options={{
           headerShown: true,
           title: "Category",
-          headerStyle: {
-            backgroundColor:
-              colorScheme === "dark" ? lightGreenColor : lightGreenColor,
-          },
+          headerStyle: { backgroundColor: "#98fb98" },
+
+          // headerStyle: {
+          //   backgroundColor:
+          //     colorScheme === "dark" ? lightGreenColor : lightGreenColor,
+          // },
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 24,
@@ -33,20 +35,10 @@ export default function CategoryLayout() {
         // options={{ headerShown: false, title: "Category" }}
       />
       <Stack.Screen
-        name="[productId]"
-        options={{
-          headerShown: true,
-          title: "Product Details",
-          headerStyle: {
-            backgroundColor: colorScheme === "dark" ? "#1a1a1a" : "#87ceeb",
-          },
-        }}
-      />
-      <Stack.Screen
         name="fruits"
         options={{
           title: "Fruits",
-          headerStyle: { backgroundColor: "#ff6347" },
+          headerStyle: { backgroundColor: "#98fb98" },
         }}
       />
       <Stack.Screen
@@ -59,13 +51,22 @@ export default function CategoryLayout() {
       <Stack.Screen
         name="cheese"
         options={{
-          title: "Chesses",
-          headerStyle: { backgroundColor: "#f0e68c" },
+          title: "Cheeses",
+          headerStyle: { backgroundColor: "#98fb98" },
+          // headerStyle: { backgroundColor: "#f0e68c" },
         }}
       />
       <Stack.Screen
         name="meat"
-        options={{ title: "Meat", headerStyle: { backgroundColor: "#ff4500" } }}
+        options={{ title: "Meat", headerStyle: { backgroundColor: "#98fb98" } }}
+      />
+      <Stack.Screen
+        name="[productId]"
+        options={{
+          headerShown: true,
+          title: "Details",
+          headerStyle: { backgroundColor: "#98fb98" },
+        }}
       />
     </Stack>
   );

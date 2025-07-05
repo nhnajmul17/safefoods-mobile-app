@@ -20,6 +20,7 @@ import Animated, {
   runOnJS,
 } from "react-native-reanimated";
 import { FlatList as GestureHandlerFlatList } from "react-native-gesture-handler";
+import { Colors } from "@/constants/Colors";
 
 interface SafeFoodsReason {
   id: string;
@@ -121,26 +122,16 @@ const CarouselItem = React.memo(
           styles.card,
           animatedStyle,
           {
-            backgroundColor: colorScheme === "dark" ? "#333" : "#fff",
-            shadowColor: colorScheme === "dark" ? "#fff" : "#000",
+            backgroundColor: Colors.light.background,
+            shadowColor: "#000",
           },
         ]}
       >
         <Image source={{ uri: item.icon }} style={styles.cardIcon} />
-        <Text
-          style={[
-            styles.cardTitle,
-            { color: colorScheme === "dark" ? "#fff" : "#333" },
-          ]}
-        >
+        <Text style={[styles.cardTitle, { color: Colors.light.text }]}>
           {item.title}
         </Text>
-        <Text
-          style={[
-            styles.cardDescription,
-            { color: colorScheme === "dark" ? "#ccc" : "#666" },
-          ]}
-        >
+        <Text style={[styles.cardDescription, { color: Colors.light.text }]}>
           {item.description}
         </Text>
       </Animated.View>
@@ -231,25 +222,12 @@ const WhySafeFoodsSection = () => {
 
   return (
     <View
-      style={[
-        styles.section,
-        { backgroundColor: colorScheme === "dark" ? "#1a1a1a" : "#f5f5f5" },
-      ]}
+      style={[styles.section, { backgroundColor: Colors.light.background }]}
     >
-      <Text
-        style={[
-          styles.sectionTitle,
-          { color: colorScheme === "dark" ? "#fff" : "#333" },
-        ]}
-      >
+      <Text style={[styles.sectionTitle, { color: Colors.light.text }]}>
         Why Safe Foods
       </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          { color: colorScheme === "dark" ? "#ccc" : "#666" },
-        ]}
-      >
+      <Text style={[styles.sectionDescription, { color: Colors.light.text }]}>
         We prioritize quality, freshness, and safety in every product we offer.
         Shop with confidence!
       </Text>

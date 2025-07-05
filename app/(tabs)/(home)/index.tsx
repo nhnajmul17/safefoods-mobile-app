@@ -18,6 +18,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler"; // Import
 import HomeCategorySection from "@/components/homeScreen/categorySection";
 import HomeBestSelling from "@/components/homeScreen/bestSelling";
 import WhySafeFoodsSection from "@/components/homeScreen/whySafefoods";
+import { Colors } from "@/constants/Colors";
 
 // Get device dimensions for responsive design
 const { width } = Dimensions.get("window");
@@ -34,15 +35,12 @@ export default function HomeScreen() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView
-        style={[
-          styles.container,
-          { backgroundColor: colorScheme === "dark" ? "#1a1a1a" : "#f5f5f5" },
-        ]}
+        style={[styles.container, { backgroundColor: Colors.light.background }]}
       >
-        <StatusBar
+        {/* <StatusBar
           barStyle={colorScheme === "dark" ? "light-content" : "dark-content"}
           backgroundColor={colorScheme === "dark" ? "#1a1a1a" : "#f5f5f5"}
-        />
+        /> */}
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
@@ -60,25 +58,15 @@ export default function HomeScreen() {
                 }
               />
               <View>
-                <Text
-                  style={[
-                    styles.greeting,
-                    { color: colorScheme === "dark" ? "#aaa" : "#888" },
-                  ]}
-                >
+                <Text style={[styles.greeting, { color: Colors.light.text }]}>
                   Good morning
                 </Text>
-                <Text
-                  style={[
-                    styles.userName,
-                    { color: colorScheme === "dark" ? "#fff" : "#333" },
-                  ]}
-                >
+                <Text style={[styles.userName, { color: Colors.light.text }]}>
                   MSajib
                 </Text>
               </View>
             </View>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={[
                 styles.themeButton,
                 { backgroundColor: colorScheme === "dark" ? "#333" : "#fff" },
@@ -90,29 +78,26 @@ export default function HomeScreen() {
                 size={24}
                 color={colorScheme === "dark" ? "#fff" : "#000"}
               />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
 
           {/* Search Bar */}
           <View
             style={[
               styles.searchContainer,
-              { backgroundColor: colorScheme === "dark" ? "#333" : "#fff" },
+              { backgroundColor: Colors.light.background },
             ]}
           >
             <Feather
               name="search"
               size={20}
-              color={colorScheme === "dark" ? "#ccc" : "#aaa"}
+              color={Colors.light.text}
               style={styles.searchIcon}
             />
             <TextInput
-              style={[
-                styles.searchInput,
-                { color: colorScheme === "dark" ? "#fff" : "#333" },
-              ]}
+              style={[styles.searchInput, { color: Colors.light.text }]}
               placeholder="Search category"
-              placeholderTextColor={colorScheme === "dark" ? "#ccc" : "#aaa"}
+              placeholderTextColor={Colors.light.text}
             />
           </View>
 
@@ -120,7 +105,7 @@ export default function HomeScreen() {
           <View
             style={[
               styles.bannerContainer,
-              { backgroundColor: colorScheme === "dark" ? "#333" : "#fff" },
+              { backgroundColor: Colors.light.background },
             ]}
           >
             <View style={styles.bannerImageContainer}>
@@ -151,12 +136,7 @@ export default function HomeScreen() {
           {/* Best Selling Section */}
           <View style={styles.sectionHeader}>
             <View style={styles.sectionTitleContainer}>
-              <Text
-                style={[
-                  styles.sectionTitle,
-                  { color: colorScheme === "dark" ? "#fff" : "#333" },
-                ]}
-              >
+              <Text style={[styles.sectionTitle, { color: Colors.light.text }]}>
                 Best selling
               </Text>
               <Text style={styles.emoji}>🔥</Text>

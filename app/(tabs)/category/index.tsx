@@ -1,5 +1,5 @@
 import { CategoryType } from "@/components/homeScreen/categorySection";
-import { lightGreenColor } from "@/constants/Colors";
+import { Colors, lightGreenColor } from "@/constants/Colors";
 import { Link } from "expo-router";
 import {
   View,
@@ -48,14 +48,16 @@ export default function CategoryScreen() {
         styles.container,
         {
           backgroundColor:
-            colorScheme === "dark" ? lightGreenColor : lightGreenColor,
-        }, //"#1a1a1a" "#87ceeb"
+            colorScheme === "dark"
+              ? Colors.light.background
+              : Colors.light.background,
+        },
       ]}
     >
-      <StatusBar
+      {/* <StatusBar
         barStyle={colorScheme === "dark" ? "light-content" : "dark-content"}
         backgroundColor={colorScheme === "dark" ? "#1a1a1a" : "#f5f5f5"}
-      />
+      /> */}
       <View>
         <FlatList
           data={categories}
@@ -67,7 +69,7 @@ export default function CategoryScreen() {
               href={item.href}
               style={[
                 styles.card,
-                { backgroundColor: colorScheme === "dark" ? "#333" : "#fff" },
+                { backgroundColor: Colors.light.background },
               ]}
             >
               <View style={styles.cardContent}>
@@ -82,12 +84,7 @@ export default function CategoryScreen() {
                     )
                   }
                 />
-                <Text
-                  style={[
-                    styles.cardText,
-                    { color: colorScheme === "dark" ? "#fff" : "#333" },
-                  ]}
-                >
+                <Text style={[styles.cardText, { color: Colors.light.text }]}>
                   {item.name}
                 </Text>
               </View>

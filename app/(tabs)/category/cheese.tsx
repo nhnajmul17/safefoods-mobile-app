@@ -14,6 +14,7 @@ import { Link } from "expo-router";
 import { useCartStore } from "@/store/cartStore";
 import { Product } from "@/constants/types";
 import Toast from "react-native-toast-message";
+import { Colors } from "@/constants/Colors";
 
 const { width } = Dimensions.get("window");
 
@@ -81,7 +82,7 @@ export default function CheeseScreen() {
             key={product.id}
             style={[
               styles.productCard,
-              { backgroundColor: colorScheme === "dark" ? "#333" : "#fff" },
+              { backgroundColor: Colors.light.background },
             ]}
           >
             <Link href={`/(tabs)/category/${product.id}`}>
@@ -97,20 +98,12 @@ export default function CheeseScreen() {
                 }
               />
             </Link>
-            <Text
-              style={[
-                styles.productName,
-                { color: colorScheme === "dark" ? "#fff" : "#333" },
-              ]}
-            >
+            <Text style={[styles.productName, { color: Colors.light.text }]}>
               {product.name}
             </Text>
             <View style={styles.productPriceRow}>
               <Text
-                style={[
-                  styles.productWeight,
-                  { color: colorScheme === "dark" ? "#aaa" : "#888" },
-                ]}
+                style={[styles.productWeight, { color: Colors.light.text }]}
               >
                 {product.weight},
               </Text>
