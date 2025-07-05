@@ -8,7 +8,6 @@ import {
   Dimensions,
   useColorScheme,
   ScrollView,
-  // ToastAndroid,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { Link } from "expo-router";
@@ -16,6 +15,13 @@ import { useCartStore } from "@/store/cartStore";
 import { Product } from "@/constants/types";
 import Toast from "react-native-toast-message";
 import { Colors } from "@/constants/Colors";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  withDelay,
+} from "react-native-reanimated";
 
 const { width } = Dimensions.get("window");
 
@@ -64,10 +70,9 @@ export default function FruitScreen() {
       name: product.name,
       image: product.image,
       price: product.price,
-      quantity: 1, // Start with a quantity of 1
+      quantity: 1,
     };
     addItem(newItem);
-    // ToastAndroid.show(`1 ${product.name} added to cart!`, ToastAndroid.SHORT);
     Toast.show({
       type: "success",
       text1: "Added to Cart",
@@ -76,49 +81,88 @@ export default function FruitScreen() {
       text2Style: { fontSize: 14, fontWeight: "bold" },
     });
   };
+
   return (
     <ScrollView>
       <View style={styles.productsContainer}>
-        {products.map((product) => (
-          <View
-            key={product.id}
-            style={[
-              styles.productCard,
-              { backgroundColor: Colors.light.background },
-            ]}
-          >
-            <Link href={`/(tabs)/category/${product.id}`}>
-              <Image
-                source={{ uri: product.image }}
-                style={styles.productImage}
-                resizeMode="cover"
-                onError={(e) =>
-                  console.log(
-                    `Product image load error (${product.name}):`,
-                    e.nativeEvent.error
-                  )
-                }
-              />
-            </Link>
-            <Text style={[styles.productName, { color: Colors.light.text }]}>
-              {product.name}
-            </Text>
-            <View style={styles.productPriceRow}>
-              <Text
-                style={[styles.productWeight, { color: Colors.light.text }]}
-              >
-                {product.weight},
+        {products.map((product, index) => {
+          const cardOpacity = useSharedValue(0);
+          const cardScale = useSharedValue(0.9);
+
+          // Trigger animation on mount with delay for each card
+          React.useEffect(() => {
+            cardOpacity.value = withDelay(
+              index * 200,
+              withTiming(1, { duration: 600 })
+            );
+            cardScale.value = withSpring(1, { damping: 10, stiffness: 100 });
+          }, []);
+
+          const cardStyle = useAnimatedStyle(() => ({
+            opacity: cardOpacity.value,
+            transform: [{ scale: cardScale.value }],
+          }));
+
+          const buttonScale = useSharedValue(1);
+
+          const buttonStyle = useAnimatedStyle(() => ({
+            transform: [{ scale: buttonScale.value }],
+          }));
+
+          const handlePressIn = () => {
+            buttonScale.value = withSpring(0.95);
+          };
+
+          const handlePressOut = () => {
+            buttonScale.value = withSpring(1);
+          };
+
+          return (
+            <Animated.View
+              key={product.id}
+              style={[
+                styles.productCard,
+                cardStyle,
+                { backgroundColor: Colors.light.background },
+              ]}
+            >
+              <Link href={`/(tabs)/category/${product.id}`}>
+                <Image
+                  source={{ uri: product.image }}
+                  style={styles.productImage}
+                  resizeMode="cover"
+                  onError={(e) =>
+                    console.log(
+                      `Product image load error (${product.name}):`,
+                      e.nativeEvent.error
+                    )
+                  }
+                />
+              </Link>
+              <Text style={[styles.productName, { color: Colors.light.text }]}>
+                {product.name}
               </Text>
-              <Text style={styles.productPrice}>{product.price}</Text>
-              <TouchableOpacity
-                style={styles.addButton}
-                onPress={() => handleAddToCart(product)}
-              >
-                <Feather name="plus" size={20} color="#fff" />
-              </TouchableOpacity>
-            </View>
-          </View>
-        ))}
+              <View style={styles.productPriceRow}>
+                <Text
+                  style={[styles.productWeight, { color: Colors.light.text }]}
+                >
+                  {product.weight},
+                </Text>
+                <Text style={styles.productPrice}>{product.price}$</Text>
+                <Animated.View style={buttonStyle}>
+                  <TouchableOpacity
+                    style={styles.addButton}
+                    onPress={() => handleAddToCart(product)}
+                    onPressIn={handlePressIn}
+                    onPressOut={handlePressOut}
+                  >
+                    <Feather name="plus" size={20} color="#fff" />
+                  </TouchableOpacity>
+                </Animated.View>
+              </View>
+            </Animated.View>
+          );
+        })}
       </View>
     </ScrollView>
   );

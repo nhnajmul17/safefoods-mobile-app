@@ -9,8 +9,10 @@ import {
   StyleSheet,
   useColorScheme,
   SafeAreaView,
-  StatusBar,
+  Animated,
 } from "react-native";
+import React, { useEffect, useRef } from "react"; // Added useRef
+import { useFocusEffect } from "@react-navigation/native"; // For focus detection
 
 const categories: CategoryType[] = [
   {
@@ -41,6 +43,19 @@ const categories: CategoryType[] = [
 
 export default function CategoryScreen() {
   const colorScheme = useColorScheme();
+  const opacity = useRef(new Animated.Value(0)).current; // Use ref to persist Animated.Value
+
+  // Trigger animation when screen is focused
+  useFocusEffect(
+    React.useCallback(() => {
+      opacity.setValue(0); // Reset opacity to 0
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }).start();
+    }, [])
+  );
 
   return (
     <SafeAreaView
@@ -54,10 +69,6 @@ export default function CategoryScreen() {
         },
       ]}
     >
-      {/* <StatusBar
-        barStyle={colorScheme === "dark" ? "light-content" : "dark-content"}
-        backgroundColor={colorScheme === "dark" ? "#1a1a1a" : "#f5f5f5"}
-      /> */}
       <View>
         <FlatList
           data={categories}
@@ -72,11 +83,12 @@ export default function CategoryScreen() {
                 { backgroundColor: Colors.light.background },
               ]}
             >
-              <View style={styles.cardContent}>
+              <Animated.View
+                style={[styles.cardContent, { opacity }]} // Apply fade-in animation
+              >
                 <Image
                   source={{ uri: item.icon }}
                   style={styles.icon}
-                  // defaultSource={require("../../../assets/images/placeholder.png")}
                   onError={(e) =>
                     console.log(
                       `Category icon load error (${item.name}):`,
@@ -87,7 +99,7 @@ export default function CategoryScreen() {
                 <Text style={[styles.cardText, { color: Colors.light.text }]}>
                   {item.name}
                 </Text>
-              </View>
+              </Animated.View>
             </Link>
           )}
         />
@@ -99,7 +111,6 @@ export default function CategoryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: "#87ceeb", //sky blue
     paddingTop: 10,
   },
   grid: {
@@ -116,7 +127,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
-    aspectRatio: 1, // Ensure square cards
+    aspectRatio: 1,
   },
   cardContent: {
     justifyContent: "center",

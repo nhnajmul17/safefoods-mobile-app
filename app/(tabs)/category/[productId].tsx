@@ -8,11 +8,14 @@ import {
   useColorScheme,
   SafeAreaView,
 } from "react-native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
+  withTiming,
   withSpring,
+  withRepeat,
+  Easing,
 } from "react-native-reanimated";
 import { useCartStore } from "@/store/cartStore";
 import Toast from "react-native-toast-message";
@@ -285,17 +288,27 @@ const products = [
     reviews: "4.8 (180) Reviews",
   },
 ];
-
 export default function ProductDetailsScreen() {
   const { productId } = useLocalSearchParams();
   const colorScheme = useColorScheme();
   const [quantity, setQuantity] = useState(0);
-  // Access the cart store
   const { addItem } = useCartStore();
-  // Animation values for buttons
+
+  // Animation values
+  const imageOpacity = useSharedValue(0);
+  const detailsTranslateY = useSharedValue(100);
   const decrementScale = useSharedValue(1);
   const incrementScale = useSharedValue(1);
   const addToCartScale = useSharedValue(1);
+
+  // Trigger animations on mount
+  useEffect(() => {
+    imageOpacity.value = withTiming(1, { duration: 800, easing: Easing.ease });
+    detailsTranslateY.value = withTiming(0, {
+      duration: 800,
+      easing: Easing.ease,
+    });
+  }, []);
 
   // Find the product by ID
   const product = products.find((p) => p.id === productId);
@@ -328,13 +341,12 @@ export default function ProductDetailsScreen() {
         id: product.id,
         name: product.name,
         image: product.image,
-        price: parseFloat(product.price.replace("$", "")), // Convert price string to number
+        price: parseFloat(product.price.replace("$", "")),
         quantity: quantity,
       };
       addItem(cartItem);
       console.log(`Added ${quantity} ${product.name}(s) to cart`, cartItem);
 
-      // Show toast notification (optional)
       Toast.show({
         type: "success",
         text1: "Added to Cart",
@@ -343,7 +355,6 @@ export default function ProductDetailsScreen() {
         text2Style: { fontSize: 14, fontWeight: "bold" },
       });
 
-      // Reset quantity after adding to cart (optional)
       setQuantity(0);
     } else {
       Toast.show({
@@ -355,10 +366,18 @@ export default function ProductDetailsScreen() {
       });
     }
 
-    addToCartScale.value = withSpring(0.95, {}, () => {
+    addToCartScale.value = withRepeat(withSpring(0.95), 2, true, () => {
       addToCartScale.value = withSpring(1);
     });
   };
+
+  const imageStyle = useAnimatedStyle(() => ({
+    opacity: imageOpacity.value,
+  }));
+
+  const detailsStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: detailsTranslateY.value }],
+  }));
 
   const decrementStyle = useAnimatedStyle(() => ({
     transform: [{ scale: decrementScale.value }],
@@ -375,7 +394,7 @@ export default function ProductDetailsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <View style={styles.imageContainer}>
+        <Animated.View style={[styles.imageContainer, imageStyle]}>
           <Image
             source={{ uri: product.image }}
             style={styles.productImage}
@@ -386,8 +405,8 @@ export default function ProductDetailsScreen() {
               )
             }
           />
-        </View>
-        <View style={styles.detailsContainer}>
+        </Animated.View>
+        <Animated.View style={[styles.detailsContainer, detailsStyle]}>
           <View style={styles.header}>
             <Text style={styles.name}>{product.name}</Text>
             <View style={styles.quantityContainer}>
@@ -452,7 +471,7 @@ export default function ProductDetailsScreen() {
               <Text style={styles.infoText}>{product.calories}</Text>
             </View>
           </View>
-        </View>
+        </Animated.View>
       </View>
       <Animated.View style={addToCartStyle}>
         <TouchableOpacity
@@ -462,6 +481,7 @@ export default function ProductDetailsScreen() {
           <Text style={styles.addToCartText}>Add to cart</Text>
         </TouchableOpacity>
       </Animated.View>
+      <Toast />
     </SafeAreaView>
   );
 }
@@ -485,21 +505,21 @@ const styles = StyleSheet.create({
     height: 200,
     resizeMode: "cover",
     borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30, // Rounded edges
+    borderBottomRightRadius: 30,
   },
   detailsContainer: {
     flex: 1,
     paddingHorizontal: 16,
-    paddingVertical: 8, // Reduced padding to fill space
+    paddingVertical: 8,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 4, // Reduced margin to fill space
+    marginBottom: 4,
   },
   name: {
-    fontSize: 28, // Increased font size
+    fontSize: 28,
     fontWeight: "bold",
     color: "#333",
   },
@@ -514,27 +534,27 @@ const styles = StyleSheet.create({
     padding: 6,
   },
   quantityText: {
-    fontSize: 24, // Increased font size
+    fontSize: 24,
     fontWeight: "bold",
     color: "#27ae60",
   },
   quantity: {
-    fontSize: 24, // Increased font size
+    fontSize: 24,
     fontWeight: "bold",
     marginHorizontal: 16,
     color: "#333",
   },
   weightPrice: {
-    fontSize: 20, // Increased font size
+    fontSize: 20,
     fontWeight: "bold",
     color: "#27ae60",
-    marginBottom: 8, // Reduced margin
+    marginBottom: 8,
   },
   description: {
-    fontSize: 16, // Increased font size
+    fontSize: 16,
     color: "#666",
-    marginBottom: 8, // Reduced margin
-    lineHeight: 24, // Adjusted line height for readability
+    marginBottom: 8,
+    lineHeight: 24,
   },
   infoGrid: {
     flexDirection: "row",
@@ -543,29 +563,29 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   infoItem: {
-    width: "48%", // Maintains two columns
-    backgroundColor: "#f9f9f9", // Light background like the image
-    borderRadius: 12, // Rounded corners
+    width: "48%",
+    backgroundColor: "#f9f9f9",
+    borderRadius: 12,
     padding: 20,
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 12,
-    elevation: 2, // Slight shadow for card effect (Android)
-    shadowColor: "#000", // Shadow for iOS
+    elevation: 2,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
   },
   infoIcon: {
-    width: 24, // Adjusted icon size
+    width: 24,
     height: 24,
     marginRight: 8,
   },
   infoText: {
     fontSize: 16,
-    fontWeight: "500", // Slightly lighter than bold
-    color: "#666", // Grayish color like the image
-    textAlign: "center", // Center text for better alignment
+    fontWeight: "500",
+    color: "#666",
+    textAlign: "center",
   },
   addToCartButton: {
     position: "absolute",
@@ -573,14 +593,14 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: "#27ae60",
-    paddingVertical: 18, // Slightly increased for prominence
+    paddingVertical: 18,
     borderRadius: 25,
     alignItems: "center",
     marginHorizontal: 16,
     marginBottom: 16,
   },
   addToCartText: {
-    fontSize: 18, // Increased font size
+    fontSize: 18,
     color: "#fff",
     fontWeight: "bold",
   },
