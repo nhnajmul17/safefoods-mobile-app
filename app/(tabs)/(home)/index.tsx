@@ -37,10 +37,10 @@ export default function HomeScreen() {
       <SafeAreaView
         style={[styles.container, { backgroundColor: Colors.light.background }]}
       >
-        {/* <StatusBar
+        <StatusBar
           barStyle={colorScheme === "dark" ? "light-content" : "dark-content"}
           backgroundColor={colorScheme === "dark" ? "#1a1a1a" : "#f5f5f5"}
-        /> */}
+        />
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}

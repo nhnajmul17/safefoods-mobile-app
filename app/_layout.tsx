@@ -40,8 +40,53 @@ export default function RootLayout() {
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
-          {/* <Stack.Screen name="/checkout" options={{ headerShown: false }} />
-          <Stack.Screen name="/my-orders" options={{ headerShown: false }} /> */}
+          <Stack.Screen
+            name="checkout"
+            options={{
+              headerTitle: "Checkout",
+              headerTitleStyle: {
+                fontWeight: "bold",
+                fontSize: 24,
+              },
+            }}
+          />
+          <Stack.Screen
+            name="my-orders"
+            options={{
+              headerTitle: "My Orders",
+              headerTitleStyle: {
+                fontWeight: "bold",
+                fontSize: 24,
+              },
+            }}
+          />
+          <Stack.Screen
+            name="my-profile"
+            options={{
+              headerTitle: "My Profile",
+              headerTitleStyle: {
+                fontWeight: "bold",
+                fontSize: 24,
+              },
+            }}
+          />
+
+          <Stack.Screen
+            name="settings"
+            options={{
+              headerTitle: "Settings",
+              headerTitleStyle: {
+                fontWeight: "bold",
+                fontSize: 24,
+              },
+            }}
+          />
+          <Stack.Screen
+            name="webview"
+            options={{
+              headerTitle: "",
+            }}
+          />
         </Stack>
         <StatusBar style="auto" />
       </ThemeProvider>

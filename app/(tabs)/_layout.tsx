@@ -94,7 +94,7 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({
         accessibilityLabel="Cart"
       >
         <View style={styles.cartIconContainer}>
-          <IconSymbol size={28} name="house.fill" color="#fff" />
+          <IconSymbol size={28} name="cart.fill" color="#fff" />
           <View style={styles.badge}>
             <Text style={styles.badgeText}>{totalItems}</Text>
           </View>
@@ -123,22 +123,18 @@ export default function TabLayout() {
           headerShown: false,
           title: "Category",
           tabBarIcon: ({ color, focused, size }) => (
-            <IconSymbol
-              size={size}
-              name="squares.below.rectangle"
-              color={color}
-            />
+            <IconSymbol size={size} name="basket.fill" color={color} />
           ),
         }}
       />
 
       <Tabs.Screen
-        name="settings"
+        name="shop-now"
         options={{
           headerShown: false,
-          tabBarLabel: "Settings",
+          tabBarLabel: "Shop Now",
           tabBarIcon: ({ color, focused, size }) => (
-            <IconSymbol size={size} name="gearshape.fill" color={color} />
+            <IconSymbol size={size} name="shop.now" color={color} />
           ),
         }}
       />
@@ -148,19 +144,12 @@ export default function TabLayout() {
           headerShown: false,
           tabBarLabel: "Profile",
           tabBarIcon: ({ color, focused, size }) => (
-            <IconSymbol size={size} name="gearshape.fill" color={color} />
+            <IconSymbol size={size} name="person.fill" color={color} />
           ),
         }}
       />
     </Tabs>
   );
-}
-
-{
-  /* <Stack.Screen
-            name="(tabs)/checkout"
-            options={{ headerShown: false }}
-          /> */
 }
 
 const styles = StyleSheet.create({

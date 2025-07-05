@@ -267,7 +267,7 @@ export default function MyOrdersScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>My Orders</Text>
+        {/* <Text style={styles.title}>My Orders</Text> */}
         <Text style={styles.subtitle}>View and track your order history</Text>
       </View>
       <FlatList
@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 16,
     color: "#666",
     marginTop: 4,
   },
