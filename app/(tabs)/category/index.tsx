@@ -11,7 +11,7 @@ import {
   SafeAreaView,
   Animated,
 } from "react-native";
-import React, { useEffect, useRef } from "react"; // Added useRef
+import React, { useRef } from "react"; // Added useRef
 import { useFocusEffect } from "@react-navigation/native"; // For focus detection
 
 const categories: CategoryType[] = [

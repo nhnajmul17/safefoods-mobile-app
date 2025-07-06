@@ -4,6 +4,7 @@ import { Tabs } from "expo-router";
 import { View, TouchableOpacity, StyleSheet, Text } from "react-native";
 import type { BottomTabNavigationOptions } from "@react-navigation/bottom-tabs";
 import { useCartStore } from "@/store/cartStore";
+import { lightGreenColor } from "@/constants/Colors";
 
 // Define navigation prop type
 type TabNavigation = {
@@ -131,17 +132,30 @@ export default function TabLayout() {
       <Tabs.Screen
         name="shop-now"
         options={{
-          headerShown: false,
-          tabBarLabel: "Shop Now",
+          title: "Shop Now",
+          headerShown: true,
+          headerStyle: { backgroundColor: lightGreenColor },
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 24,
+            color: "#fff",
+          },
           tabBarIcon: ({ color, focused, size }) => (
-            <IconSymbol size={size} name="shop.now" color={color} />
+            <IconSymbol size={size} name="cart.fill" color={color} />
           ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          headerShown: false,
+          title: "Profile",
+          headerShown: true,
+          headerStyle: { backgroundColor: lightGreenColor },
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 24,
+            color: "#fff",
+          },
           tabBarLabel: "Profile",
           tabBarIcon: ({ color, focused, size }) => (
             <IconSymbol size={size} name="person.fill" color={color} />

@@ -115,7 +115,7 @@ export default function CartScreen() {
           <Text style={styles.emptyText}>Your cart is empty</Text>
           <TouchableOpacity
             style={styles.shopNowButton}
-            onPress={() => router.push("/(tabs)/(home)")}
+            onPress={() => router.push("/shop-now")}
           >
             <Text style={styles.shopNowButtonText}>Shop Now</Text>
           </TouchableOpacity>
