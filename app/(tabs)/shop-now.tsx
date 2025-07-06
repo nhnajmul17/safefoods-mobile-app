@@ -11,8 +11,8 @@ import { useState, useEffect } from "react";
 import { Picker } from "@react-native-picker/picker";
 import { useCartStore } from "@/store/cartStore";
 import Toast from "react-native-toast-message";
-import { Ionicons } from "@expo/vector-icons";
-import { greenColor } from "@/constants/Colors";
+import { Feather, Ionicons } from "@expo/vector-icons";
+import { Colors, greenColor } from "@/constants/Colors";
 import ShopNowProductCard, {
   ShopNowProduct,
 } from "@/components/shopNowScreen/shopNowProductCard";
@@ -162,12 +162,27 @@ export default function ShopNowScreen() {
 
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.searchBar}
-        placeholder="Search products..."
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-      />
+      {/* Search Bar */}
+      <View
+        style={[
+          styles.searchContainer,
+          { backgroundColor: Colors.light.background },
+        ]}
+      >
+        <Feather
+          name="search"
+          size={20}
+          color={Colors.light.text}
+          style={styles.searchIcon}
+        />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search products..."
+          placeholderTextColor="#1a1a1a"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+      </View>
 
       <View style={styles.headerRow}>
         <TouchableOpacity
@@ -200,6 +215,8 @@ export default function ShopNowScreen() {
               setShowFilterDrawer(!showFilterDrawer);
               setSelectedCategory(itemValue);
             }}
+            style={{ color: "#1a1a1a" }}
+            dropdownIconColor="#1a1a1a"
           >
             <Picker.Item label="All" value="All" />
             <Picker.Item label="Fruits" value="Fruits" />
@@ -274,14 +291,28 @@ const styles = StyleSheet.create({
     color: "#333",
     fontWeight: "600",
   },
-  searchBar: {
-    backgroundColor: "#fff",
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 10,
-    marginBottom: 10,
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 12,
+    marginHorizontal: 8,
+    marginVertical: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
     elevation: 2,
   },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+  },
+
   filterDrawer: {
     backgroundColor: "#fff",
     padding: 10,
