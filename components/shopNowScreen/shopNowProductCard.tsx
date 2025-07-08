@@ -1,30 +1,41 @@
 import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
-import { useEffect } from "react";
-
+import { useEffect, useState } from "react";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  withSpring,
-  withDelay,
 } from "react-native-reanimated";
 import { greenColor } from "@/constants/Colors";
 
-export type ShopNowProduct = {
+export interface ProductVariant {
+  id: string;
+  price: number;
+  originalPrice: number;
+  description: string;
+  bestDeal: boolean;
+  discountedSale: boolean;
+  unit: string;
+  mediaItems: Array<{
+    id: string;
+    mediaId: string;
+    image: string;
+    mediaTitle: string;
+  }>;
+}
+
+export interface ShopNowProduct {
   id: string;
   name: string;
   category: string;
-  price: number;
-  image: string;
-  unit?: string;
-};
+  variants: ProductVariant[];
+}
 
 type ProductCardProps = {
   item: ShopNowProduct;
   quantity: number;
   onIncrease: (item: ShopNowProduct) => void;
   onDecrease: (item: ShopNowProduct) => void;
-  onAddToCart: (item: ShopNowProduct) => void;
+  onAddToCart: (item: ShopNowProduct, selectedVariant: ProductVariant) => void;
 };
 
 const ShopNowProductCard = ({
@@ -34,15 +45,15 @@ const ShopNowProductCard = ({
   onDecrease,
   onAddToCart,
 }: ProductCardProps) => {
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(
+    item.variants[0]
+  );
   const cardOpacity = useSharedValue(0);
   const cardScale = useSharedValue(0.95);
 
   useEffect(() => {
-    cardOpacity.value = withDelay(
-      parseInt(item.id) * 100,
-      withTiming(1, { duration: 400 })
-    );
-    cardScale.value = withSpring(1, { damping: 10, stiffness: 100 });
+    cardOpacity.value = withTiming(1, { duration: 300 });
+    cardScale.value = withTiming(1, { duration: 300 });
   }, []);
 
   const cardStyle = useAnimatedStyle(() => ({
@@ -50,19 +61,58 @@ const ShopNowProductCard = ({
     transform: [{ scale: cardScale.value }],
   }));
 
+  const handleVariantChange = (variant: ProductVariant) => {
+    setSelectedVariant(variant);
+  };
+
   return (
     <Animated.View style={[styles.productCard, cardStyle]}>
       <Image
-        source={{ uri: item.image }}
+        source={{
+          uri:
+            selectedVariant.mediaItems[0]?.image ||
+            "https://via.placeholder.com/50",
+        }}
         style={styles.productImage}
         resizeMode="cover"
       />
-      {/* <View style={styles.gradientOverlay} /> */}
       <View style={styles.contentContainer}>
         <Text style={styles.productName}>{item.name}</Text>
-        <Text style={styles.productPrice}>
-          ${item.price.toFixed(2)} / {item.unit || "item"}
-        </Text>
+        <Text style={styles.productCategory}>{item.category}</Text>
+
+        <View style={styles.variantContainer}>
+          {item.variants.map((variant) => (
+            <TouchableOpacity
+              key={variant.id}
+              style={[
+                styles.variantBadge,
+                selectedVariant.id === variant.id &&
+                  styles.selectedVariantBadge,
+              ]}
+              onPress={() => handleVariantChange(variant)}
+            >
+              <Text
+                style={[
+                  styles.variantText,
+                  selectedVariant.id === variant.id &&
+                    styles.selectedVariantText,
+                ]}
+              >
+                {variant.unit}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <View style={styles.priceContainer}>
+          <Text style={styles.productPrice}>৳{selectedVariant.price}</Text>
+          {selectedVariant.originalPrice > selectedVariant.price && (
+            <Text style={styles.originalPrice}>
+              ৳{selectedVariant.originalPrice}
+            </Text>
+          )}
+        </View>
+
         <View style={styles.quantityContainer}>
           <TouchableOpacity
             onPress={() => onDecrease(item)}
@@ -78,10 +128,11 @@ const ShopNowProductCard = ({
             <Text style={styles.quantityButtonText}>+</Text>
           </TouchableOpacity>
         </View>
+
         {quantity > 0 && (
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => onAddToCart(item)}
+            onPress={() => onAddToCart(item, selectedVariant)}
           >
             <Text style={styles.addButtonText}>Add to Cart</Text>
           </TouchableOpacity>
@@ -95,7 +146,7 @@ export default ShopNowProductCard;
 
 const styles = StyleSheet.create({
   productCard: {
-    width: "32%", // Adjusted for 3 columns with spacing
+    width: "48%",
     marginBottom: 12,
     borderRadius: 12,
     overflow: "hidden",
@@ -104,46 +155,73 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
+    backgroundColor: "#fff",
   },
   productImage: {
     width: "100%",
-    height: 120, // Reduced height for 3-column layout
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-  },
-  gradientOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 120, // Match image height
-    backgroundColor: "rgba(0, 0, 0, 0.3)",
+    height: 120,
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
   },
   contentContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 2, // Reduced padding
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    padding: 8,
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
     borderBottomLeftRadius: 12,
     borderBottomRightRadius: 12,
   },
   productName: {
-    fontSize: 14, // Reduced font size for compactness
+    fontSize: 14,
     fontWeight: "700",
     color: "#333",
-    marginBottom: 2,
-    textAlign: "center",
-  },
-  productPrice: {
-    fontSize: 12, // Reduced font size
-    color: greenColor,
-    fontWeight: "600",
     marginBottom: 4,
     textAlign: "center",
+  },
+  productCategory: {
+    fontSize: 12,
+    color: "#666",
+    marginBottom: 4,
+    textAlign: "center",
+  },
+  variantContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    marginBottom: 4,
+  },
+  variantBadge: {
+    backgroundColor: "#eee",
+    borderRadius: 10,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    margin: 2,
+  },
+  selectedVariantBadge: {
+    backgroundColor: greenColor,
+  },
+  variantText: {
+    fontSize: 12,
+    color: "#333",
+  },
+  selectedVariantText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+  priceContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  productPrice: {
+    fontSize: 14,
+    color: greenColor,
+    fontWeight: "600",
+  },
+  originalPrice: {
+    fontSize: 12,
+    color: "#999",
+    textDecorationLine: "line-through",
+    marginLeft: 4,
   },
   quantityContainer: {
     flexDirection: "row",
@@ -154,13 +232,13 @@ const styles = StyleSheet.create({
   quantityButton: {
     backgroundColor: "#fff",
     borderRadius: 10,
-    width: 25,
-    height: 25,
+    width: 24,
+    height: 24,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
     borderColor: greenColor,
-    marginHorizontal: 3,
+    marginHorizontal: 4,
   },
   quantityButtonText: {
     fontSize: 16,
@@ -171,19 +249,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: "#333",
-    marginHorizontal: 6,
+    marginHorizontal: 4,
   },
   addButton: {
     backgroundColor: greenColor,
-    paddingVertical: 6,
-    paddingHorizontal: 15,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     borderRadius: 6,
     alignItems: "center",
-    marginTop: 2,
   },
   addButtonText: {
     color: "#fff",
-    fontSize: 12, // Reduced font size
+    fontSize: 12,
     fontWeight: "600",
   },
 });

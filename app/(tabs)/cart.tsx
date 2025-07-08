@@ -16,15 +16,6 @@ export default function CartScreen() {
     useCartStore();
   const router = useRouter();
 
-  // const handleOrderNow = () => {
-  //   console.log("Cart Items on Order Now:", cartItems);
-  //   console.log("total price:", getTotalPrice());
-
-  //   alert("Order placed successfully!");
-  //   clearCart();
-  //   router.push("/(tabs)/(home)");
-  // };
-
   const handleOrderNow = () => {
     console.log("Cart Items on Order Now:", cartItems);
     router.push("/checkout");
@@ -35,9 +26,11 @@ export default function CartScreen() {
   }: {
     item: {
       id: string;
+      variantId: string;
       name: string;
       image: string;
       price: number;
+      unit: string;
       quantity: number;
     };
   }) => (
@@ -46,45 +39,51 @@ export default function CartScreen() {
       <Image
         source={{ uri: item.image }}
         style={styles.itemImage}
-        resizeMode="cover" // Changed to "cover" to fill the space while maintaining aspect ratio
+        resizeMode="cover"
         onError={(e) =>
           console.log(
-            `Cart item image load error (${item.name}):`,
+            `Cart item image load error (${item.name} (${item.unit})):`,
             e.nativeEvent.error
           )
         }
       />
       {/* Product Details */}
       <View style={styles.itemDetails}>
-        <Text style={styles.itemName}>{item.name}</Text>
+        <Text style={styles.itemName}>
+          {item.name} ({item.unit})
+        </Text>
         <Text style={styles.itemPrice}>
-          ${(item.price * item.quantity).toFixed(2)}
+          ৳{(item.price * item.quantity).toFixed(2)}
         </Text>
       </View>
       {/* Quantity Controls */}
       <View style={styles.quantityContainer}>
         <TouchableOpacity
-          onPress={() => updateQuantity(item.id, item.quantity - 1)}
+          onPress={() =>
+            updateQuantity(item.id, item.variantId, item.quantity - 1)
+          }
           style={styles.quantityButton}
         >
           <Text style={styles.quantityText}>-</Text>
         </TouchableOpacity>
         <Text style={styles.quantityText}>{item.quantity}</Text>
         <TouchableOpacity
-          onPress={() => updateQuantity(item.id, item.quantity + 1)}
+          onPress={() =>
+            updateQuantity(item.id, item.variantId, item.quantity + 1)
+          }
           style={styles.quantityButton}
         >
           <Text style={styles.quantityText}>+</Text>
         </TouchableOpacity>
       </View>
-      {/* Remove Button (Cross) */}
+      {/* Remove Button */}
       <TouchableOpacity
         onPress={() => {
-          removeItem(item.id);
+          removeItem(item.id, item.variantId);
           Toast.show({
             type: "error",
             text1: "Removed from Cart",
-            text2: `${item.name} removed from your cart.`,
+            text2: `${item.name} (${item.unit}) removed from your cart.`,
             text1Style: { fontSize: 16, fontWeight: "bold" },
             text2Style: { fontSize: 14, fontWeight: "bold" },
           });
@@ -125,13 +124,13 @@ export default function CartScreen() {
           <FlatList
             data={cartItems}
             renderItem={renderItem}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => `${item.id}-${item.variantId}`}
             contentContainerStyle={styles.list}
           />
           {/* Footer with Total and Order Now */}
           <View style={styles.footer}>
             <Text style={styles.totalText}>
-              Total: ${getTotalPrice().toFixed(2)}
+              Total: ৳{getTotalPrice().toFixed(2)}
             </Text>
             <TouchableOpacity
               style={styles.orderButton}

@@ -12,6 +12,16 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import Toast from "react-native-toast-message";
 
+interface CartItem {
+  id: string;
+  variantId: string;
+  name: string;
+  image: string;
+  price: number;
+  unit: string;
+  quantity: number;
+}
+
 export default function CheckoutScreen() {
   const { cartItems, getTotalPrice, clearCart } = useCartStore();
   const router = useRouter();
@@ -35,6 +45,33 @@ export default function CheckoutScreen() {
   };
 
   const handlePlaceOrder = () => {
+    // Basic validation for required fields
+    const requiredFields = [
+      "firstName",
+      "lastName",
+      "country",
+      "streetAddress",
+      "townCity",
+      "state",
+      "zipCode",
+      "phone",
+      "email",
+    ];
+    const missingFields = requiredFields.filter(
+      (field) => !billingDetails[field as keyof typeof billingDetails]
+    );
+
+    if (missingFields.length > 0) {
+      Toast.show({
+        type: "error",
+        text1: "Missing Information",
+        text2: `Please fill in: ${missingFields.join(", ")}`,
+        text1Style: { fontSize: 16, fontWeight: "bold" },
+        text2Style: { fontSize: 14, fontWeight: "bold" },
+      });
+      return;
+    }
+
     console.log("Order placed with details:", {
       ...billingDetails,
       cartItems,
@@ -44,24 +81,26 @@ export default function CheckoutScreen() {
     Toast.show({
       type: "success",
       text1: "Order Placed",
-      text2: `Your order has been placed successfully.`,
+      text2: "Your order has been placed successfully.",
       text1Style: { fontSize: 16, fontWeight: "bold" },
       text2Style: { fontSize: 14, fontWeight: "bold" },
     });
-    clearCart(); // Clear the cart after placing the order
+    clearCart();
     router.push("/(tabs)/(home)");
   };
 
-  const renderOrderItem = ({ item }: { item: any }) => (
+  const renderOrderItem = ({ item }: { item: CartItem }) => (
     <View style={styles.orderItem}>
       <Text style={styles.orderItemText}>
-        {item.name} x{item.quantity}
+        {item.name} ({item.unit}) x{item.quantity}
       </Text>
-      <Text style={styles.orderItemPrice}>${item.price * item.quantity}</Text>
+      <Text style={styles.orderItemPrice}>
+        ৳{(item.price * item.quantity).toFixed(2)}
+      </Text>
     </View>
   );
 
-  const renderSection = ({ item }: { item: any }) => {
+  const renderSection = ({ item }: { item: { type: string; key: string } }) => {
     switch (item.type) {
       case "billing":
         return (
@@ -135,10 +174,6 @@ export default function CheckoutScreen() {
               keyboardType="email-address"
               autoCapitalize="none"
             />
-            <TouchableOpacity style={styles.checkboxContainer}>
-              <View style={styles.checkbox} />
-              <Text style={styles.checkboxText}>Create an account?</Text>
-            </TouchableOpacity>
           </View>
         );
       case "order":
@@ -148,26 +183,23 @@ export default function CheckoutScreen() {
             <FlatList
               data={cartItems}
               renderItem={renderOrderItem}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item) => `${item.id}-${item.variantId}`}
               ListFooterComponent={
                 <>
                   <View style={styles.orderSummary}>
                     <Text style={styles.summaryText}>Subtotal</Text>
                     <Text style={styles.summaryPrice}>
-                      ${getTotalPrice().toFixed(2)}
+                      ৳{getTotalPrice().toFixed(2)}
                     </Text>
                   </View>
                   <View style={styles.orderSummary}>
                     <Text style={styles.summaryText}>Shipping</Text>
-                    <Text style={styles.summaryPrice}>$5.00</Text>
+                    <Text style={styles.summaryPrice}>৳0.00</Text>
                   </View>
-                  <TouchableOpacity style={styles.couponButton}>
-                    <Text style={styles.couponText}>Have a coupon?</Text>
-                  </TouchableOpacity>
                   <View style={styles.orderSummary}>
                     <Text style={styles.totalText}>Total</Text>
                     <Text style={styles.totalPrice}>
-                      ${(getTotalPrice() + 5).toFixed(2)}
+                      ৳{getTotalPrice().toFixed(2)}
                     </Text>
                   </View>
                 </>
@@ -186,12 +218,6 @@ export default function CheckoutScreen() {
               <TouchableOpacity style={styles.paymentOption}>
                 <View style={styles.radio} />
                 <Text style={styles.paymentText}>Direct Bank Transfer</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.checkboxContainer}>
-                <View style={styles.checkbox} />
-                <Text style={styles.checkboxText}>
-                  Save my information for faster checkout
-                </Text>
               </TouchableOpacity>
             </View>
             <TouchableOpacity
@@ -260,23 +286,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     fontSize: 16,
   },
-  checkboxContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 8,
-  },
-  checkbox: {
-    width: 16,
-    height: 16,
-    borderWidth: 1,
-    borderColor: "#27ae60",
-    borderRadius: 4,
-    marginRight: 8,
-  },
-  checkboxText: {
-    fontSize: 14,
-    color: "#666",
-  },
   orderItem: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -287,6 +296,7 @@ const styles = StyleSheet.create({
   orderItemText: {
     fontSize: 16,
     color: "#333",
+    flex: 1,
   },
   orderItemPrice: {
     fontSize: 16,
@@ -304,14 +314,6 @@ const styles = StyleSheet.create({
   summaryPrice: {
     fontSize: 16,
     color: "#333",
-  },
-  couponButton: {
-    paddingVertical: 8,
-  },
-  couponText: {
-    fontSize: 14,
-    color: "#27ae60",
-    textDecorationLine: "underline",
   },
   totalText: {
     fontSize: 18,

@@ -1,20 +1,20 @@
 import { create } from "zustand";
 
-// Define the Cart Item type
 interface CartItem {
   id: string;
+  variantId: string;
   name: string;
   image: string;
   price: number;
+  unit: string;
   quantity: number;
 }
 
-// Define the Cart State and Actions
 interface CartState {
   cartItems: CartItem[];
   addItem: (item: CartItem) => void;
-  removeItem: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
+  removeItem: (id: string, variantId: string) => void;
+  updateQuantity: (id: string, variantId: string, quantity: number) => void;
   clearCart: () => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
@@ -24,32 +24,40 @@ export const useCartStore = create<CartState>((set, get) => ({
   cartItems: [],
   addItem: (item: CartItem) =>
     set((state) => {
-      const existingItem = state.cartItems.find((i) => i.id === item.id);
+      const existingItem = state.cartItems.find(
+        (i) => i.id === item.id && i.variantId === item.variantId
+      );
       if (existingItem) {
         return {
           cartItems: state.cartItems.map((i) =>
-            i.id === item.id
-              ? { ...i, quantity: i.quantity + item.quantity } // Add the passed quantity
+            i.id === item.id && i.variantId === item.variantId
+              ? { ...i, quantity: i.quantity + item.quantity }
               : i
           ),
         };
       }
-      return { cartItems: [...state.cartItems, item] }; // Add the item with its quantity
+      return { cartItems: [...state.cartItems, item] };
     }),
-  removeItem: (id: string) =>
+  removeItem: (id: string, variantId: string) =>
     set((state) => ({
-      cartItems: state.cartItems.filter((item) => item.id !== id),
+      cartItems: state.cartItems.filter(
+        (item) => !(item.id === id && item.variantId === variantId)
+      ),
     })),
-  updateQuantity: (id: string, quantity: number) =>
+  updateQuantity: (id: string, variantId: string, quantity: number) =>
     set((state) => {
       if (quantity <= 0) {
         return {
-          cartItems: state.cartItems.filter((item) => item.id !== id),
+          cartItems: state.cartItems.filter(
+            (item) => !(item.id === id && item.variantId === variantId)
+          ),
         };
       }
       return {
         cartItems: state.cartItems.map((item) =>
-          item.id === id ? { ...item, quantity } : item
+          item.id === id && item.variantId === variantId
+            ? { ...item, quantity }
+            : item
         ),
       };
     }),
