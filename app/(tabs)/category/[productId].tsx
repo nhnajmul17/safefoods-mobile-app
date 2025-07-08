@@ -5,7 +5,6 @@ import {
   Image,
   StyleSheet,
   TouchableOpacity,
-  useColorScheme,
   SafeAreaView,
 } from "react-native";
 import { useState, useEffect } from "react";
@@ -19,279 +18,17 @@ import Animated, {
 } from "react-native-reanimated";
 import { useCartStore } from "@/store/cartStore";
 import Toast from "react-native-toast-message";
+import { greenColor } from "@/constants/Colors";
+import { ProductVariant } from "@/components/shopNowScreen/shopNowProductCard";
+// Assuming products array is defined elsewhere
+import { products } from "@/hooks/productsData";
 
-const products = [
-  // Fruits
-  {
-    id: "1",
-    name: "Apple",
-    image:
-      "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-    weight: "1kg",
-    price: "3.99$",
-    description:
-      "Apples are crisp, juicy fruits, perfect for snacking or baking.",
-    organic: "100% Organic",
-    expiration: "1 Month",
-    reviews: "4.5 (320) Reviews",
-    calories: "95 kcal 100 Gram",
-  },
-  {
-    id: "2",
-    name: "Banana",
-    image:
-      "https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8YmFuYW5hfGVufDB8fDB8fHww",
-    weight: "1kg",
-    price: "2.49$",
-    description:
-      "Bananas are sweet, energy-packed fruits, great for smoothies.",
-    organic: "100% Organic",
-    expiration: "2 Weeks",
-    reviews: "4.7 (150) Reviews",
-    calories: "89 kcal 100 Gram",
-  },
-  {
-    id: "3",
-    name: "Orange",
-    image:
-      "https://images.unsplash.com/photo-1582979512210-99b6a53386f9?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-    weight: "1kg",
-    price: "3.29$",
-    description:
-      "Oranges are juicy and rich in vitamin C, ideal for a healthy diet.",
-    organic: "100% Organic",
-    expiration: "1 Month",
-    reviews: "4.6 (200) Reviews",
-    calories: "47 kcal 100 Gram",
-  },
-  {
-    id: "4",
-    name: "Strawberry",
-    image:
-      "https://plus.unsplash.com/premium_photo-1667049291185-6270613405aa?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8c3RyYXdiZWVyeXxlbnwwfHwwfHx8MA%3D%3D",
-    weight: "500g",
-    price: "4.99$",
-    description: "Strawberries are sweet, red berries, perfect for desserts.",
-    organic: "100% Organic",
-    expiration: "1 Week",
-    reviews: "4.8 (180) Reviews",
-    calories: "32 kcal 100 Gram",
-  },
-  // Meat
-  {
-    id: "5",
-    name: "Chicken Breast",
-    image:
-      "https://images.unsplash.com/photo-1604503468506-a8da13d82791?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-    weight: "1kg",
-    price: "9.99$",
-    description: "Chicken breast is lean, versatile meat, great for grilling.",
-    organic: "Free Range",
-    expiration: "1 Week",
-    reviews: "4.4 (90) Reviews",
-    calories: "165 kcal 100 Gram",
-  },
-  {
-    id: "6",
-    name: "Beef Steak",
-    image:
-      "https://images.unsplash.com/photo-1680538491591-7ce20c900f4f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YmVhZnxlbnwwfHwwfHx8MA%3D%3D",
-    weight: "1kg",
-    price: "14.99$",
-    description: "Beef steak is a juicy cut, perfect for barbecues.",
-    organic: "Grass Fed",
-    expiration: "1 Week",
-    reviews: "4.7 (120) Reviews",
-    calories: "271 kcal 100 Gram",
-  },
-  {
-    id: "7",
-    name: "Mutton Leg",
-    image:
-      "https://images.unsplash.com/photo-1630334337820-84afb05acf3a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bGFtYiUyMG1lYXR8ZW58MHx8MHx8fDA%3D",
-    weight: "1kg",
-    price: "12.49$",
-    description: "Mutton leg is tender and flavorful, ideal for roasting.",
-    organic: "Free Range",
-    expiration: "1 Week",
-    reviews: "4.5 (80) Reviews",
-    calories: "242 kcal 100 Gram",
-  },
-  {
-    id: "8",
-    name: "Lamb Chop",
-    image:
-      "https://plus.unsplash.com/premium_photo-1667545932065-59f39c3c4f2c?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8bGFtYiUyMG1lYXR8ZW58MHx8MHx8fDA%3D",
-    weight: "1kg",
-    price: "19.99$",
-    description: "Lamb chops are succulent, perfect for grilling.",
-    organic: "Grass Fed",
-    expiration: "1 Week",
-    reviews: "4.8 (100) Reviews",
-    calories: "294 kcal 100 Gram",
-  },
-  // Cheese
-  {
-    id: "9",
-    name: "Cheddar",
-    image:
-      "https://images.unsplash.com/photo-1683314573422-649a3c6ad784?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y2hlZGRhciUyMGNoZWVzZXxlbnwwfHwwfHx8MA%3D%3D",
-    weight: "500g",
-    price: "7.99$",
-    description: "Cheddar is a sharp, tangy cheese, great for sandwiches.",
-    organic: "100% Organic",
-    expiration: "6 Months",
-    reviews: "4.6 (150) Reviews",
-    calories: "403 kcal 100 Gram",
-  },
-  {
-    id: "10",
-    name: "Brie",
-    image:
-      "https://images.unsplash.com/photo-1607127368565-0fc09ac36028?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Z291ZGElMjBjaGVlc2V8ZW58MHx8MHx8fDA%3D",
-    weight: "500g",
-    price: "9.49$",
-    description: "Brie is a creamy, soft cheese, perfect for cheese boards.",
-    organic: "100% Organic",
-    expiration: "1 Month",
-    reviews: "4.9 (200) Reviews",
-    calories: "334 kcal 100 Gram",
-  },
-  {
-    id: "11",
-    name: "Gouda",
-    image:
-      "https://images.unsplash.com/photo-1632200729570-1043effd1b77?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fHBhcm1lYXNhbiUyMGNoZWVzZXxlbnwwfHwwfHx8MA%3D%3D",
-    weight: "500g",
-    price: "8.99$",
-    description: "Gouda is a mild, nutty cheese, ideal for snacking.",
-    organic: "100% Organic",
-    expiration: "3 Months",
-    reviews: "4.7 (130) Reviews",
-    calories: "356 kcal 100 Gram",
-  },
-  {
-    id: "12",
-    name: "Parmesan",
-    image:
-      "https://images.unsplash.com/photo-1669908978664-485e69bc26cd?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8cGFybWVhc2FuJTIwY2hlZXNlfGVufDB8fDB8fHww",
-    weight: "500g",
-    price: "10.99$",
-    description: "Parmesan is a hard, salty cheese, perfect for grating.",
-    organic: "100% Organic",
-    expiration: "1 Year",
-    reviews: "4.8 (180) Reviews",
-    calories: "431 kcal 100 Gram",
-  },
-
-  //vegetables
-  {
-    id: "13",
-    name: "Bell Pepper Red",
-    image:
-      "https://images.unsplash.com/photo-1601648764658-cf37e8c89b70?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-    weight: "1kg",
-    price: "5.99$",
-    description:
-      "Bell peppers are sweet, crunchy vegetables, great for salads.",
-    organic: "100% Organic",
-    expiration: "1 Month",
-    reviews: "4.5 (320) Reviews",
-  },
-  {
-    id: "14",
-    name: "Broccoli",
-    image:
-      "https://plus.unsplash.com/premium_photo-1702403157830-9df749dc6c1e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8YnJvY2NvbGl8ZW58MHx8MHx8fDA%3D",
-    weight: "500g",
-    price: "2.79$",
-    description: "Broccoli is a nutrient-rich vegetable, great for steaming.",
-    organic: "100% Organic",
-    expiration: "1 Week",
-    reviews: "4.6 (200) Reviews",
-  },
-  {
-    id: "15",
-    name: "Papaya",
-    image:
-      "https://plus.unsplash.com/premium_photo-1675639895212-696149c275f9?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cGFwYXlhfGVufDB8fDB8fHww",
-    weight: "1kg",
-    price: "3.49$",
-    description:
-      "Papaya is a tropical fruit, sweet and juicy, great for smoothies.",
-    organic: "100% Organic",
-    expiration: "1 Week",
-    reviews: "4.7 (150) Reviews",
-  },
-  {
-    id: "16",
-    name: "Lettuce",
-    image:
-      "https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bGV0dHVjZXxlbnwwfHwwfHx8MA%3D%3D",
-    weight: "500g",
-    price: "1.99$",
-    description:
-      "Lettuce is a leafy green vegetable, perfect for salads and wraps.",
-    organic: "100% Organic",
-    expiration: "1 Week",
-    reviews: "4.8 (180) Reviews",
-  },
-  {
-    id: "17",
-    name: "Carrot",
-    image:
-      "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-    weight: "1kg",
-    price: "2.49$",
-    description: "Carrots are crunchy, sweet vegetables, great for snacking.",
-    organic: "100% Organic",
-    expiration: "1 Month",
-    reviews: "4.5 (320) Reviews",
-  },
-  {
-    id: "18",
-    name: "Cabbage",
-    image:
-      "https://images.unsplash.com/photo-1730815046052-75a1b90117e2?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y2FiYmFnZXxlbnwwfHwwfHx8MA%3D%3D",
-    weight: "1kg",
-    price: "2.99$",
-    description:
-      "Cabbage is a leafy green vegetable, great for salads and stir-fries.",
-    organic: "100% Organic",
-    expiration: "1 Month",
-    reviews: "4.6 (200) Reviews",
-  },
-  {
-    id: "19",
-    name: "Tomato",
-    image:
-      "https://images.unsplash.com/photo-1582284540020-8acbe03f4924?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8dG9tYXRvfGVufDB8fDB8fHww",
-    weight: "1kg",
-    price: "3.29$",
-    description:
-      "Tomatoes are juicy, red fruits, perfect for salads and sauces.",
-    organic: "100% Organic",
-    expiration: "1 Week",
-    reviews: "4.7 (150) Reviews",
-  },
-  {
-    id: "20",
-    name: "Zucchini",
-    image:
-      "https://images.unsplash.com/photo-1596056094719-10ba4f7ea650?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8enVjY2hpbml8ZW58MHx8MHx8fDA%3D",
-    weight: "1kg",
-    price: "2.69$",
-    description:
-      "Zucchini is a versatile vegetable, great for grilling and baking.",
-    organic: "100% Organic",
-    expiration: "1 Week",
-    reviews: "4.8 (180) Reviews",
-  },
-];
 export default function ProductDetailsScreen() {
   const { productId } = useLocalSearchParams();
-  const colorScheme = useColorScheme();
   const [quantity, setQuantity] = useState(0);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
+    null
+  );
   const { addItem } = useCartStore();
 
   // Animation values
@@ -300,6 +37,17 @@ export default function ProductDetailsScreen() {
   const decrementScale = useSharedValue(1);
   const incrementScale = useSharedValue(1);
   const addToCartScale = useSharedValue(1);
+  const variantScale = useSharedValue(1);
+
+  // Find the product by ID
+  const product = products.find((p) => p.id === productId);
+
+  // Initialize selected variant
+  useEffect(() => {
+    if (product && !selectedVariant) {
+      setSelectedVariant(product.variants[0]);
+    }
+  }, [product, selectedVariant]);
 
   // Trigger animations on mount
   useEffect(() => {
@@ -309,17 +57,6 @@ export default function ProductDetailsScreen() {
       easing: Easing.ease,
     });
   }, []);
-
-  // Find the product by ID
-  const product = products.find((p) => p.id === productId);
-
-  if (!product) {
-    return (
-      <View style={styles.container}>
-        <Text>Product not found</Text>
-      </View>
-    );
-  }
 
   const handleIncrement = () => {
     setQuantity(quantity + 1);
@@ -335,22 +72,38 @@ export default function ProductDetailsScreen() {
     });
   };
 
+  const handleVariantChange = (variant: ProductVariant) => {
+    setSelectedVariant(variant);
+    variantScale.value = withSpring(0.95, {}, () => {
+      variantScale.value = withSpring(1);
+    });
+  };
+
   const handleAddToCart = () => {
+    if (!product || !selectedVariant) return;
+
     if (quantity > 0) {
       const cartItem = {
         id: product.id,
+        variantId: selectedVariant.id,
         name: product.name,
-        image: product.image,
-        price: parseFloat(product.price.replace("$", "")),
-        quantity: quantity,
+        image:
+          selectedVariant.mediaItems[0]?.image ||
+          "https://via.placeholder.com/50",
+        price: selectedVariant.price,
+        unit: selectedVariant.unit,
+        quantity,
       };
       addItem(cartItem);
-      console.log(`Added ${quantity} ${product.name}(s) to cart`, cartItem);
+      console.log(
+        `Added ${quantity} ${product.name} (${selectedVariant.unit}) to cart`,
+        cartItem
+      );
 
       Toast.show({
         type: "success",
         text1: "Added to Cart",
-        text2: `${quantity} ${product.name}(s) added to your cart.`,
+        text2: `${quantity} ${product.name} (${selectedVariant.unit}) added to your cart.`,
         text1Style: { fontSize: 16, fontWeight: "bold" },
         text2Style: { fontSize: 14, fontWeight: "bold" },
       });
@@ -391,12 +144,31 @@ export default function ProductDetailsScreen() {
     transform: [{ scale: addToCartScale.value }],
   }));
 
+  const variantStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: variantScale.value }],
+  }));
+
+  // Render fallback UI if product or selectedVariant is not found
+  if (!product || !selectedVariant) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.content}>
+          <Text style={styles.errorText}>Product not found</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <Animated.View style={[styles.imageContainer, imageStyle]}>
           <Image
-            source={{ uri: product.image }}
+            source={{
+              uri:
+                selectedVariant.mediaItems[0]?.image ||
+                "https://via.placeholder.com/50",
+            }}
             style={styles.productImage}
             onError={(e) =>
               console.log(
@@ -429,10 +201,39 @@ export default function ProductDetailsScreen() {
               </Animated.View>
             </View>
           </View>
-          <Text
-            style={styles.weightPrice}
-          >{`${product.weight}, ${product.price}`}</Text>
-          <Text style={styles.description}>{product.description}</Text>
+          <View style={styles.variantContainer}>
+            {product.variants.map((variant) => (
+              <Animated.View key={variant.id} style={variantStyle}>
+                <TouchableOpacity
+                  style={[
+                    styles.variantBadge,
+                    selectedVariant.id === variant.id &&
+                      styles.selectedVariantBadge,
+                  ]}
+                  onPress={() => handleVariantChange(variant)}
+                >
+                  <Text
+                    style={[
+                      styles.variantText,
+                      selectedVariant.id === variant.id &&
+                        styles.selectedVariantText,
+                    ]}
+                  >
+                    {variant.unit}
+                  </Text>
+                </TouchableOpacity>
+              </Animated.View>
+            ))}
+          </View>
+          <View style={styles.priceContainer}>
+            <Text style={styles.weightPrice}>৳{selectedVariant.price}</Text>
+            {selectedVariant.originalPrice > selectedVariant.price && (
+              <Text style={styles.originalPrice}>
+                ৳{selectedVariant.originalPrice}
+              </Text>
+            )}
+          </View>
+          <Text style={styles.description}>{selectedVariant.description}</Text>
           <View style={styles.infoGrid}>
             <View style={styles.infoItem}>
               <Image
@@ -441,7 +242,7 @@ export default function ProductDetailsScreen() {
                 }}
                 style={styles.infoIcon}
               />
-              <Text style={styles.infoText}>{product.organic}</Text>
+              <Text style={styles.infoText}>100% Organic</Text>
             </View>
             <View style={styles.infoItem}>
               <Image
@@ -450,7 +251,7 @@ export default function ProductDetailsScreen() {
                 }}
                 style={styles.infoIcon}
               />
-              <Text style={styles.infoText}>{product.expiration}</Text>
+              <Text style={styles.infoText}>1 Month</Text>
             </View>
             <View style={styles.infoItem}>
               <Image
@@ -459,7 +260,7 @@ export default function ProductDetailsScreen() {
                 }}
                 style={styles.infoIcon}
               />
-              <Text style={styles.infoText}>{product.reviews}</Text>
+              <Text style={styles.infoText}>4.5 (320) Reviews</Text>
             </View>
             <View style={styles.infoItem}>
               <Image
@@ -468,7 +269,7 @@ export default function ProductDetailsScreen() {
                 }}
                 style={styles.infoIcon}
               />
-              <Text style={styles.infoText}>{product.calories}</Text>
+              <Text style={styles.infoText}>Varies by product</Text>
             </View>
           </View>
         </Animated.View>
@@ -493,6 +294,12 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  errorText: {
+    fontSize: 18,
+    color: "#333",
+    textAlign: "center",
+    marginTop: 20,
   },
   imageContainer: {
     width: "100%",
@@ -536,7 +343,7 @@ const styles = StyleSheet.create({
   quantityText: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#27ae60",
+    color: greenColor,
   },
   quantity: {
     fontSize: 24,
@@ -544,11 +351,46 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     color: "#333",
   },
+  variantContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "flex-start",
+    marginBottom: 8,
+  },
+  variantBadge: {
+    backgroundColor: "#eee",
+    borderRadius: 10,
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  selectedVariantBadge: {
+    backgroundColor: greenColor,
+  },
+  variantText: {
+    fontSize: 14,
+    color: "#333",
+  },
+  selectedVariantText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+  priceContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
   weightPrice: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#27ae60",
-    marginBottom: 8,
+    color: greenColor,
+  },
+  originalPrice: {
+    fontSize: 16,
+    color: "#999",
+    textDecorationLine: "line-through",
+    marginLeft: 8,
   },
   description: {
     fontSize: 16,
@@ -592,7 +434,7 @@ const styles = StyleSheet.create({
     bottom: 20,
     left: 0,
     right: 0,
-    backgroundColor: "#27ae60",
+    backgroundColor: greenColor,
     paddingVertical: 18,
     borderRadius: 25,
     alignItems: "center",
