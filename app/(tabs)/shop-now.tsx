@@ -232,6 +232,8 @@ export default function ShopNowScreen() {
               setSortOption(itemValue);
               setShowFilterDrawer(!showFilterDrawer);
             }}
+            style={{ color: "#1a1a1a" }}
+            dropdownIconColor="#1a1a1a"
           >
             <Picker.Item label="None" value="None" />
             <Picker.Item label="Low to High" value="Low to High" />
