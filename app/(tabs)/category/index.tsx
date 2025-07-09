@@ -11,8 +11,8 @@ import {
   SafeAreaView,
   Animated,
 } from "react-native";
-import React, { useRef } from "react"; // Added useRef
-import { useFocusEffect } from "@react-navigation/native"; // For focus detection
+import React, { useRef } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 
 const categories: CategoryType[] = [
   {
@@ -29,8 +29,8 @@ const categories: CategoryType[] = [
   },
   {
     id: "3",
-    name: "Cheeses",
-    href: "/(tabs)/category/cheese",
+    name: "Dairy",
+    href: "/(tabs)/category/dairy",
     icon: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png",
   },
   {
@@ -39,16 +39,21 @@ const categories: CategoryType[] = [
     href: "/(tabs)/category/vegetables",
     icon: "https://cdn-icons-png.flaticon.com/512/2153/2153788.png",
   },
+  {
+    id: "5",
+    name: "Protein",
+    href: "/(tabs)/category/protein",
+    icon: "https://cdn-icons-png.flaticon.com/512/1046/1046759.png",
+  },
 ];
 
 export default function CategoryScreen() {
   const colorScheme = useColorScheme();
-  const opacity = useRef(new Animated.Value(0)).current; // Use ref to persist Animated.Value
+  const opacity = useRef(new Animated.Value(0)).current;
 
-  // Trigger animation when screen is focused
   useFocusEffect(
     React.useCallback(() => {
-      opacity.setValue(0); // Reset opacity to 0
+      opacity.setValue(0);
       Animated.timing(opacity, {
         toValue: 1,
         duration: 1000,
@@ -75,17 +80,10 @@ export default function CategoryScreen() {
           keyExtractor={(item) => item.id}
           numColumns={4}
           contentContainerStyle={styles.grid}
+          columnWrapperStyle={styles.columnWrapper}
           renderItem={({ item }) => (
-            <Link
-              href={item.href}
-              style={[
-                styles.card,
-                { backgroundColor: Colors.light.background },
-              ]}
-            >
-              <Animated.View
-                style={[styles.cardContent, { opacity }]} // Apply fade-in animation
-              >
+            <Link href={item.href} style={styles.card}>
+              <Animated.View style={[styles.cardContent, { opacity }]}>
                 <Image
                   source={{ uri: item.icon }}
                   style={styles.icon}
@@ -116,13 +114,18 @@ const styles = StyleSheet.create({
   grid: {
     padding: 16,
   },
+  columnWrapper: {
+    justifyContent: "space-between",
+  },
   card: {
-    flex: 1,
-    margin: 8,
+    width: "23%", // Approximately 1/4 of the row width with margins
+    margin: 4,
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#eee",
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "#000",
+    shadowColor: "#fff",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,

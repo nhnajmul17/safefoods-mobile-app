@@ -16,7 +16,7 @@ import ShopNowProductCard, {
   ShopNowProduct,
   ProductVariant,
 } from "@/components/shopNowScreen/shopNowProductCard";
-import { products } from "@/hooks/productsData";
+import { allProductsData } from "@/hooks/productsData";
 
 export default function ShopNowScreen() {
   const { addItem } = useCartStore();
@@ -27,7 +27,7 @@ export default function ShopNowScreen() {
   const [sortOption, setSortOption] = useState("None");
   const [page, setPage] = useState(1);
 
-  const allProducts = products;
+  const allProducts = allProductsData;
 
   const filteredProducts = useMemo(() => {
     let result = [...allProducts];

@@ -21,7 +21,7 @@ import Toast from "react-native-toast-message";
 import { greenColor } from "@/constants/Colors";
 import { ProductVariant } from "@/components/shopNowScreen/shopNowProductCard";
 // Assuming products array is defined elsewhere
-import { products } from "@/hooks/productsData";
+import { allProductsData } from "@/hooks/productsData";
 
 export default function ProductDetailsScreen() {
   const { productId } = useLocalSearchParams();
@@ -40,7 +40,7 @@ export default function ProductDetailsScreen() {
   const variantScale = useSharedValue(1);
 
   // Find the product by ID
-  const product = products.find((p) => p.id === productId);
+  const product = allProductsData.find((p) => p.id === productId);
 
   // Initialize selected variant
   useEffect(() => {

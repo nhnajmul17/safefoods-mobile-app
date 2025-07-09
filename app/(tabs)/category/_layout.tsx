@@ -47,9 +47,9 @@ export default function CategoryLayout() {
         }}
       />
       <Stack.Screen
-        name="cheese"
+        name="dairy"
         options={{
-          title: "Cheeses",
+          title: "Dairy",
           headerStyle: { backgroundColor: "#98fb98" },
           // headerStyle: { backgroundColor: "#f0e68c" },
         }}
@@ -57,6 +57,13 @@ export default function CategoryLayout() {
       <Stack.Screen
         name="meat"
         options={{ title: "Meat", headerStyle: { backgroundColor: "#98fb98" } }}
+      />
+      <Stack.Screen
+        name="protein"
+        options={{
+          title: "Protein",
+          headerStyle: { backgroundColor: "#98fb98" },
+        }}
       />
       <Stack.Screen
         name="[productId]"

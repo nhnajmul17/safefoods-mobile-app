@@ -17,10 +17,9 @@ interface QuantityMap {
 }
 
 const products: ShopNowProduct[] = allProductsData.filter(
-  (product) => product.category === "Fruits"
+  (product) => product.category === "Dairy"
 );
-
-export default function FruitScreen() {
+export default function DairyScreen() {
   const { addItem } = useCartStore();
   const [quantities, setQuantities] = useState<QuantityMap>({});
   const [selectedVariants, setSelectedVariants] = useState<{

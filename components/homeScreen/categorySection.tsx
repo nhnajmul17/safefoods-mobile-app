@@ -17,8 +17,10 @@ export type CategoryType = {
   href:
     | "/(tabs)/category/fruits"
     | "/(tabs)/category/vegetables"
-    | "/(tabs)/category/cheese"
-    | "/(tabs)/category/meat";
+    | "/(tabs)/category/dairy"
+    | "/(tabs)/category/meat"
+    | "/(tabs)/category/protein";
+
   icon: string;
 };
 
@@ -37,8 +39,8 @@ const categories: CategoryType[] = [
   },
   {
     id: "3",
-    name: "Cheeses",
-    href: "/(tabs)/category/cheese",
+    name: "Dairy",
+    href: "/(tabs)/category/dairy",
     icon: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png",
   },
   {
