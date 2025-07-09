@@ -19,12 +19,14 @@ import HomeCategorySection from "@/components/homeScreen/categorySection";
 import HomeBestSelling from "@/components/homeScreen/bestSelling";
 import WhySafeFoodsSection from "@/components/homeScreen/whySafefoods";
 import { Colors } from "@/constants/Colors";
+import { useAuthStore } from "@/store/authStore";
 
 // Get device dimensions for responsive design
 const { width } = Dimensions.get("window");
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
+  const { userId, userName } = useAuthStore();
 
   // Toggle theme on button press
   const toggleTheme = () => {
@@ -47,25 +49,34 @@ export default function HomeScreen() {
         >
           {/* Header */}
           <View style={styles.header}>
-            <View style={styles.userInfo}>
-              <Image
-                source={{
-                  uri: "https://randomuser.me/api/portraits/men/44.jpg",
-                }}
-                style={styles.avatar}
-                onError={(e) =>
-                  console.log("Avatar load error:", e.nativeEvent.error)
-                }
-              />
-              <View>
-                <Text style={[styles.greeting, { color: Colors.light.text }]}>
-                  Good morning
-                </Text>
-                <Text style={[styles.userName, { color: Colors.light.text }]}>
-                  MSajib
-                </Text>
+            {/* User Info */}
+            {userId && (
+              <View style={styles.userInfo}>
+                <Image
+                  source={{
+                    uri: "https://randomuser.me/api/portraits/men/44.jpg",
+                  }}
+                  style={styles.avatar}
+                  onError={(e) =>
+                    console.log("Avatar load error:", e.nativeEvent.error)
+                  }
+                />
+                <View>
+                  <Text style={[styles.greeting, { color: Colors.light.text }]}>
+                    {(() => {
+                      const hour = new Date().getHours();
+                      if (hour < 12) return "Good Morning";
+                      if (hour < 18) return "Good Afternoon";
+                      return "Good Evening";
+                    })()}
+                  </Text>
+                  <Text style={[styles.userName, { color: Colors.light.text }]}>
+                    {userName || "John Abram"}
+                  </Text>
+                </View>
               </View>
-            </View>
+            )}
+
             {/* <TouchableOpacity
               style={[
                 styles.themeButton,

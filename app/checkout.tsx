@@ -11,6 +11,7 @@ import { useCartStore } from "@/store/cartStore";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import Toast from "react-native-toast-message";
+import ProtectedRoute from "@/components/auth/protectedRoute";
 
 interface CartItem {
   id: string;
@@ -239,14 +240,16 @@ export default function CheckoutScreen() {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
-      <FlatList
-        data={data}
-        renderItem={renderSection}
-        keyExtractor={(item) => item.key}
-        contentContainerStyle={styles.content}
-      />
-    </SafeAreaView>
+    <ProtectedRoute>
+      <SafeAreaView style={styles.container}>
+        <FlatList
+          data={data}
+          renderItem={renderSection}
+          keyExtractor={(item) => item.key}
+          contentContainerStyle={styles.content}
+        />
+      </SafeAreaView>
+    </ProtectedRoute>
   );
 }
 

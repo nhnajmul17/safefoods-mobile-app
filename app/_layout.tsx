@@ -87,6 +87,28 @@ export default function RootLayout() {
               headerTitle: "",
             }}
           />
+          <Stack.Screen
+            name="login"
+            options={{
+              headerShown: false,
+              headerTitle: "Sign in",
+              headerTitleStyle: {
+                fontWeight: "bold",
+                fontSize: 24,
+              },
+            }}
+          />
+          <Stack.Screen
+            name="register"
+            options={{
+              headerShown: false,
+              headerTitle: "Sign up",
+              headerTitleStyle: {
+                fontWeight: "bold",
+                fontSize: 24,
+              },
+            }}
+          />
         </Stack>
         <StatusBar style="auto" />
       </ThemeProvider>

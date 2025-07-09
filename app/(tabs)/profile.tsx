@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "expo-router";
 import {
   View,
@@ -10,36 +11,45 @@ import {
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const { logout, userId, userName } = useAuthStore();
 
   const menuItems = [
-    {
-      id: "1",
-      title: "My Profile",
-      icon: "https://cdn-icons-png.flaticon.com/512/1144/1144760.png", // user profile icon
-      action: () => router.push("/my-profile"),
-    },
+    ...(userId
+      ? [
+          {
+            id: "1",
+            title: "My Profile",
+            icon: "https://cdn-icons-png.flaticon.com/512/1144/1144760.png",
+            action: () => router.push("/my-profile"),
+          },
+        ]
+      : []),
     {
       id: "2",
       title: "Security",
-      icon: "https://cdn-icons-png.flaticon.com/512/3064/3064197.png", // lock/security icon
+      icon: "https://cdn-icons-png.flaticon.com/512/3064/3064197.png",
       // action: () => router.push("/security"),
     },
     {
       id: "3",
       title: "Settings",
-      icon: "https://cdn-icons-png.flaticon.com/512/2099/2099058.png", // gear/settings icon
+      icon: "https://cdn-icons-png.flaticon.com/512/2099/2099058.png",
       action: () => router.push("/settings"),
     },
-    {
-      id: "4",
-      title: "My Orders",
-      icon: "https://cdn-icons-png.flaticon.com/512/891/891462.png", // box/order package icon
-      action: () => router.push("/my-orders"),
-    },
+    ...(userId
+      ? [
+          {
+            id: "4",
+            title: "My Orders",
+            icon: "https://cdn-icons-png.flaticon.com/512/891/891462.png",
+            action: () => router.push("/my-orders"),
+          },
+        ]
+      : []),
     {
       id: "5",
       title: "Privacy Policy",
-      icon: "https://cdn-icons-png.flaticon.com/512/942/942751.png", // shield/privacy icon
+      icon: "https://cdn-icons-png.flaticon.com/512/942/942751.png",
       action: () =>
         router.push({
           pathname: "/webview",
@@ -49,7 +59,7 @@ export default function ProfileScreen() {
     {
       id: "6",
       title: "Terms & Conditions",
-      icon: "https://cdn-icons-png.flaticon.com/512/535/535239.png", // document icon
+      icon: "https://cdn-icons-png.flaticon.com/512/535/535239.png",
       action: () =>
         router.push({
           pathname: "/webview",
@@ -58,42 +68,53 @@ export default function ProfileScreen() {
     },
     {
       id: "7",
-      title: "Log Out",
-      icon: "https://cdn-icons-png.flaticon.com/512/1828/1828479.png", // logout icon
-      // action: () => router.push("/logout"),
+      title: userId ? "Log Out" : "Login",
+      icon: userId
+        ? "https://cdn-icons-png.flaticon.com/512/1828/1828479.png"
+        : "https://cdn-icons-png.flaticon.com/512/1828/1828478.png", // Login icon
+      action: () => {
+        if (userId) {
+          logout();
+          router.push("/login");
+        } else {
+          router.push("/login");
+        }
+      },
     },
   ];
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.container}>
+      {userId && (
         <View style={styles.header}>
           <Image
-            source={{ uri: "https://randomuser.me/api/portraits/men/44.jpg" }} // Placeholder profile image
+            source={{ uri: "https://randomuser.me/api/portraits/men/44.jpg" }}
             style={styles.profileImage}
           />
           <View>
-            <Text style={styles.name}>John Abram</Text>
-            <Text style={styles.email}>johnabram@gmail.com</Text>
+            <Text style={styles.name}>{userName || "John Abram"}</Text>
+            <Text style={styles.email}>
+              {userName ? `${userId}@example.com` : "johnabram@gmail.com"}
+            </Text>
           </View>
         </View>
-        {menuItems.map((item) => (
-          <TouchableOpacity
-            key={item.id}
-            style={styles.menuItem}
-            onPress={item.action}
-          >
-            <Image source={{ uri: item.icon }} style={styles.menuIcon} />
-            <Text style={styles.menuText}>{item.title}</Text>
-            <Image
-              source={{
-                uri: "https://cdn-icons-png.flaticon.com/512/271/271228.png", // Right arrow icon
-              }}
-              style={styles.chevronIcon}
-            />
-          </TouchableOpacity>
-        ))}
-      </View>
+      )}
+      {menuItems.map((item) => (
+        <TouchableOpacity
+          key={item.id}
+          style={styles.menuItem}
+          onPress={item.action}
+        >
+          <Image source={{ uri: item.icon }} style={styles.menuIcon} />
+          <Text style={styles.menuText}>{item.title}</Text>
+          <Image
+            source={{
+              uri: "https://cdn-icons-png.flaticon.com/512/271/271228.png",
+            }}
+            style={styles.chevronIcon}
+          />
+        </TouchableOpacity>
+      ))}
     </SafeAreaView>
   );
 }
