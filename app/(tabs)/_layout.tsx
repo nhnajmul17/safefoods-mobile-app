@@ -121,14 +121,13 @@ export default function TabLayout() {
       <Tabs.Screen
         name="category"
         options={{
-          headerShown: false,
           title: "Category",
+          headerShown: false,
           tabBarIcon: ({ color, focused, size }) => (
             <IconSymbol size={size} name="basket.fill" color={color} />
           ),
         }}
       />
-
       <Tabs.Screen
         name="shop-now"
         options={{
@@ -160,6 +159,20 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused, size }) => (
             <IconSymbol size={size} name="person.fill" color={color} />
           ),
+        }}
+      />
+      <Tabs.Screen
+        name="cart"
+        options={{
+          title: "Cart",
+          headerShown: true,
+          headerStyle: { backgroundColor: lightGreenColor },
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 24,
+            color: "#fff",
+          },
+          tabBarButton: () => null, // Hide the default tab bar button for cart
         }}
       />
     </Tabs>

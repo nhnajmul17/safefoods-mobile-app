@@ -21,14 +21,14 @@ export default function CategoryLayout() {
           headerShown: true,
           title: "Category",
           headerStyle: { backgroundColor: "#98fb98" },
-          // headerStyle: {
-          //   backgroundColor:
-          //     colorScheme === "dark" ? lightGreenColor : lightGreenColor,
-          // },
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 24,
           },
+          // headerStyle: {
+          //   backgroundColor:
+          //     colorScheme === "dark" ? lightGreenColor : lightGreenColor,
+          // },
         }}
         // options={{ headerShown: false, title: "Category" }}
       />

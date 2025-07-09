@@ -100,7 +100,7 @@ export default function CartScreen() {
     <View style={styles.container}>
       {/* Header with Clear Cart */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Cart ({cartItems.length})</Text>
+        <Text style={styles.headerTitle}>Cart Items ({cartItems.length})</Text>
         {cartItems.length > 0 && (
           <TouchableOpacity onPress={clearCart} style={styles.clearButton}>
             <Text style={styles.clearButtonText}>Clear Cart</Text>

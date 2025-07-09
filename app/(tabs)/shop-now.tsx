@@ -150,13 +150,12 @@ export default function ShopNowScreen() {
             dropdownIconColor="#1a1a1a"
           >
             <Picker.Item label="All" value="All" />
-            <Picker.Item label="Proteins" value="Proteins" />
+            <Picker.Item label="Protein" value="Protein" />
             <Picker.Item label="Meat" value="Meat" />
             <Picker.Item label="Vegetables" value="Vegetables" />
             <Picker.Item label="Dairy" value="Dairy" />
             <Picker.Item label="Oil" value="Oil" />
             <Picker.Item label="Fruits" value="Fruits" />
-            <Picker.Item label="Cheese" value="Cheese" />
           </Picker>
 
           <Text style={styles.modalLabel}>Sort By Price</Text>
