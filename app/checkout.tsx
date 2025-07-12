@@ -87,7 +87,7 @@ export default function CheckoutScreen() {
       text2Style: { fontSize: 14, fontWeight: "bold" },
     });
     clearCart();
-    router.push("/(tabs)/(home)");
+    router.push("/(tabs)/home");
   };
 
   const renderOrderItem = ({ item }: { item: CartItem }) => (

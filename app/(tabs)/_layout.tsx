@@ -109,7 +109,7 @@ export default function TabLayout() {
   return (
     <Tabs tabBar={(props) => <CustomTabBar {...props} />}>
       <Tabs.Screen
-        name="(home)"
+        name="home"
         options={{
           headerShown: false,
           title: "Home",

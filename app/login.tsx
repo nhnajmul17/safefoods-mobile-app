@@ -21,7 +21,7 @@ export default function LoginScreen() {
   const handleLogin = () => {
     if (username && password) {
       login(username);
-      router.replace("/(tabs)/(home)");
+      router.replace("/(tabs)/home");
     } else {
       Toast.show({
         type: "error",
