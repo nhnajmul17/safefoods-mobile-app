@@ -34,6 +34,22 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={{ alignItems: "center", marginBottom: 32 }}>
+        <Text
+          style={{
+            fontSize: 32,
+            fontWeight: "bold",
+            marginBottom: 8,
+            textAlign: "center",
+            // color: "#4f998e",
+          }}
+        >
+          Welcome Back to <Text style={{ color: "#4f998e" }}>Safe Foods</Text>
+        </Text>
+        <Text style={{ fontSize: 20, color: "#999", textAlign: "center" }}>
+          Sign in with your credentials
+        </Text>
+      </View>
       <Text style={styles.title}>Sign in</Text>
 
       <View style={styles.inputGroup}>
@@ -95,6 +111,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 32,
     textAlign: "left",
+    color: "#4f998e",
   },
   inputGroup: {
     marginBottom: 16,

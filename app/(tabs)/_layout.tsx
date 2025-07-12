@@ -133,6 +133,8 @@ export default function TabLayout() {
         options={{
           title: "Shop Now",
           headerShown: true,
+          headerTitleAlign: "center",
+
           headerStyle: { backgroundColor: lightGreenColor },
           headerTitleStyle: {
             fontWeight: "bold",
@@ -149,6 +151,8 @@ export default function TabLayout() {
         options={{
           title: "Profile",
           headerShown: true,
+          headerTitleAlign: "center",
+
           headerStyle: { backgroundColor: lightGreenColor },
           headerTitleStyle: {
             fontWeight: "bold",
@@ -166,6 +170,7 @@ export default function TabLayout() {
         options={{
           title: "Cart",
           headerShown: true,
+          headerTitleAlign: "center",
           headerStyle: { backgroundColor: lightGreenColor },
           headerTitleStyle: {
             fontWeight: "bold",

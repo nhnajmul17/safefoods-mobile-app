@@ -44,6 +44,7 @@ export default function RootLayout() {
             name="checkout"
             options={{
               headerTitle: "Checkout",
+              headerTitleAlign: "center",
               headerTitleStyle: {
                 fontWeight: "bold",
                 fontSize: 24,
@@ -54,6 +55,7 @@ export default function RootLayout() {
             name="my-orders"
             options={{
               headerTitle: "My Orders",
+              headerTitleAlign: "center",
               headerTitleStyle: {
                 fontWeight: "bold",
                 fontSize: 24,
@@ -64,17 +66,18 @@ export default function RootLayout() {
             name="my-profile"
             options={{
               headerTitle: "My Profile",
+              headerTitleAlign: "center",
               headerTitleStyle: {
                 fontWeight: "bold",
                 fontSize: 24,
               },
             }}
           />
-
           <Stack.Screen
             name="settings"
             options={{
               headerTitle: "Settings",
+              headerTitleAlign: "center",
               headerTitleStyle: {
                 fontWeight: "bold",
                 fontSize: 24,
@@ -84,7 +87,12 @@ export default function RootLayout() {
           <Stack.Screen
             name="webview"
             options={{
-              headerTitle: "",
+              headerTitle: "Safe Foods",
+              headerTitleAlign: "center",
+              headerTitleStyle: {
+                fontWeight: "bold",
+                fontSize: 20,
+              },
             }}
           />
           <Stack.Screen
@@ -92,6 +100,7 @@ export default function RootLayout() {
             options={{
               headerShown: false,
               headerTitle: "Sign in",
+              headerTitleAlign: "center",
               headerTitleStyle: {
                 fontWeight: "bold",
                 fontSize: 24,
@@ -103,6 +112,7 @@ export default function RootLayout() {
             options={{
               headerShown: false,
               headerTitle: "Sign up",
+              headerTitleAlign: "center",
               headerTitleStyle: {
                 fontWeight: "bold",
                 fontSize: 24,

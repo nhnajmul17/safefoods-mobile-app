@@ -21,6 +21,8 @@ export default function CategoryLayout() {
           headerShown: true,
           title: "Category",
           headerStyle: { backgroundColor: "#98fb98" },
+          headerTitleAlign: "center",
+
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 24,
@@ -36,6 +38,8 @@ export default function CategoryLayout() {
         name="fruits"
         options={{
           title: "Fruits",
+          headerTitleAlign: "center",
+
           headerStyle: { backgroundColor: "#98fb98" },
         }}
       />
@@ -43,6 +47,7 @@ export default function CategoryLayout() {
         name="vegetables"
         options={{
           title: "Vegetables",
+          headerTitleAlign: "center",
           headerStyle: { backgroundColor: "#98fb98" },
         }}
       />
@@ -50,6 +55,7 @@ export default function CategoryLayout() {
         name="dairy"
         options={{
           title: "Dairy",
+          headerTitleAlign: "center",
           headerStyle: { backgroundColor: "#98fb98" },
           // headerStyle: { backgroundColor: "#f0e68c" },
         }}
@@ -62,6 +68,7 @@ export default function CategoryLayout() {
         name="protein"
         options={{
           title: "Protein",
+          headerTitleAlign: "center",
           headerStyle: { backgroundColor: "#98fb98" },
         }}
       />
@@ -70,6 +77,7 @@ export default function CategoryLayout() {
         options={{
           headerShown: true,
           title: "",
+          headerTitleAlign: "center",
           headerStyle: { backgroundColor: "#98fb98" },
         }}
       />

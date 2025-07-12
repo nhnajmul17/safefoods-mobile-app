@@ -36,6 +36,21 @@ export default function RegisterScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={{ alignItems: "center", marginBottom: 32 }}>
+        <Text
+          style={{
+            fontSize: 32,
+            fontWeight: "bold",
+            marginBottom: 8,
+            textAlign: "center",
+          }}
+        >
+          Welcome Back to <Text style={{ color: "#4f998e" }}>Safe Foods</Text>
+        </Text>
+        <Text style={{ fontSize: 20, color: "#999", textAlign: "center" }}>
+          Register your account with valid info
+        </Text>
+      </View>
       <Text style={styles.title}>Sign up</Text>
 
       <View style={styles.inputGroup}>
@@ -116,6 +131,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 32,
     textAlign: "left",
+    color: "#4f998e",
   },
   inputGroup: {
     marginBottom: 16,
