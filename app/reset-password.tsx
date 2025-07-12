@@ -7,30 +7,47 @@ import {
 } from "react-native";
 import { useState } from "react";
 import { useRouter } from "expo-router";
-import { useAuthStore } from "@/store/authStore";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Toast from "react-native-toast-message";
 
-export default function RegisterScreen() {
-  const [username, setUsername] = useState("");
+export default function ResetPasswordScreen() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
-  const { login } = useAuthStore();
 
-  const handleRegister = () => {
-    if (username && password && confirmPassword) {
-      login(username);
-      router.replace("/(tabs)/home");
-    } else {
+  const handleSubmit = () => {
+    if (!password || !confirmPassword) {
       Toast.show({
         type: "error",
         text1: "Error",
-        text2: "Please enter username and password and confirm password",
+        text2: "Please fill in all fields",
         text2Style: { fontSize: 12, fontWeight: "bold" },
       });
+    } else if (password !== confirmPassword) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Passwords do not match",
+        text2Style: { fontSize: 12, fontWeight: "bold" },
+      });
+    } else if (password.length < 6) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Password must be at least 6 characters",
+        text2Style: { fontSize: 12, fontWeight: "bold" },
+      });
+    } else {
+      // Add your password reset logic here (e.g., API call)
+      Toast.show({
+        type: "success",
+        text1: "Success",
+        text2: "Password reset successfully",
+        text2Style: { fontSize: 12, fontWeight: "bold" },
+      });
+      router.replace("/login");
     }
   };
 
@@ -45,27 +62,15 @@ export default function RegisterScreen() {
             textAlign: "center",
           }}
         >
-          Welcome Back to <Text style={{ color: "#4f998e" }}>Safe Foods</Text>
+          Reset Password
         </Text>
         <Text style={{ fontSize: 20, color: "#999", textAlign: "center" }}>
-          Register your account with valid info
+          Create a new password
         </Text>
       </View>
-      <Text style={styles.title}>Sign up</Text>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Email</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="johncharles@example.com"
-          value={username}
-          onChangeText={setUsername}
-          keyboardType="email-address"
-        />
-      </View>
-
-      <View style={styles.inputGroup}>
-        <Text style={styles.label}>Password</Text>
+        <Text style={styles.label}>New Password</Text>
         <View style={styles.passwordWrapper}>
           <TextInput
             style={styles.passwordInput}
@@ -110,14 +115,14 @@ export default function RegisterScreen() {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.loginButton} onPress={handleRegister}>
-        <Text style={styles.loginButtonText}>Sign up</Text>
+      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+        <Text style={styles.submitButtonText}>Submit</Text>
       </TouchableOpacity>
 
-      <View style={styles.signupContainer}>
-        <Text style={styles.signupText}>Already have an account? </Text>
+      <View style={styles.backContainer}>
+        <Text style={styles.backText}>Back to </Text>
         <TouchableOpacity onPress={() => router.replace("/login")}>
-          <Text style={styles.signupLink}>Sign in</Text>
+          <Text style={styles.backLink}>Login</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -126,13 +131,6 @@ export default function RegisterScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, justifyContent: "center" },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 32,
-    textAlign: "left",
-    color: "#4f998e",
-  },
   inputGroup: {
     marginBottom: 16,
   },
@@ -140,15 +138,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#999",
     marginBottom: 4,
-  },
-  input: {
-    height: 45,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    backgroundColor: "#fff",
-    fontSize: 16,
   },
   passwordWrapper: {
     flexDirection: "row",
@@ -167,29 +156,28 @@ const styles = StyleSheet.create({
   iconWrapper: {
     paddingHorizontal: 10,
   },
-
-  loginButton: {
+  submitButton: {
     backgroundColor: "#55796d",
     paddingVertical: 14,
     borderRadius: 10,
     alignItems: "center",
     marginBottom: 16,
   },
-  loginButtonText: {
+  submitButtonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
   },
-  signupContainer: {
+  backContainer: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
   },
-  signupText: {
+  backText: {
     fontSize: 14,
     color: "#000",
   },
-  signupLink: {
+  backLink: {
     fontSize: 14,
     color: "#4f998e",
     fontWeight: "bold",

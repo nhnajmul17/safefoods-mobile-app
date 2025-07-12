@@ -119,6 +119,42 @@ export default function RootLayout() {
               },
             }}
           />
+          <Stack.Screen
+            name="forgot-password"
+            options={{
+              headerShown: false,
+              headerTitle: "Forgot Password",
+              headerTitleAlign: "center",
+              headerTitleStyle: {
+                fontWeight: "bold",
+                fontSize: 24,
+              },
+            }}
+          />
+          <Stack.Screen
+            name="otp-verification"
+            options={{
+              headerShown: false,
+              headerTitle: "OTP Verification",
+              headerTitleAlign: "center",
+              headerTitleStyle: {
+                fontWeight: "bold",
+                fontSize: 24,
+              },
+            }}
+          />
+          <Stack.Screen
+            name="reset-password"
+            options={{
+              headerShown: false,
+              headerTitle: "Reset Password",
+              headerTitleAlign: "center",
+              headerTitleStyle: {
+                fontWeight: "bold",
+                fontSize: 24,
+              },
+            }}
+          />
         </Stack>
         <StatusBar style="auto" />
       </ThemeProvider>

@@ -60,7 +60,7 @@ export default function HomeCategorySection() {
           <Text style={[styles.sectionTitle, { color: Colors.light.text }]}>
             Categories
           </Text>
-          <Text style={styles.emoji}>😊</Text>
+          <Text style={styles.emoji}>🧺</Text>
         </View>
 
         <TouchableOpacity>
