@@ -7,13 +7,24 @@ import {
 } from "react-native";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "expo-router";
-
 import Toast from "react-native-toast-message";
+import { useAuthStore } from "@/store/authStore";
+
+// Mock API call (replace with your actual API)
+const verifyOTPAPI = async (email: string, token: string, code: string) => {
+  // Simulate API delay and response
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ success: true, message: "OTP verified" }); // Mock success
+    }, 1000);
+  });
+};
 
 export default function OTPVerificationScreen() {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [timer, setTimer] = useState(60);
   const router = useRouter();
+  const { resetEmail, resetToken, setOtpCode } = useAuthStore(); // Access authStore state and setter
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | undefined;
@@ -53,18 +64,39 @@ export default function OTPVerificationScreen() {
     });
   };
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     const otpString = otp.join("");
     if (otpString.length === 6 && /^\d+$/.test(otpString)) {
-      console.log("otpString", parseInt(otpString));
-      // Add your verification logic here (e.g., API call)
-      Toast.show({
-        type: "success",
-        text1: "Success",
-        text2: "OTP verified successfully",
-        text2Style: { fontSize: 12, fontWeight: "bold" },
-      });
-      router.replace("/reset-password");
+      if (!resetEmail || !resetToken) {
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: "Missing email or token. Please try again.",
+          text2Style: { fontSize: 12, fontWeight: "bold" },
+        });
+        return;
+      }
+
+      try {
+        setOtpCode(otpString); // Store the OTP code in authStore
+        const response = await verifyOTPAPI(resetEmail, resetToken, otpString);
+        if (response.success) {
+          Toast.show({
+            type: "success",
+            text1: "Success",
+            text2: "OTP verified successfully",
+            text2Style: { fontSize: 12, fontWeight: "bold" },
+          });
+          router.replace("/reset-password");
+        }
+      } catch (error) {
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: "Failed to verify OTP. Please try again.",
+          text2Style: { fontSize: 12, fontWeight: "bold" },
+        });
+      }
     } else {
       Toast.show({
         type: "error",

@@ -9,6 +9,23 @@ import { useState } from "react";
 import { useRouter } from "expo-router";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Toast from "react-native-toast-message";
+import { useAuthStore } from "@/store/authStore";
+
+// Mock API call (replace with your actual API)
+const resetPasswordAPI = async (
+  email: string,
+  token: string,
+  code: string,
+  password: string,
+  confirmPassword: string
+) => {
+  // Simulate API delay and response
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ success: true, message: "Password reset successful" }); // Mock success
+    }, 1000);
+  });
+};
 
 export default function ResetPasswordScreen() {
   const [password, setPassword] = useState("");
@@ -16,8 +33,9 @@ export default function ResetPasswordScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
+  const { resetEmail, resetToken, otpCode, logout } = useAuthStore(); // Access authStore state
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!password || !confirmPassword) {
       Toast.show({
         type: "error",
@@ -39,15 +57,40 @@ export default function ResetPasswordScreen() {
         text2: "Password must be at least 6 characters",
         text2Style: { fontSize: 12, fontWeight: "bold" },
       });
-    } else {
-      // Add your password reset logic here (e.g., API call)
+    } else if (!resetEmail || !resetToken || !otpCode) {
       Toast.show({
-        type: "success",
-        text1: "Success",
-        text2: "Password reset successfully",
+        type: "error",
+        text1: "Error",
+        text2: "Missing required data. Please try again.",
         text2Style: { fontSize: 12, fontWeight: "bold" },
       });
-      router.replace("/login");
+    } else {
+      try {
+        const response = await resetPasswordAPI(
+          resetEmail,
+          resetToken,
+          otpCode,
+          password,
+          confirmPassword
+        );
+        if (response.success) {
+          logout(); // Reset all values in authStore
+          Toast.show({
+            type: "success",
+            text1: "Success",
+            text2: "Password reset successfully",
+            text2Style: { fontSize: 12, fontWeight: "bold" },
+          });
+          router.replace("/login");
+        }
+      } catch (error) {
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: "Failed to reset password. Please try again.",
+          text2Style: { fontSize: 12, fontWeight: "bold" },
+        });
+      }
     }
   };
 

@@ -23,7 +23,7 @@ export default function RegisterScreen() {
   const handleRegister = () => {
     if (username && password && confirmPassword) {
       login(username);
-      router.replace("/(tabs)/home");
+      router.replace("/login");
     } else {
       Toast.show({
         type: "error",

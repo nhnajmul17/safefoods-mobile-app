@@ -5,15 +5,34 @@ type AuthState = {
   isAuthenticated: boolean;
   userId: string | null;
   userName?: string | null;
+  resetEmail: string | null; // For forgot password email
+  resetToken: string | null; // For reset token
+  otpCode: string | null;
   login: (userId: string) => void;
   logout: () => void;
+  setResetData: (email: string, token: string) => void; // Setter for reset data
+  setOtpCode: (code: string) => void; // New setter for OTP code
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
   userId: null,
+  userName: null,
+  resetEmail: null,
+  resetToken: null,
+  otpCode: null,
   login: (userId: string) =>
     set(() => ({ isAuthenticated: true, userId, userName: "MSajiba" })),
   logout: () =>
-    set(() => ({ isAuthenticated: false, userId: null, userName: null })),
+    set(() => ({
+      isAuthenticated: false,
+      userId: null,
+      userName: null,
+      resetEmail: null,
+      resetToken: null,
+      otpCode: null,
+    })),
+  setResetData: (email: string, token: string) =>
+    set(() => ({ resetEmail: email, resetToken: token })),
+  setOtpCode: (code: string) => set(() => ({ otpCode: code })),
 }));

@@ -7,23 +7,47 @@ import {
 } from "react-native";
 import { useState } from "react";
 import { useRouter } from "expo-router";
-import Icon from "react-native-vector-icons/MaterialIcons";
 import Toast from "react-native-toast-message";
+import { useAuthStore } from "@/store/authStore";
+
+// Mock API call (replace with your actual API)
+const forgotPasswordAPI = async (email: string) => {
+  // Simulate API delay and response
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ success: true, token: "mock-token-123456" }); // Mock token
+    }, 1000);
+  });
+};
 
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState("");
   const router = useRouter();
+  const { setResetData } = useAuthStore(); // Access setResetData from authStore
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (email) {
-      // Add your forgot password logic here (e.g., API call)
-      Toast.show({
-        type: "success",
-        text1: "Success",
-        text2: "An OTP has been sent to your email",
-        text2Style: { fontSize: 12, fontWeight: "bold" },
-      });
-      router.replace("/otp-verification");
+      try {
+        const response = await forgotPasswordAPI(email);
+        if (response.success) {
+          const token = (response as { token: string }).token;
+          setResetData(email, token); // Store email and token in authStore
+          Toast.show({
+            type: "success",
+            text1: "Success",
+            text2: "An OTP has been sent to your email",
+            text2Style: { fontSize: 12, fontWeight: "bold" },
+          });
+          router.replace("/otp-verification");
+        }
+      } catch (error) {
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: "Failed to send OTP. Please try again.",
+          text2Style: { fontSize: 12, fontWeight: "bold" },
+        });
+      }
     } else {
       Toast.show({
         type: "error",
