@@ -7,7 +7,8 @@ import {
   Image,
 } from "react-native";
 import { useCartStore } from "@/store/cartStore";
-import { IconSymbol } from "@/components/ui/IconSymbol";
+import Icon from "react-native-vector-icons/MaterialIcons";
+
 import { useRouter } from "expo-router";
 import Toast from "react-native-toast-message";
 
@@ -64,7 +65,7 @@ export default function CartScreen() {
           }
           style={styles.quantityButton}
         >
-          <Text style={styles.quantityText}>-</Text>
+          <Icon style={styles.quantityText} name="remove" />
         </TouchableOpacity>
         <Text style={styles.quantityText}>{item.quantity}</Text>
         <TouchableOpacity
@@ -73,7 +74,7 @@ export default function CartScreen() {
           }
           style={styles.quantityButton}
         >
-          <Text style={styles.quantityText}>+</Text>
+          <Icon style={styles.quantityText} name="add" />
         </TouchableOpacity>
       </View>
       {/* Remove Button */}
@@ -90,8 +91,7 @@ export default function CartScreen() {
         }}
         style={styles.removeButton}
       >
-        <Text style={styles.removeButtonText}>X</Text>
-        {/* <IconSymbol name="xmark.circle.fill" size={24} color="#FF0000" /> */}
+        <Icon name="delete" style={styles.removeButtonText} />
       </TouchableOpacity>
     </View>
   );
@@ -246,13 +246,13 @@ const styles = StyleSheet.create({
   quantityText: {
     fontSize: 16,
     color: "#333",
-    fontWeight: "600",
-    marginHorizontal: 8,
+    fontWeight: "900",
+    marginHorizontal: 6,
   },
   removeButton: {
-    padding: 8,
+    padding: 6,
     backgroundColor: "#FF0000",
-    borderRadius: 12,
+    borderRadius: 10,
   },
   removeButtonText: {
     color: "#fff",

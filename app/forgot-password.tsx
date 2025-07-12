@@ -28,9 +28,12 @@ export default function ForgotPasswordScreen() {
   const handleSubmit = async () => {
     if (email) {
       try {
-        const response = await forgotPasswordAPI(email);
+        const response = (await forgotPasswordAPI(email)) as {
+          success: boolean;
+          token: string;
+        };
         if (response.success) {
-          const token = (response as { token: string }).token;
+          const token = response.token;
           setResetData(email, token); // Store email and token in authStore
           Toast.show({
             type: "success",

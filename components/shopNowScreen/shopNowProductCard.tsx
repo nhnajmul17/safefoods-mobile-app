@@ -6,6 +6,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { greenColor } from "@/constants/Colors";
+import { Link } from "expo-router";
 
 export interface ProductVariant {
   id: string;
@@ -67,15 +68,18 @@ const ShopNowProductCard = ({
 
   return (
     <Animated.View style={[styles.productCard, cardStyle]}>
-      <Image
-        source={{
-          uri:
-            selectedVariant.mediaItems[0]?.image ||
-            "https://via.placeholder.com/50",
-        }}
-        style={styles.productImage}
-        resizeMode="cover"
-      />
+      <Link href={`/category/${item.id}`}>
+        <Image
+          source={{
+            uri:
+              selectedVariant.mediaItems[0]?.image ||
+              "https://via.placeholder.com/50",
+          }}
+          style={styles.productImage}
+          resizeMode="cover"
+        />
+      </Link>
+
       <View style={styles.contentContainer}>
         <Text style={styles.productName}>{item.name}</Text>
         <Text style={styles.productCategory}>{item.category}</Text>

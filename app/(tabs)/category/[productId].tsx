@@ -25,7 +25,7 @@ import { allProductsData } from "@/hooks/productsData";
 
 export default function ProductDetailsScreen() {
   const { productId } = useLocalSearchParams();
-  const [quantity, setQuantity] = useState(0);
+  const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     null
   );
@@ -108,7 +108,7 @@ export default function ProductDetailsScreen() {
         text2Style: { fontSize: 14, fontWeight: "bold" },
       });
 
-      setQuantity(0);
+      setQuantity(1);
     } else {
       Toast.show({
         type: "error",
