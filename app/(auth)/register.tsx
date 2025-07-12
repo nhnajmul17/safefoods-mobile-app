@@ -11,6 +11,32 @@ import { useAuthStore } from "@/store/authStore";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Toast from "react-native-toast-message";
 
+// const registerAPI = async (
+//   userName: string,
+//   password: string,
+//   confirmPassword: string
+// ) => {
+//   const response = await fetch("your-api-endpoint/register", {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({ userName, password, confirmPassword }),
+//   });
+//   return response.json();
+// };
+// Mock API call (replace with your actual API)
+const registerAPI = async (
+  userName: string,
+  password: string,
+  confirmPassword: string
+) => {
+  // Simulate API delay and response
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ success: true, token: "mock-token-123456" }); // Mock token
+    }, 1000);
+  });
+};
+
 export default function RegisterScreen() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -18,17 +44,91 @@ export default function RegisterScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
-  const { login } = useAuthStore();
+  const { setRegisterData } = useAuthStore();
 
-  const handleRegister = () => {
-    if (username && password && confirmPassword) {
-      login(username);
-      router.replace("/login");
-    } else {
+  // Email validation regex
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const handleRegister = async () => {
+    // Check for empty fields
+    if (!username || !password || !confirmPassword) {
       Toast.show({
         type: "error",
         text1: "Error",
-        text2: "Please enter username and password and confirm password",
+        text2: "Please fill in all fields",
+        text2Style: { fontSize: 12, fontWeight: "bold" },
+      });
+      return;
+    }
+
+    // Validate email format
+    if (!emailRegex.test(username)) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Please enter a valid email address",
+        text2Style: { fontSize: 12, fontWeight: "bold" },
+      });
+      return;
+    }
+
+    // Validate password strength
+    if (password.length < 6) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Password must be at least 6 characters",
+        text2Style: { fontSize: 12, fontWeight: "bold" },
+      });
+      return;
+    }
+    if (!/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2:
+          "Password must contain at least one uppercase letter and one number",
+        text2Style: { fontSize: 12, fontWeight: "bold" },
+      });
+      return;
+    }
+
+    // Check if passwords match
+    if (password !== confirmPassword) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Passwords do not match",
+        text2Style: { fontSize: 12, fontWeight: "bold" },
+      });
+      return;
+    }
+
+    try {
+      const response = (await registerAPI(
+        username,
+        password,
+        confirmPassword
+      )) as {
+        success: boolean;
+        token: string;
+      };
+      if (response.success) {
+        const token = response.token;
+        setRegisterData(username, token); // Store email and token in authStore
+        Toast.show({
+          type: "success",
+          text1: "Success",
+          text2: "Registration successful. An OTP has been sent to your email",
+          text2Style: { fontSize: 12, fontWeight: "bold" },
+        });
+        router.replace("/register-otp-verification");
+      }
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Failed to register. Please try again.",
         text2Style: { fontSize: 12, fontWeight: "bold" },
       });
     }
@@ -61,6 +161,7 @@ export default function RegisterScreen() {
           value={username}
           onChangeText={setUsername}
           keyboardType="email-address"
+          autoCapitalize="none"
         />
       </View>
 
@@ -167,7 +268,6 @@ const styles = StyleSheet.create({
   iconWrapper: {
     paddingHorizontal: 10,
   },
-
   loginButton: {
     backgroundColor: "#55796d",
     paddingVertical: 14,

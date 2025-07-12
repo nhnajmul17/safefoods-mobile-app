@@ -39,6 +39,7 @@ export default function RootLayout() {
       >
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
           <Stack.Screen
             name="checkout"
@@ -92,66 +93,6 @@ export default function RootLayout() {
               headerTitleStyle: {
                 fontWeight: "bold",
                 fontSize: 20,
-              },
-            }}
-          />
-          <Stack.Screen
-            name="login"
-            options={{
-              headerShown: false,
-              headerTitle: "Sign in",
-              headerTitleAlign: "center",
-              headerTitleStyle: {
-                fontWeight: "bold",
-                fontSize: 24,
-              },
-            }}
-          />
-          <Stack.Screen
-            name="register"
-            options={{
-              headerShown: false,
-              headerTitle: "Sign up",
-              headerTitleAlign: "center",
-              headerTitleStyle: {
-                fontWeight: "bold",
-                fontSize: 24,
-              },
-            }}
-          />
-          <Stack.Screen
-            name="forgot-password"
-            options={{
-              headerShown: false,
-              headerTitle: "Forgot Password",
-              headerTitleAlign: "center",
-              headerTitleStyle: {
-                fontWeight: "bold",
-                fontSize: 24,
-              },
-            }}
-          />
-          <Stack.Screen
-            name="otp-verification"
-            options={{
-              headerShown: false,
-              headerTitle: "OTP Verification",
-              headerTitleAlign: "center",
-              headerTitleStyle: {
-                fontWeight: "bold",
-                fontSize: 24,
-              },
-            }}
-          />
-          <Stack.Screen
-            name="reset-password"
-            options={{
-              headerShown: false,
-              headerTitle: "Reset Password",
-              headerTitleAlign: "center",
-              headerTitleStyle: {
-                fontWeight: "bold",
-                fontSize: 24,
               },
             }}
           />
