@@ -10,8 +10,8 @@ import { useRouter } from "expo-router";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Toast from "react-native-toast-message";
 import { useAuthStore } from "@/store/authStore";
+import { API_URL } from "@/constants/variables";
 
-// Mock API call (replace with your actual API)
 const resetPasswordAPI = async (
   email: string,
   token: string,
@@ -19,13 +19,29 @@ const resetPasswordAPI = async (
   password: string,
   confirmPassword: string
 ) => {
-  // Simulate API delay and response
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ success: true, message: "Password reset successful" }); // Mock success
-    }, 1000);
+  const response = await fetch(`${API_URL}/v1/auth/reset-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, token, code, password, confirmPassword }),
   });
+  return response.json();
 };
+
+// Mock API call (replace with your actual API)
+// const resetPasswordAPI = async (
+//   email: string,
+//   token: string,
+//   code: string,
+//   password: string,
+//   confirmPassword: string
+// ) => {
+//   // Simulate API delay and response
+//   return new Promise((resolve) => {
+//     setTimeout(() => {
+//       resolve({ success: true, message: "Password reset successful" }); // Mock success
+//     }, 1000);
+//   });
+// };
 
 export default function ResetPasswordScreen() {
   const [password, setPassword] = useState("");

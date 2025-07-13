@@ -10,23 +10,57 @@ import { useRouter } from "expo-router";
 import { useAuthStore } from "@/store/authStore";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Toast from "react-native-toast-message";
+import { API_URL } from "@/constants/variables";
+
+const loginAPI = async (email: string, password: string) => {
+  const response = await fetch(`${API_URL}/v1/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  return response.json();
+};
 
 export default function LoginScreen() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const { login } = useAuthStore();
 
-  const handleLogin = () => {
-    if (username && password) {
-      login(username);
-      router.replace("/(tabs)/home");
+  const handleLogin = async () => {
+    if (email && password) {
+      try {
+        const response = await loginAPI(email, password);
+        if (response.success) {
+          Toast.show({
+            type: "success",
+            text1: "Success",
+            text2: "Login successful",
+            text2Style: { fontSize: 12, fontWeight: "bold" },
+          });
+          login(
+            response.data.id,
+            response.data.email, // userName
+            response.data.email,
+            response.data.accessToken
+          );
+          router.replace("/(tabs)/home");
+        }
+      } catch (error) {
+        console.log("Login error:", error);
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: "Failed to login. Please try again.",
+          text2Style: { fontSize: 12, fontWeight: "bold" },
+        });
+      }
     } else {
       Toast.show({
         type: "error",
         text1: "Error",
-        text2: "Please enter username and password",
+        text2: "Please enter email and password",
         text2Style: { fontSize: 12, fontWeight: "bold" },
       });
     }
@@ -57,8 +91,8 @@ export default function LoginScreen() {
         <TextInput
           style={styles.input}
           placeholder="johncharles@example.com"
-          value={username}
-          onChangeText={setUsername}
+          value={email}
+          onChangeText={setEmail}
           keyboardType="email-address"
         />
       </View>

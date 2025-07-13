@@ -10,35 +10,23 @@ import { useRouter } from "expo-router";
 import { useAuthStore } from "@/store/authStore";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Toast from "react-native-toast-message";
+import { API_URL } from "@/constants/variables";
 
-// const registerAPI = async (
-//   userName: string,
-//   password: string,
-//   confirmPassword: string
-// ) => {
-//   const response = await fetch("your-api-endpoint/register", {
-//     method: "POST",
-//     headers: { "Content-Type": "application/json" },
-//     body: JSON.stringify({ userName, password, confirmPassword }),
-//   });
-//   return response.json();
-// };
-// Mock API call (replace with your actual API)
 const registerAPI = async (
-  userName: string,
+  email: string,
   password: string,
   confirmPassword: string
 ) => {
-  // Simulate API delay and response
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ success: true, token: "mock-token-123456" }); // Mock token
-    }, 1000);
+  const response = await fetch(`${API_URL}/v1/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password, confirmPassword }),
   });
+  return response.json();
 };
 
 export default function RegisterScreen() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -51,7 +39,7 @@ export default function RegisterScreen() {
 
   const handleRegister = async () => {
     // Check for empty fields
-    if (!username || !password || !confirmPassword) {
+    if (!email || !password || !confirmPassword) {
       Toast.show({
         type: "error",
         text1: "Error",
@@ -62,7 +50,7 @@ export default function RegisterScreen() {
     }
 
     // Validate email format
-    if (!emailRegex.test(username)) {
+    if (!emailRegex.test(email)) {
       Toast.show({
         type: "error",
         text1: "Error",
@@ -105,17 +93,10 @@ export default function RegisterScreen() {
     }
 
     try {
-      const response = (await registerAPI(
-        username,
-        password,
-        confirmPassword
-      )) as {
-        success: boolean;
-        token: string;
-      };
+      const response = await registerAPI(email, password, confirmPassword);
       if (response.success) {
         const token = response.token;
-        setRegisterData(username, token); // Store email and token in authStore
+        setRegisterData(email, token); // Store email and token in authStore
         Toast.show({
           type: "success",
           text1: "Success",
@@ -158,8 +139,8 @@ export default function RegisterScreen() {
         <TextInput
           style={styles.input}
           placeholder="johncharles@example.com"
-          value={username}
-          onChangeText={setUsername}
+          value={email}
+          onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
         />

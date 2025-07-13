@@ -9,15 +9,15 @@ import { useState } from "react";
 import { useRouter } from "expo-router";
 import Toast from "react-native-toast-message";
 import { useAuthStore } from "@/store/authStore";
+import { API_URL } from "@/constants/variables";
 
-// Mock API call (replace with your actual API)
 const forgotPasswordAPI = async (email: string) => {
-  // Simulate API delay and response
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ success: true, token: "mock-token-123456" }); // Mock token
-    }, 1000);
+  const response = await fetch(`${API_URL}/v1/auth/forgot-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
   });
+  return response.json();
 };
 
 export default function ForgotPasswordScreen() {

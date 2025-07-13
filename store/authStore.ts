@@ -3,14 +3,21 @@ import { create } from "zustand";
 
 type AuthState = {
   isAuthenticated: boolean;
+  accessToken?: string | null; // Optional access token
   userId: string | null;
   userName?: string | null;
+  userEmail?: string | null; // Optional user email
   registerEmail?: string | null; // For registration email
   registerToken?: string | null; // For registration token
   resetEmail: string | null; // For forgot password email
   resetToken: string | null; // For reset token
   otpCode: string | null;
-  login: (userId: string) => void;
+  login: (
+    userId: string,
+    userName: string,
+    userEmail: string,
+    accessToken: string
+  ) => void;
   logout: () => void;
   setRegisterData: (email: string, token: string) => void; // Setter for registration email and token
   setResetData: (email: string, token: string) => void; // Setter for reset data
@@ -24,13 +31,26 @@ export const useAuthStore = create<AuthState>((set) => ({
   resetEmail: null,
   resetToken: null,
   otpCode: null,
-  login: (userId: string) =>
-    set(() => ({ isAuthenticated: true, userId, userName: "MSajiba" })),
+  login: (
+    userId: string,
+    userName: string,
+    userEmail: string,
+    accessToken: string
+  ) =>
+    set(() => ({
+      isAuthenticated: true,
+      userId,
+      userName,
+      userEmail,
+      accessToken,
+    })),
   logout: () =>
     set(() => ({
       isAuthenticated: false,
       userId: null,
       userName: null,
+      userEmail: null,
+      accessToken: null,
       resetEmail: null,
       resetToken: null,
       otpCode: null,

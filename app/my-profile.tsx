@@ -9,12 +9,15 @@ import {
   SafeAreaView,
 } from "react-native";
 import { useState } from "react";
+import { useAuthStore } from "@/store/authStore";
 
 export default function MyProfileScreen() {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState("John Abram");
-  const [email, setEmail] = useState("johnabram@gmail.com");
+  const { userId, userName, userEmail } = useAuthStore();
+
+  const [name, setName] = useState(userName ?? "John Abram");
+  const [email, setEmail] = useState(userEmail ?? "johnabram@gmail.com");
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -27,8 +30,8 @@ export default function MyProfileScreen() {
 
   const handleCancel = () => {
     setIsEditing(false);
-    setName("John Abram");
-    setEmail("johnabram@gmail.com");
+    setName(userName ?? "John Abram");
+    setEmail(userEmail ?? "johnabram@gmail.com");
   };
 
   return (
