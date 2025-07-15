@@ -68,22 +68,22 @@ const BestSellingProductCard = ({
         <Image
           source={{
             uri:
-              selectedVariant.mediaItems[0]?.image ||
+              selectedVariant.mediaItems[0]?.mediaUrl ||
               "https://via.placeholder.com/50",
           }}
           style={styles.productImage}
           resizeMode="cover"
           onError={(e) =>
             console.log(
-              `Product image load error (${item.name}):`,
+              `Product image load error (${item.title}):`,
               e.nativeEvent.error
             )
           }
         />
       </Link>
       <View style={styles.contentContainer}>
-        <Text style={styles.productName}>{item.name}</Text>
-        <Text style={styles.productCategory}>{item.category}</Text>
+        <Text style={styles.productName}>{item.title}</Text>
+        <Text style={styles.productCategory}>{item.categoryTitle}</Text>
 
         <View style={styles.variantContainer}>
           {item.variants.map((variant) => (
@@ -103,7 +103,7 @@ const BestSellingProductCard = ({
                     styles.selectedVariantText,
                 ]}
               >
-                {variant.unit}
+                {variant.unitTitle}
               </Text>
             </TouchableOpacity>
           ))}

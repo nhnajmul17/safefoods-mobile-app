@@ -86,24 +86,24 @@ export default function ProductDetailsScreen() {
       const cartItem = {
         id: product.id,
         variantId: selectedVariant.id,
-        name: product.name,
+        name: product.title,
         image:
-          selectedVariant.mediaItems[0]?.image ||
+          selectedVariant.mediaItems[0]?.mediaUrl ||
           "https://via.placeholder.com/50",
         price: selectedVariant.price,
-        unit: selectedVariant.unit,
+        unit: selectedVariant.unitTitle,
         quantity,
       };
       addItem(cartItem);
       console.log(
-        `Added ${quantity} ${product.name} (${selectedVariant.unit}) to cart`,
+        `Added ${quantity} ${product.title} (${selectedVariant.unitTitle}) to cart`,
         cartItem
       );
 
       Toast.show({
         type: "success",
         text1: "Added to Cart",
-        text2: `${quantity} ${product.name} (${selectedVariant.unit}) added to your cart.`,
+        text2: `${quantity} ${product.title} (${selectedVariant.unitTitle}) added to your cart.`,
         text1Style: { fontSize: 16, fontWeight: "bold" },
         text2Style: { fontSize: 14, fontWeight: "bold" },
       });
@@ -166,13 +166,13 @@ export default function ProductDetailsScreen() {
           <Image
             source={{
               uri:
-                selectedVariant.mediaItems[0]?.image ||
+                selectedVariant.mediaItems[0]?.mediaUrl ||
                 "https://via.placeholder.com/50",
             }}
             style={styles.productImage}
             onError={(e) =>
               console.log(
-                `Product image load error (${product.name}):`,
+                `Product image load error (${product.title}):`,
                 e.nativeEvent.error
               )
             }
@@ -180,7 +180,7 @@ export default function ProductDetailsScreen() {
         </Animated.View>
         <Animated.View style={[styles.detailsContainer, detailsStyle]}>
           <View style={styles.header}>
-            <Text style={styles.name}>{product.name}</Text>
+            <Text style={styles.name}>{product.title}</Text>
             <View style={styles.quantityContainer}>
               <Animated.View style={decrementStyle}>
                 <TouchableOpacity
@@ -219,7 +219,7 @@ export default function ProductDetailsScreen() {
                         styles.selectedVariantText,
                     ]}
                   >
-                    {variant.unit}
+                    {variant.unitTitle}
                   </Text>
                 </TouchableOpacity>
               </Animated.View>

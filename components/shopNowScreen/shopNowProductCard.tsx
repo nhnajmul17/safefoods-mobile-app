@@ -15,19 +15,19 @@ export interface ProductVariant {
   description: string;
   bestDeal: boolean;
   discountedSale: boolean;
-  unit: string;
+  unitTitle: string;
   mediaItems: Array<{
     id: string;
     mediaId: string;
-    image: string;
+    mediaUrl: string;
     mediaTitle: string;
   }>;
 }
 
 export interface ShopNowProduct {
   id: string;
-  name: string;
-  category: string;
+  title: string;
+  categoryTitle: string;
   variants: ProductVariant[];
 }
 
@@ -72,7 +72,7 @@ const ShopNowProductCard = ({
         <Image
           source={{
             uri:
-              selectedVariant.mediaItems[0]?.image ||
+              selectedVariant.mediaItems[0]?.mediaTitle ||
               "https://via.placeholder.com/50",
           }}
           style={styles.productImage}
@@ -81,8 +81,8 @@ const ShopNowProductCard = ({
       </Link>
 
       <View style={styles.contentContainer}>
-        <Text style={styles.productName}>{item.name}</Text>
-        <Text style={styles.productCategory}>{item.category}</Text>
+        <Text style={styles.productName}>{item.title}</Text>
+        <Text style={styles.productCategory}>{item.categoryTitle}</Text>
 
         <View style={styles.variantContainer}>
           {item.variants.map((variant) => (
@@ -102,7 +102,7 @@ const ShopNowProductCard = ({
                     styles.selectedVariantText,
                 ]}
               >
-                {variant.unit}
+                {variant.unitTitle}
               </Text>
             </TouchableOpacity>
           ))}

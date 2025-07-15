@@ -18,7 +18,7 @@ interface QuantityMap {
 }
 
 const products: ShopNowProduct[] = allProductsData.filter(
-  (product) => product.category === PROTEINS
+  (product) => product.categoryTitle === PROTEINS
 );
 
 export default function ProteinScreen() {
@@ -41,18 +41,18 @@ export default function ProteinScreen() {
       addItem({
         id: item.id,
         variantId: selectedVariant.id,
-        name: item.name,
+        name: item.title,
         image:
-          selectedVariant.mediaItems[0]?.image ||
+          selectedVariant.mediaItems[0]?.mediaUrl ||
           "https://via.placeholder.com/50",
         price: selectedVariant.price,
-        unit: selectedVariant.unit,
+        unit: selectedVariant.unitTitle,
         quantity,
       });
       Toast.show({
         type: "success",
         text1: "Added to Cart",
-        text2: `${item.name} (${selectedVariant.unit}) x${quantity} added to cart.`,
+        text2: `${item.title} (${selectedVariant.unitTitle}) x${quantity} added to cart.`,
         text1Style: { fontSize: 16, fontWeight: "bold" },
         text2Style: { fontSize: 14, fontWeight: "bold" },
       });

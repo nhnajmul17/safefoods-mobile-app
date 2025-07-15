@@ -5,8 +5,9 @@ import {
   TextInput,
   FlatList,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Picker } from "@react-native-picker/picker";
 import { useCartStore } from "@/store/cartStore";
 import Toast from "react-native-toast-message";
@@ -16,8 +17,9 @@ import ShopNowProductCard, {
   ShopNowProduct,
   ProductVariant,
 } from "@/components/shopNowScreen/shopNowProductCard";
-import { allProductsData } from "@/hooks/productsData";
+// import { allProductsData } from "@/hooks/productsData";
 import {
+  API_URL,
   DAIRY,
   FRUITS,
   MEAT,
@@ -25,6 +27,22 @@ import {
   PROTEINS,
   VEGETABLES,
 } from "@/constants/variables";
+
+const getProductsAPI = async () => {
+  try {
+    const response = await fetch(`${API_URL}/v1/products`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!response.ok) {
+      throw new Error("Failed to fetch products");
+    }
+    return response.json();
+  } catch (error) {
+    console.error("API Error:", error);
+    throw error;
+  }
+};
 
 export default function ShopNowScreen() {
   const { addItem } = useCartStore();
@@ -34,21 +52,42 @@ export default function ShopNowScreen() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortOption, setSortOption] = useState("None");
   const [page, setPage] = useState(1);
+  const [products, setProducts] = useState<ShopNowProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const allProducts = allProductsData;
+  // const allProducts = allProductsData;
+
+  // Fetch products on mount
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await getProductsAPI();
+        console.log("Fetched products:", data.data);
+        setProducts(data.data); // Assuming data is an array of ShopNowProduct
+      } catch (err) {
+        setError("Failed to load products. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   const filteredProducts = useMemo(() => {
-    let result = [...allProducts];
+    let result = [...products]; //allProductsData
 
     if (searchQuery) {
       result = result.filter((product) =>
-        product.name.toLowerCase().includes(searchQuery.toLowerCase())
+        product.title.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     if (selectedCategory !== "All") {
       result = result.filter(
-        (product) => product.category === selectedCategory
+        (product) => product.categoryTitle === selectedCategory
       );
     }
 
@@ -59,7 +98,7 @@ export default function ShopNowScreen() {
     }
 
     return result.slice(0, page * 4);
-  }, [searchQuery, selectedCategory, sortOption, page, allProducts]);
+  }, [searchQuery, selectedCategory, sortOption, page, products]);
 
   interface QuantityMap {
     [productId: string]: number;
@@ -81,24 +120,47 @@ export default function ShopNowScreen() {
       addItem({
         id: item.id,
         variantId: selectedVariant.id,
-        name: item.name,
+        name: item.title,
         image:
-          selectedVariant.mediaItems[0]?.image ||
+          selectedVariant.mediaItems[0]?.mediaUrl ||
           "https://via.placeholder.com/50",
         price: selectedVariant.price,
-        unit: selectedVariant.unit,
+        unit: selectedVariant.unitTitle,
         quantity,
       });
       Toast.show({
         type: "success",
         text1: "Added to Cart",
-        text2: `${item.name} (${selectedVariant.unit}) x${quantity} added to cart.`,
+        text2: `${item.title} (${selectedVariant.unitTitle}) x${quantity} added to cart.`,
       });
       setQuantities((prev) => ({ ...prev, [item.id]: 0 }));
     }
   };
 
   const isFilterActive = selectedCategory !== "All" || sortOption !== "None";
+
+  if (loading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color={greenColor} />
+        <Text style={styles.loaderText}>Loading products...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>{error}</Text>
+        <TouchableOpacity
+          style={styles.retryButton}
+          onPress={() => setLoading(true)} // Retry on button press
+        >
+          <Text style={styles.retryText}>Retry</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -202,9 +264,12 @@ export default function ShopNowScreen() {
         maxToRenderPerBatch={6}
         windowSize={5}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>No products available.</Text>
+        }
       />
 
-      {filteredProducts.length < allProducts.length && (
+      {filteredProducts.length < products.length && ( //all products
         <TouchableOpacity
           style={styles.loadMoreButton}
           onPress={() => setPage((prev) => prev + 1)}
@@ -286,5 +351,43 @@ const styles = StyleSheet.create({
   columnWrapper: {
     justifyContent: "space-between",
     paddingHorizontal: 4,
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f9f9f9",
+  },
+  loaderText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: Colors.light.text,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f9f9f9",
+  },
+  errorText: {
+    fontSize: 16,
+    color: "#ff4444",
+    marginBottom: 10,
+  },
+  retryButton: {
+    backgroundColor: greenColor,
+    padding: 10,
+    borderRadius: 6,
+  },
+  retryText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  emptyText: {
+    textAlign: "center",
+    fontSize: 16,
+    color: "#666",
+    padding: 20,
   },
 });
