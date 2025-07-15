@@ -1,5 +1,4 @@
-import { CategoryType } from "@/components/homeScreen/categorySection";
-import { Colors, lightGreenColor } from "@/constants/Colors";
+import { Colors } from "@/constants/Colors";
 import { Link } from "expo-router";
 import {
   View,
@@ -13,39 +12,7 @@ import {
 } from "react-native";
 import React, { useRef } from "react";
 import { useFocusEffect } from "@react-navigation/native";
-
-const categories: CategoryType[] = [
-  {
-    id: "1",
-    name: "Fruits",
-    href: "/(tabs)/category/fruits",
-    icon: "https://cdn-icons-png.flaticon.com/512/415/415682.png",
-  },
-  {
-    id: "2",
-    name: "Meat",
-    href: "/(tabs)/category/meat",
-    icon: "https://cdn-icons-png.flaticon.com/512/3143/3143643.png",
-  },
-  {
-    id: "3",
-    name: "Dairy",
-    href: "/(tabs)/category/dairy",
-    icon: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png",
-  },
-  {
-    id: "4",
-    name: "Vegetables",
-    href: "/(tabs)/category/vegetables",
-    icon: "https://cdn-icons-png.flaticon.com/512/2153/2153788.png",
-  },
-  {
-    id: "5",
-    name: "Protein",
-    href: "/(tabs)/category/protein",
-    icon: "https://cdn-icons-png.flaticon.com/512/1046/1046759.png",
-  },
-];
+import { categories } from "@/components/categoryScreen/lib/categoryDataAndTypes";
 
 export default function CategoryScreen() {
   const colorScheme = useColorScheme();

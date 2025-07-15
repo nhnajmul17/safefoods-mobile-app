@@ -204,7 +204,7 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "909b455c-5054-4b1e-9d4b-56f206da3d54",
     name: "Safe Premium Milk",
-    category: "Protein",
+    category: "Proteins",
     variants: [
       {
         id: "e9caf159-e9a2-4301-a5c4-944fbdf334ad",
@@ -229,7 +229,7 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "c3d4e5f6-g7h8-9012-defg-3456789012cd",
     name: "Free Range Eggs",
-    category: "Protein",
+    category: "Proteins",
     variants: [
       {
         id: "d4e5f6g7-h8i9-0123-efgh-4567890123de",

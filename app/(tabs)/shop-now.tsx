@@ -17,6 +17,14 @@ import ShopNowProductCard, {
   ProductVariant,
 } from "@/components/shopNowScreen/shopNowProductCard";
 import { allProductsData } from "@/hooks/productsData";
+import {
+  DAIRY,
+  FRUITS,
+  MEAT,
+  OIL,
+  PROTEINS,
+  VEGETABLES,
+} from "@/constants/variables";
 
 export default function ShopNowScreen() {
   const { addItem } = useCartStore();
@@ -150,12 +158,12 @@ export default function ShopNowScreen() {
             dropdownIconColor="#1a1a1a"
           >
             <Picker.Item label="All" value="All" />
-            <Picker.Item label="Protein" value="Protein" />
-            <Picker.Item label="Meat" value="Meat" />
-            <Picker.Item label="Vegetables" value="Vegetables" />
-            <Picker.Item label="Dairy" value="Dairy" />
-            <Picker.Item label="Oil" value="Oil" />
-            <Picker.Item label="Fruits" value="Fruits" />
+            <Picker.Item label="Proteins" value={PROTEINS} />
+            <Picker.Item label="Meat" value={MEAT} />
+            <Picker.Item label="Vegetables" value={VEGETABLES} />
+            <Picker.Item label="Dairy" value={DAIRY} />
+            <Picker.Item label="Oil" value={OIL} />
+            <Picker.Item label="Fruits" value={FRUITS} />
           </Picker>
 
           <Text style={styles.modalLabel}>Sort By Price</Text>
@@ -193,6 +201,7 @@ export default function ShopNowScreen() {
         initialNumToRender={6}
         maxToRenderPerBatch={6}
         windowSize={5}
+        showsVerticalScrollIndicator={false}
       />
 
       {filteredProducts.length < allProducts.length && (

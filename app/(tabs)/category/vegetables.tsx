@@ -10,6 +10,7 @@ import {
 
 import CategoryProductCard from "@/components/categoryScreen/categoryProductCard";
 import { allProductsData } from "@/hooks/productsData";
+import { VEGETABLES } from "@/constants/variables";
 
 // Define QuantityMap interface at the top
 interface QuantityMap {
@@ -18,7 +19,7 @@ interface QuantityMap {
 
 // Define products before FruitScreen to avoid declaration order issue
 const products: ShopNowProduct[] = allProductsData.filter(
-  (product) => product.category === "Vegetables"
+  (product) => product.category === VEGETABLES
 );
 
 export default function VegetableScreen() {
@@ -63,6 +64,7 @@ export default function VegetableScreen() {
   return (
     <View style={styles.container}>
       <FlatList
+        showsVerticalScrollIndicator={false}
         data={products}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (

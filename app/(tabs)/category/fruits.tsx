@@ -10,6 +10,7 @@ import {
 
 import CategoryProductCard from "@/components/categoryScreen/categoryProductCard";
 import { allProductsData } from "@/hooks/productsData";
+import { FRUITS } from "@/constants/variables";
 
 // Define QuantityMap interface at the top
 interface QuantityMap {
@@ -17,7 +18,7 @@ interface QuantityMap {
 }
 
 const products: ShopNowProduct[] = allProductsData.filter(
-  (product) => product.category === "Fruits"
+  (product) => product.category === FRUITS
 );
 
 export default function FruitScreen() {
@@ -80,6 +81,7 @@ export default function FruitScreen() {
         initialNumToRender={4}
         maxToRenderPerBatch={4}
         windowSize={5}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   );

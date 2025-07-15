@@ -10,6 +10,7 @@ import {
 
 import CategoryProductCard from "@/components/categoryScreen/categoryProductCard";
 import { allProductsData } from "@/hooks/productsData";
+import { PROTEINS } from "@/constants/variables";
 
 // Define QuantityMap interface at the top
 interface QuantityMap {
@@ -17,7 +18,7 @@ interface QuantityMap {
 }
 
 const products: ShopNowProduct[] = allProductsData.filter(
-  (product) => product.category === "Protein"
+  (product) => product.category === PROTEINS
 );
 
 export default function ProteinScreen() {

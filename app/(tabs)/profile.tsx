@@ -68,6 +68,16 @@ export default function ProfileScreen() {
     },
     {
       id: "7",
+      title: "Refund & Return Policy",
+      icon: "https://cdn-icons-png.flaticon.com/512/942/942751.png",
+      action: () =>
+        router.push({
+          pathname: "/webview",
+          params: { url: "https://safefoods.com.bd/returns-refund" },
+        }),
+    },
+    {
+      id: "8",
       title: userId ? "Log Out" : "Login",
       icon: userId
         ? "https://cdn-icons-png.flaticon.com/512/1828/1828479.png"

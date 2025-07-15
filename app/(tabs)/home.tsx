@@ -125,9 +125,6 @@ export default function HomeScreen() {
               </Text>
               <Text style={styles.emoji}>🔥</Text>
             </View>
-            <TouchableOpacity>
-              <Text style={styles.seeAllText}>See all</Text>
-            </TouchableOpacity>
           </View>
 
           {/* Product Cards */}

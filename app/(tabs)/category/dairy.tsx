@@ -10,6 +10,7 @@ import {
 
 import CategoryProductCard from "@/components/categoryScreen/categoryProductCard";
 import { allProductsData } from "@/hooks/productsData";
+import { DAIRY } from "@/constants/variables";
 
 // Define QuantityMap interface at the top
 interface QuantityMap {
@@ -17,7 +18,7 @@ interface QuantityMap {
 }
 
 const products: ShopNowProduct[] = allProductsData.filter(
-  (product) => product.category === "Dairy"
+  (product) => product.category === DAIRY
 );
 export default function DairyScreen() {
   const { addItem } = useCartStore();
@@ -79,6 +80,7 @@ export default function DairyScreen() {
         initialNumToRender={4}
         maxToRenderPerBatch={4}
         windowSize={5}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   );
