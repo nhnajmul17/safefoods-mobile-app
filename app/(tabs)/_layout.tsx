@@ -5,10 +5,12 @@ import { View, TouchableOpacity, StyleSheet, Text } from "react-native";
 import type { BottomTabNavigationOptions } from "@react-navigation/bottom-tabs";
 import { useCartStore } from "@/store/cartStore";
 import { lightGreenColor } from "@/constants/Colors";
+import { CommonActions } from "@react-navigation/native";
 
 // Define navigation prop type
 type TabNavigation = {
   navigate: (name: string, params?: object) => void;
+  dispatch: (action: any) => void;
   emit: <EventName extends string>(options: {
     type: EventName;
     target?: string;
@@ -51,7 +53,25 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({
             });
 
             if (!isFocused && !event.defaultPrevented) {
-              navigation.navigate(route.name);
+              if (route.name === "category") {
+                // Reset the navigation stack and navigate to category
+                navigation.dispatch(
+                  CommonActions.reset({
+                    index: 0,
+                    routes: [
+                      {
+                        name: route.name,
+                        params: {
+                          screen: "index",
+                          params: {},
+                        },
+                      },
+                    ],
+                  })
+                );
+              } else {
+                navigation.navigate(route.name);
+              }
             }
           };
 
