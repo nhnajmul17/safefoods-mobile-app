@@ -1,5 +1,5 @@
 import { Colors } from "@/constants/Colors";
-import { Link } from "expo-router";
+import { useRouter } from "expo-router";
 import React from "react";
 import {
   View,
@@ -12,6 +12,22 @@ import {
 import { categories } from "../categoryScreen/lib/categoryDataAndTypes";
 
 export default function HomeCategorySection() {
+  const navigation = useRouter();
+
+  const handleCategoryPress = (href: string) => {
+    // Navigate to main category page first, then to specific category
+    navigation.push("/(tabs)/category");
+    // Small delay to ensure category page is mounted
+    setTimeout(() => {
+      navigation.push(href as any);
+    });
+  };
+
+  const handleSeeAllPress = () => {
+    // Navigate to main category page
+    navigation.push("/(tabs)/category");
+  };
+
   return (
     <>
       {/* Categories Section */}
@@ -23,10 +39,8 @@ export default function HomeCategorySection() {
           <Text style={styles.emoji}>🧺</Text>
         </View>
 
-        <TouchableOpacity>
-          <Link href={"/(tabs)/category"}>
-            <Text style={styles.seeAllText}>See all</Text>
-          </Link>
+        <TouchableOpacity onPress={handleSeeAllPress}>
+          <Text style={styles.seeAllText}>See all</Text>
         </TouchableOpacity>
       </View>
 
@@ -39,26 +53,25 @@ export default function HomeCategorySection() {
       >
         {categories.map((category) => (
           <View key={category.id} style={styles.categoryItem}>
-            <View
+            <TouchableOpacity
+              onPress={() => handleCategoryPress(category.href)}
               style={[
                 styles.categoryIconContainer,
                 { backgroundColor: Colors.light.background },
               ]}
             >
-              <Link key={category.id} href={category.href}>
-                <Image
-                  source={{ uri: category.icon }}
-                  style={styles.categoryIcon}
-                  // defaultSource={require("../assets/images/placeholder.png")}
-                  onError={(e) =>
-                    console.log(
-                      `Category icon load error (${category.name}):`,
-                      e.nativeEvent.error
-                    )
-                  }
-                />
-              </Link>
-            </View>
+              <Image
+                source={{ uri: category.icon }}
+                style={styles.categoryIcon}
+                // defaultSource={require("../assets/images/placeholder.png")}
+                onError={(e) =>
+                  console.log(
+                    `Category icon load error (${category.name}):`,
+                    e.nativeEvent.error
+                  )
+                }
+              />
+            </TouchableOpacity>
             <Text style={[styles.categoryText, { color: Colors.light.text }]}>
               {category.name}
             </Text>

@@ -54,17 +54,35 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({
 
             if (!isFocused && !event.defaultPrevented) {
               if (route.name === "category") {
-                // Reset the navigation stack and navigate to category
+                // Reset the category stack to show the main category page
                 navigation.dispatch(
                   CommonActions.reset({
                     index: 0,
                     routes: [
                       {
                         name: route.name,
-                        params: {
-                          screen: "index",
-                          params: {},
+                        state: {
+                          routes: [
+                            {
+                              name: "index",
+                              params: {},
+                            },
+                          ],
+                          index: 0,
                         },
+                      },
+                    ],
+                  })
+                );
+              } else if (route.name === "home") {
+                // Reset the navigation stack and navigate to home
+                navigation.dispatch(
+                  CommonActions.reset({
+                    index: 0,
+                    routes: [
+                      {
+                        name: route.name,
+                        params: {},
                       },
                     ],
                   })

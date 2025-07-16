@@ -22,24 +22,17 @@ export default function CategoryLayout() {
           title: "Category",
           headerStyle: { backgroundColor: "#98fb98" },
           headerTitleAlign: "center",
-
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 24,
           },
-          // headerStyle: {
-          //   backgroundColor:
-          //     colorScheme === "dark" ? lightGreenColor : lightGreenColor,
-          // },
         }}
-        // options={{ headerShown: false, title: "Category" }}
       />
       <Stack.Screen
         name="fruits"
         options={{
           title: "Fruits",
           headerTitleAlign: "center",
-
           headerStyle: { backgroundColor: "#98fb98" },
         }}
       />
@@ -57,12 +50,15 @@ export default function CategoryLayout() {
           title: "Dairy",
           headerTitleAlign: "center",
           headerStyle: { backgroundColor: "#98fb98" },
-          // headerStyle: { backgroundColor: "#f0e68c" },
         }}
       />
       <Stack.Screen
         name="meat"
-        options={{ title: "Meat", headerStyle: { backgroundColor: "#98fb98" } }}
+        options={{
+          title: "Meat",
+          headerTitleAlign: "center",
+          headerStyle: { backgroundColor: "#98fb98" },
+        }}
       />
       <Stack.Screen
         name="protein"

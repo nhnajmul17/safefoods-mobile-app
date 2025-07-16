@@ -10,7 +10,7 @@ import {
   ShopNowProduct,
 } from "../shopNowScreen/shopNowProductCard";
 import { Colors, greenColor } from "@/constants/Colors";
-import { Link } from "expo-router";
+import { useRouter } from "expo-router";
 
 interface QuantityMap {
   [productId: string]: number;
@@ -40,6 +40,16 @@ const BestSellingProductCard = ({
 }: BestSellingProductCardProps) => {
   const cardOpacity = useSharedValue(0);
   const cardScale = useSharedValue(0.95);
+  const navigation = useRouter();
+
+  const handleProductCardPress = (href: string) => {
+    // Navigate to main category page first, then to specific category
+    navigation.push("/(tabs)/category");
+    // Small delay to ensure category page is mounted
+    setTimeout(() => {
+      navigation.push(href as any);
+    });
+  };
 
   useEffect(() => {
     cardOpacity.value = withTiming(1, { duration: 300 });
@@ -64,7 +74,9 @@ const BestSellingProductCard = ({
 
   return (
     <Animated.View style={[styles.productCard, cardStyle]}>
-      <Link href={`/category/${item.id}`}>
+      <TouchableOpacity
+        onPress={() => handleProductCardPress(`/category/${item.id}`)}
+      >
         <Image
           source={{
             uri:
@@ -80,7 +92,7 @@ const BestSellingProductCard = ({
             )
           }
         />
-      </Link>
+      </TouchableOpacity>
       <View style={styles.contentContainer}>
         <Text style={styles.productName}>{item.title}</Text>
         <Text style={styles.productCategory}>{item.categoryTitle}</Text>
