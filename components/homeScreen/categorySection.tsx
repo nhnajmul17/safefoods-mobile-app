@@ -10,7 +10,6 @@ import {
   Image,
 } from "react-native";
 import { categories } from "../categoryScreen/lib/categoryDataAndTypes";
-import Icon from "react-native-vector-icons/MaterialIcons";
 
 export default function HomeCategorySection({
   isCategoryLoaded,
