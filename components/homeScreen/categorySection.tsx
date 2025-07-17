@@ -10,13 +10,23 @@ import {
   Image,
 } from "react-native";
 import { categories } from "../categoryScreen/lib/categoryDataAndTypes";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
-export default function HomeCategorySection() {
+export default function HomeCategorySection({
+  isCategoryLoaded,
+  setIsCategoryLoaded,
+}: {
+  isCategoryLoaded: boolean;
+  setIsCategoryLoaded: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
   const navigation = useRouter();
 
   const handleCategoryPress = (href: string) => {
     // Navigate to main category page first, then to specific category
-    navigation.push("/(tabs)/category");
+    if (!isCategoryLoaded) {
+      navigation.push("/(tabs)/category");
+      setIsCategoryLoaded(true);
+    }
     // Small delay to ensure category page is mounted
     setTimeout(() => {
       navigation.push(href as any);
@@ -61,9 +71,12 @@ export default function HomeCategorySection() {
               ]}
             >
               <Image
-                source={{ uri: category.icon }}
+                source={
+                  typeof category.icon === "string"
+                    ? { uri: category.icon }
+                    : category.icon // local image (require/import)
+                }
                 style={styles.categoryIcon}
-                // defaultSource={require("../assets/images/placeholder.png")}
                 onError={(e) =>
                   console.log(
                     `Category icon load error (${category.name}):`,

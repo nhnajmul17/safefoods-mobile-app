@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -28,6 +28,8 @@ interface BestSellingProductCardProps {
     item: ShopNowProduct,
     selectedVariant: ProductVariant
   ) => void;
+  isCategoryLoaded: boolean;
+  setIsCategoryLoaded: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const BestSellingProductCard = ({
@@ -37,6 +39,8 @@ const BestSellingProductCard = ({
   setSelectedVariants,
   setQuantities,
   handleAddToCart,
+  isCategoryLoaded,
+  setIsCategoryLoaded,
 }: BestSellingProductCardProps) => {
   const cardOpacity = useSharedValue(0);
   const cardScale = useSharedValue(0.95);
@@ -44,11 +48,20 @@ const BestSellingProductCard = ({
 
   const handleProductCardPress = (href: string) => {
     // Navigate to main category page first, then to specific category
-    navigation.push("/(tabs)/category");
-    // Small delay to ensure category page is mounted
-    setTimeout(() => {
+    if (!isCategoryLoaded) {
+      navigation.push("/(tabs)/category");
+      setIsCategoryLoaded(true);
+      setTimeout(() => {
+        navigation.push(href as any);
+      });
+    } else {
       navigation.push(href as any);
-    });
+    }
+
+    // Small delay to ensure category page is mounted
+    // setTimeout(() => {
+    //   navigation.push(href as any);
+    // });
   };
 
   useEffect(() => {

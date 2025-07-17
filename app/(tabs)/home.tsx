@@ -24,6 +24,7 @@ import BannerCarousel from "@/components/homeScreen/bannerCarousel";
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
   const { userId, userName } = useAuthStore();
+  const [isCategoryLoaded, setIsCategoryLoaded] = React.useState(false);
 
   // Toggle theme on button press
   //   const toggleTheme = () => {
@@ -115,7 +116,10 @@ export default function HomeScreen() {
           <BannerCarousel />
 
           {/* Categories Section */}
-          <HomeCategorySection />
+          <HomeCategorySection
+            isCategoryLoaded={isCategoryLoaded}
+            setIsCategoryLoaded={setIsCategoryLoaded}
+          />
 
           {/* Best Selling Section */}
           <View style={styles.sectionHeader}>
@@ -128,7 +132,10 @@ export default function HomeScreen() {
           </View>
 
           {/* Product Cards */}
-          <HomeBestSelling />
+          <HomeBestSelling
+            isCategoryLoaded={isCategoryLoaded}
+            setIsCategoryLoaded={setIsCategoryLoaded}
+          />
           <WhySafeFoodsSection />
         </ScrollView>
       </SafeAreaView>

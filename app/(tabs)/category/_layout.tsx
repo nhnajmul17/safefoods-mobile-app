@@ -69,6 +69,46 @@ export default function CategoryLayout() {
         }}
       />
       <Stack.Screen
+        name="egg"
+        options={{
+          title: "Egg",
+          headerTitleAlign: "center",
+          headerStyle: { backgroundColor: "#98fb98" },
+        }}
+      />
+      <Stack.Screen
+        name="chicken"
+        options={{
+          title: "Chicken",
+          headerTitleAlign: "center",
+          headerStyle: { backgroundColor: "#98fb98" },
+        }}
+      />
+      <Stack.Screen
+        name="fish"
+        options={{
+          title: "Fish",
+          headerTitleAlign: "center",
+          headerStyle: { backgroundColor: "#98fb98" },
+        }}
+      />
+      <Stack.Screen
+        name="oil"
+        options={{
+          title: "Oil",
+          headerTitleAlign: "center",
+          headerStyle: { backgroundColor: "#98fb98" },
+        }}
+      />
+      <Stack.Screen
+        name="honey"
+        options={{
+          title: "Honey",
+          headerTitleAlign: "center",
+          headerStyle: { backgroundColor: "#98fb98" },
+        }}
+      />
+      <Stack.Screen
         name="[productId]"
         options={{
           headerShown: true,

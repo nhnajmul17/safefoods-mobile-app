@@ -52,7 +52,11 @@ export default function CategoryScreen() {
             <Link href={item.href} style={styles.card}>
               <Animated.View style={[styles.cardContent, { opacity }]}>
                 <Image
-                  source={{ uri: item.icon }}
+                  source={
+                    typeof item.icon === "string"
+                      ? { uri: item.icon }
+                      : item.icon // local image (require/import)
+                  }
                   style={styles.icon}
                   onError={(e) =>
                     console.log(

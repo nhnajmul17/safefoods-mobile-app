@@ -154,7 +154,13 @@ const products: ShopNowProduct[] = [
   },
 ];
 
-export default function HomeBestSelling() {
+export default function HomeBestSelling({
+  isCategoryLoaded,
+  setIsCategoryLoaded,
+}: {
+  isCategoryLoaded: boolean;
+  setIsCategoryLoaded: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
   const { addItem } = useCartStore();
   const [quantities, setQuantities] = useState<QuantityMap>({});
   const [selectedVariants, setSelectedVariants] = useState<{
@@ -211,6 +217,8 @@ export default function HomeBestSelling() {
               setSelectedVariants={setSelectedVariants}
               setQuantities={setQuantities}
               handleAddToCart={handleAddToCart}
+              isCategoryLoaded={isCategoryLoaded}
+              setIsCategoryLoaded={setIsCategoryLoaded}
             />
           </Fragment>
         ))}

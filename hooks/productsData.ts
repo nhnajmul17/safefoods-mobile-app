@@ -226,10 +226,11 @@ export const allProductsData: ShopNowProduct[] = [
       },
     ],
   },
+  // Egg
   {
     id: "c3d4e5f6-g7h8-9012-defg-3456789012cd",
     title: "Free Range Eggs",
-    categoryTitle: "Proteins",
+    categoryTitle: "Egg",
     variants: [
       {
         id: "d4e5f6g7-h8i9-0123-efgh-4567890123de",
@@ -498,7 +499,7 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "e5f6g7h8-i9j0-1234-fghi-5678901234ef",
     title: "Fresh Chicken",
-    categoryTitle: "Meat",
+    categoryTitle: "Chicken",
     variants: [
       {
         id: "f6g7h8i9-j0k1-2345-ghij-6789012345fg",
@@ -541,7 +542,7 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "5e6f7890-1234-5678-efgh-4567890123ab",
     title: "Chicken Breast",
-    categoryTitle: "Meat",
+    categoryTitle: "Chicken",
     variants: [
       {
         id: "v6w7x8y9-z0a1-2345-wxyz-5678901234bc",
