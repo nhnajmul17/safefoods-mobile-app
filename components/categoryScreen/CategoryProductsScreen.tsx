@@ -14,6 +14,7 @@ import {
   ShopNowProduct,
   ProductVariant,
 } from "@/components/shopNowScreen/shopNowProductCard";
+import { API_URL } from "@/constants/variables";
 
 interface QuantityMap {
   [productId: string]: number;
@@ -36,19 +37,24 @@ export default function CategoryProductsScreen({
 
   useEffect(() => {
     setLoading(true);
-    // Uncomment below to fetch from API
-    /*
-    fetch(`https://your-api-url.com/products?category=${categoryTitle}`)
-      .then(res => res.json())
-      .then(data => {
-        setProducts(data.products);
-        setSelectedVariants(
-          Object.fromEntries(data.products.map((product: ShopNowProduct) => [product.id, product.variants[0]]))
-        );
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-    */
+
+    // fetch(`${API_URL}/v1/products/category/${categoryTitle}`)
+    //   .then((res) => res.json())
+    //   .then((data) => {
+    //     console.log("object", data);
+    //     setProducts(data.data);
+    //     setSelectedVariants(
+    //       Object.fromEntries(
+    //         data.data.map((product: ShopNowProduct) => [
+    //           product.id,
+    //           product.variants[0],
+    //         ])
+    //       )
+    //     );
+    //     setLoading(false);
+    //   })
+    //   .catch(() => setLoading(false));
+
     // Local data
     const filtered = allProductsData.filter(
       (product) => product.categoryTitle === categoryTitle
@@ -108,6 +114,8 @@ export default function CategoryProductsScreen({
     );
   }
 
+  const isSingleItem = products.length === 1;
+
   return (
     <View style={styles.container}>
       <FlatList
@@ -121,15 +129,19 @@ export default function CategoryProductsScreen({
             setSelectedVariants={setSelectedVariants}
             setQuantities={setQuantities}
             handleAddToCart={handleAddToCart}
+            isSingleItem={isSingleItem} // Pass the single item flag
           />
         )}
         numColumns={2}
         columnWrapperStyle={styles.columnWrapper}
-        contentContainerStyle={{ paddingBottom: 100 }}
+        contentContainerStyle={styles.contentContainer}
         initialNumToRender={4}
         maxToRenderPerBatch={4}
         windowSize={5}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <Text style={styles.noProducts}>No products available.</Text>
+        }
       />
     </View>
   );
@@ -146,6 +158,9 @@ const styles = StyleSheet.create({
   columnWrapper: {
     justifyContent: "space-between",
     paddingHorizontal: 4,
+  },
+  contentContainer: {
+    paddingBottom: 100,
   },
   noProducts: {
     fontSize: 18,

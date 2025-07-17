@@ -1,4 +1,11 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Dimensions,
+} from "react-native";
 import { useEffect } from "react";
 import Animated, {
   useSharedValue,
@@ -28,7 +35,10 @@ interface CategoryProductCardProps {
     item: ShopNowProduct,
     selectedVariant: ProductVariant
   ) => void;
+  isSingleItem?: boolean;
 }
+
+const { width: screenWidth } = Dimensions.get("window");
 
 const CategoryProductCard = ({
   item,
@@ -37,6 +47,7 @@ const CategoryProductCard = ({
   setSelectedVariants,
   setQuantities,
   handleAddToCart,
+  isSingleItem = false,
 }: CategoryProductCardProps) => {
   const cardOpacity = useSharedValue(0);
   const cardScale = useSharedValue(0.95);
@@ -62,8 +73,14 @@ const CategoryProductCard = ({
     });
   };
 
+  const cardWidth = isSingleItem
+    ? screenWidth / 2 - 24 // Half screen width minus padding (16 from container + 8 for margins)
+    : "48%";
+
   return (
-    <Animated.View style={[styles.productCard, cardStyle]}>
+    <Animated.View
+      style={[styles.productCard, { width: cardWidth }, cardStyle]}
+    >
       <Link href={`/category/${item.id}`}>
         <Image
           source={{
@@ -150,13 +167,7 @@ const CategoryProductCard = ({
 export default CategoryProductCard;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: "#f9f9f9",
-  },
   productCard: {
-    width: "48%",
     marginBottom: 12,
     borderRadius: 12,
     overflow: "hidden",
@@ -272,9 +283,5 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 12,
     fontWeight: "600",
-  },
-  columnWrapper: {
-    justifyContent: "space-between",
-    paddingHorizontal: 4,
   },
 });
