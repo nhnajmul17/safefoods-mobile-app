@@ -57,7 +57,7 @@ export default function CategoryProductsScreen({
 
     // Local data
     const filtered = allProductsData.filter(
-      (product) => product.categoryTitle === categoryTitle
+      (product) => product.categorySlug === categoryTitle
     );
     setProducts(filtered);
     setSelectedVariants(

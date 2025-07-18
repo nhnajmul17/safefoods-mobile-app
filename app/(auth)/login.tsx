@@ -46,6 +46,14 @@ export default function LoginScreen() {
             response.data.accessToken
           );
           router.replace("/(tabs)/home");
+        } else if (!response.success) {
+          Toast.show({
+            type: "error",
+            text1: "Error",
+            text2:
+              response.message || "Failed to verify OTP. Please try again.",
+            text2Style: { fontSize: 12, fontWeight: "bold" },
+          });
         }
       } catch (error) {
         console.log("Login error:", error);

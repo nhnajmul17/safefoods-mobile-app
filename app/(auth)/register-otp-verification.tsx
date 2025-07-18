@@ -93,6 +93,14 @@ export default function RegisterOTPVerificationScreen() {
           });
           logout(); // Clear authStore state after successful verification
           router.replace("/login");
+        } else if (!response.success) {
+          Toast.show({
+            type: "error",
+            text1: "Error",
+            text2:
+              response.message || "Failed to verify OTP. Please try again.",
+            text2Style: { fontSize: 12, fontWeight: "bold" },
+          });
         }
       } catch (error) {
         Toast.show({

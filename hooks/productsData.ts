@@ -6,7 +6,8 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "9i012345-6789-0123-ijkl-8901234567ef",
     title: "Cheddar",
-    categoryTitle: "dairy",
+    categoryTitle: "Dairy",
+    categorySlug: "dairy",
     variants: [
       {
         id: "t0u1v2w3-x4y5-6789-uvwx-1234567890fg",
@@ -49,7 +50,8 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "0j123456-7890-1234-jklm-9012345678fg",
     title: "Brie",
-    categoryTitle: "dairy",
+    categoryTitle: "Dairy",
+    categorySlug: "dairy",
     variants: [
       {
         id: "z6a7b8c9-d0e1-2345-abcd-3456789012gh",
@@ -92,7 +94,8 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "1k234567-8901-2345-klmn-0123456789gh",
     title: "Gouda",
-    categoryTitle: "dairy",
+    categoryTitle: "Dairy",
+    categorySlug: "dairy",
     variants: [
       {
         id: "f2g3h4i5-j6k7-8901-ghij-5678901234hi",
@@ -135,7 +138,8 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "2l345678-9012-3456-lmno-1234567890hi",
     title: "Parmesan",
-    categoryTitle: "dairy",
+    categoryTitle: "Dairy",
+    categorySlug: "dairy",
     variants: [
       {
         id: "l8m9n0p1-q2r3-4567-mnop-7890123456ij",
@@ -178,7 +182,8 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "b2c3d4e5-f6g7-8901-cdef-2345678901bc",
     title: "Cheddar Cheese",
-    categoryTitle: "dairy",
+    categoryTitle: "Dairy",
+    categorySlug: "dairy",
     variants: [
       {
         id: "c3d4e5f6-g7h8-9012-defg-4567890123de",
@@ -204,7 +209,8 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "909b455c-5054-4b1e-9d4b-56f206da3d54",
     title: "Safe Premium Milk",
-    categoryTitle: "proteins",
+    categoryTitle: "Proteins",
+    categorySlug: "proteins",
     variants: [
       {
         id: "e9caf159-e9a2-4301-a5c4-944fbdf334ad",
@@ -230,7 +236,8 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "c3d4e5f6-g7h8-9012-defg-3456789012cd",
     title: "Free Range Eggs",
-    categoryTitle: "egg",
+    categoryTitle: "Egg",
+    categorySlug: "egg",
     variants: [
       {
         id: "d4e5f6g7-h8i9-0123-efgh-4567890123de",
@@ -256,7 +263,8 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "d4e5f6g7-h8i9-0123-efgh-4567890123de",
     title: "Ghee",
-    categoryTitle: "oil",
+    categoryTitle: "Oil",
+    categorySlug: "oil",
     variants: [
       {
         id: "e5f6g7h8-i9j0-1234-fghi-5678901234ef",
@@ -283,7 +291,8 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "1a2b3c4d-5e6f-7890-abcd-1234567890ab",
     title: "Apple",
-    categoryTitle: "fruits",
+    categoryTitle: "Fruits",
+    categorySlug: "fruits",
     variants: [
       {
         id: "a1b2c3d4-e5f6-7890-abcd-2345678901bc",
@@ -326,7 +335,8 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "2b3c4d5e-6f78-9012-bcde-2345678901bc",
     title: "Banana",
-    categoryTitle: "fruits",
+    categoryTitle: "Fruits",
+    categorySlug: "fruits",
     variants: [
       {
         id: "f6g7h8i9-j0k1-2345-ghij-7890123456gh",
@@ -369,7 +379,8 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "3c4d5e6f-7890-1234-cdef-3456789012cd",
     title: "Orange",
-    categoryTitle: "fruits",
+    categoryTitle: "Fruits",
+    categorySlug: "fruits",
     variants: [
       {
         id: "l2m3n4o5-p6q7-8901-mnop-2345678901lm",
@@ -412,7 +423,8 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "4d5e6f78-9012-3456-defg-4567890123de",
     title: "Strawberry",
-    categoryTitle: "fruits",
+    categoryTitle: "Fruits",
+    categorySlug: "fruits",
     variants: [
       {
         id: "r8s9t0u1-v2w3-4567-stuv-7890123456rs",
@@ -456,7 +468,8 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "20e4cf65-ba20-4804-a0ee-b81f4fc2ea3d",
     title: "Desi Beef regular",
-    categoryTitle: "meat",
+    categoryTitle: "Meat",
+    categorySlug: "meat",
     variants: [
       {
         id: "66c423c5-8789-45a3-bcbd-8ce0a9d3e6fb",
@@ -499,7 +512,8 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "6f789012-3456-7890-fghi-5678901234bc",
     title: "Beef Steak",
-    categoryTitle: "meat",
+    categoryTitle: "Meat",
+    categorySlug: "meat",
     variants: [
       {
         id: "b2c3d4e5-f6g7-8901-cdef-6789012345cd",
@@ -542,7 +556,8 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "7g890123-4567-8901-ghij-6789012345cd",
     title: "Mutton Leg",
-    categoryTitle: "meat",
+    categoryTitle: "Meat",
+    categorySlug: "meat",
     variants: [
       {
         id: "h8i9j0k1-l2m3-4567-ijkl-7890123456de",
@@ -585,7 +600,8 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "8h901234-5678-9012-hijk-7890123456de",
     title: "Lamb Chop",
-    categoryTitle: "meat",
+    categoryTitle: "Meat",
+    categorySlug: "meat",
     variants: [
       {
         id: "n4o5p6q7-r8s9-0123-opqr-9012345678ef",
@@ -630,7 +646,8 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "e5f6g7h8-i9j0-1234-fghi-5678901234ef",
     title: "Fresh Chicken",
-    categoryTitle: "chicken",
+    categoryTitle: "Chicken",
+    categorySlug: "chicken",
     variants: [
       {
         id: "f6g7h8i9-j0k1-2345-ghij-6789012345fg",
@@ -673,7 +690,8 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "5e6f7890-1234-5678-efgh-4567890123ab",
     title: "Chicken Breast",
-    categoryTitle: "chicken",
+    categoryTitle: "Chicken",
+    categorySlug: "chicken",
     variants: [
       {
         id: "v6w7x8y9-z0a1-2345-wxyz-5678901234bc",
@@ -718,7 +736,8 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "3m456789-0123-4567-mnop-2345678901ij",
     title: "Bell Pepper Red",
-    categoryTitle: "vegetables",
+    categoryTitle: "Vegetables",
+    categorySlug: "vegetables",
     variants: [
       {
         id: "r4s5t6u7-v8w9-0123-stuv-9012345678jk",
@@ -761,7 +780,8 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "4n567890-1234-5678-nopq-3456789012jk",
     title: "Broccoli",
-    categoryTitle: "vegetables",
+    categoryTitle: "Vegetables",
+    categorySlug: "vegetables",
     variants: [
       {
         id: "x0y1z2a3-b4c5-6789-yzab-1234567890lm",
@@ -804,7 +824,8 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "5o678901-2345-6789-opqr-4567890123kl",
     title: "Papaya",
-    categoryTitle: "vegetables",
+    categoryTitle: "Vegetables",
+    categorySlug: "vegetables",
     variants: [
       {
         id: "d6e7f8g9-h0i1-2345-efgh-3456789012mn",
@@ -847,7 +868,8 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "6p789012-3456-7890-pqrs-5678901234lm",
     title: "Lettuce",
-    categoryTitle: "vegetables",
+    categoryTitle: "Vegetables",
+    categorySlug: "vegetables",
     variants: [
       {
         id: "j2k3l4m5-n6o7-8901-klmn-5678901234op",
@@ -890,7 +912,8 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "7q890123-4567-8901-qrst-6789012345mn",
     title: "Carrot",
-    categoryTitle: "vegetables",
+    categoryTitle: "Vegetables",
+    categorySlug: "vegetables",
     variants: [
       {
         id: "p8q9r0s1-t2u3-4567-qrst-7890123456qr",
@@ -933,7 +956,8 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "8r901234-5678-9012-rstu-7890123456no",
     title: "Cabbage",
-    categoryTitle: "vegetables",
+    categoryTitle: "Vegetables",
+    categorySlug: "vegetables",
     variants: [
       {
         id: "v4w5x6y7-z8a9-0123-wxyz-9012345678st",
@@ -976,7 +1000,8 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "9s012345-6789-0123-stuv-8901234567op",
     title: "Tomato",
-    categoryTitle: "vegetables",
+    categoryTitle: "Vegetables",
+    categorySlug: "vegetables",
     variants: [
       {
         id: "b0c1d2e3-f4g5-6789-cdef-1234567890uv",
@@ -1019,7 +1044,8 @@ export const allProductsData: ShopNowProduct[] = [
   {
     id: "0t123456-7890-1234-tuvw-9012345678pq",
     title: "Zucchini",
-    categoryTitle: "vegetables",
+    categoryTitle: "Vegetables",
+    categorySlug: "vegetables",
     variants: [
       {
         id: "h6i7j8k9-l0m1-2345-ijkl-3456789012wx",

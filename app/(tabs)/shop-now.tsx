@@ -19,8 +19,12 @@ import ShopNowProductCard, {
 // import { allProductsData } from "@/hooks/productsData";
 import {
   API_URL,
+  CHICKEN,
   DAIRY,
+  EGG,
+  FISH,
   FRUITS,
+  HONEY,
   MEAT,
   OIL,
   PROTEINS,
@@ -87,7 +91,7 @@ export default function ShopNowScreen() {
 
     if (selectedCategory !== "All") {
       result = result.filter(
-        (product) => product.categoryTitle === selectedCategory
+        (product) => product.categorySlug === selectedCategory
       );
     }
 
@@ -218,11 +222,15 @@ export default function ShopNowScreen() {
           >
             <Picker.Item label="All" value="All" />
             <Picker.Item label="Proteins" value={PROTEINS} />
-            <Picker.Item label="Meat" value={MEAT} />
-            <Picker.Item label="Vegetables" value={VEGETABLES} />
             <Picker.Item label="Dairy" value={DAIRY} />
-            <Picker.Item label="Oil" value={OIL} />
+            <Picker.Item label="Meat" value={MEAT} />
+            <Picker.Item label="Egg" value={EGG} />
+            <Picker.Item label="Chicken" value={CHICKEN} />
+            <Picker.Item label="Fish" value={FISH} />
             <Picker.Item label="Fruits" value={FRUITS} />
+            <Picker.Item label="Vegetables" value={VEGETABLES} />
+            <Picker.Item label="Oil" value={OIL} />
+            <Picker.Item label="Honey" value={HONEY} />
           </Picker>
 
           <Text style={styles.modalLabel}>Sort By Price</Text>

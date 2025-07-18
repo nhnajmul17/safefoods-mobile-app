@@ -27,54 +27,10 @@ export default function CheckoutScreen() {
   const { cartItems, getTotalPrice, clearCart } = useCartStore();
   const router = useRouter();
 
-  const [billingDetails, setBillingDetails] = useState({
-    firstName: "",
-    lastName: "",
-    companyName: "",
-    country: "",
-    streetAddress: "",
-    apartment: "",
-    townCity: "",
-    state: "",
-    zipCode: "",
-    phone: "",
-    email: "",
-  });
-
-  const handleInputChange = (field: string, value: string) => {
-    setBillingDetails((prev) => ({ ...prev, [field]: value }));
-  };
-
   const handlePlaceOrder = () => {
     // Basic validation for required fields
-    const requiredFields = [
-      "firstName",
-      "lastName",
-      "country",
-      "streetAddress",
-      "townCity",
-      "state",
-      "zipCode",
-      "phone",
-      "email",
-    ];
-    const missingFields = requiredFields.filter(
-      (field) => !billingDetails[field as keyof typeof billingDetails]
-    );
-
-    if (missingFields.length > 0) {
-      Toast.show({
-        type: "error",
-        text1: "Missing Information",
-        text2: `Please fill in: ${missingFields.join(", ")}`,
-        text1Style: { fontSize: 16, fontWeight: "bold" },
-        text2Style: { fontSize: 14, fontWeight: "bold" },
-      });
-      return;
-    }
 
     console.log("Order placed with details:", {
-      ...billingDetails,
       cartItems,
       total: getTotalPrice(),
     });
@@ -103,80 +59,6 @@ export default function CheckoutScreen() {
 
   const renderSection = ({ item }: { item: { type: string; key: string } }) => {
     switch (item.type) {
-      case "billing":
-        return (
-          <View style={styles.billingSection}>
-            <Text style={styles.sectionTitle}>Billing Details</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="First Name*"
-              value={billingDetails.firstName}
-              onChangeText={(text) => handleInputChange("firstName", text)}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Last Name*"
-              value={billingDetails.lastName}
-              onChangeText={(text) => handleInputChange("lastName", text)}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Company Name (Optional)"
-              value={billingDetails.companyName}
-              onChangeText={(text) => handleInputChange("companyName", text)}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Country / Region*"
-              value={billingDetails.country}
-              onChangeText={(text) => handleInputChange("country", text)}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Street Address*"
-              value={billingDetails.streetAddress}
-              onChangeText={(text) => handleInputChange("streetAddress", text)}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Apartment, suite, unit, etc. (optional)"
-              value={billingDetails.apartment}
-              onChangeText={(text) => handleInputChange("apartment", text)}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Town / City*"
-              value={billingDetails.townCity}
-              onChangeText={(text) => handleInputChange("townCity", text)}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="State*"
-              value={billingDetails.state}
-              onChangeText={(text) => handleInputChange("state", text)}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="ZIP Code*"
-              value={billingDetails.zipCode}
-              onChangeText={(text) => handleInputChange("zipCode", text)}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Phone*"
-              value={billingDetails.phone}
-              onChangeText={(text) => handleInputChange("phone", text)}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Email Address*"
-              value={billingDetails.email}
-              onChangeText={(text) => handleInputChange("email", text)}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-          </View>
-        );
       case "order":
         return (
           <View style={styles.orderSection}>

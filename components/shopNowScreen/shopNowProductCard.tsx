@@ -28,6 +28,7 @@ export interface ShopNowProduct {
   id: string;
   title: string;
   categoryTitle: string;
+  categorySlug?: string; // Optional for compatibility with existing data
   variants: ProductVariant[];
 }
 

@@ -28,10 +28,7 @@ export default function ForgotPasswordScreen() {
   const handleSubmit = async () => {
     if (email) {
       try {
-        const response = (await forgotPasswordAPI(email)) as {
-          success: boolean;
-          token: string;
-        };
+        const response = await forgotPasswordAPI(email);
         if (response.success) {
           const token = response.token;
           setResetData(email, token); // Store email and token in authStore
@@ -42,6 +39,14 @@ export default function ForgotPasswordScreen() {
             text2Style: { fontSize: 12, fontWeight: "bold" },
           });
           router.replace("/otp-verification");
+        } else if (!response.success) {
+          Toast.show({
+            type: "error",
+            text1: "Error",
+            text2:
+              response.message || "Failed to verify OTP. Please try again.",
+            text2Style: { fontSize: 12, fontWeight: "bold" },
+          });
         }
       } catch (error) {
         Toast.show({

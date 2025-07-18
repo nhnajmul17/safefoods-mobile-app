@@ -104,6 +104,13 @@ export default function RegisterScreen() {
           text2Style: { fontSize: 12, fontWeight: "bold" },
         });
         router.replace("/register-otp-verification");
+      } else if (!response.success) {
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: response.message || "Failed to verify OTP. Please try again.",
+          text2Style: { fontSize: 12, fontWeight: "bold" },
+        });
       }
     } catch (error) {
       Toast.show({

@@ -9,15 +9,25 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "expo-router";
 import Toast from "react-native-toast-message";
 import { useAuthStore } from "@/store/authStore";
+import { API_URL } from "@/constants/variables";
 
 // Mock API call (replace with your actual API)
+// const verifyOTPAPI = async (email: string, token: string, code: string) => {
+//   // Simulate API delay and response
+//   return new Promise((resolve) => {
+//     setTimeout(() => {
+//       resolve({ success: true, message: "OTP verified" }); // Mock success
+//     }, 1000);
+//   });
+// };
+
 const verifyOTPAPI = async (email: string, token: string, code: string) => {
-  // Simulate API delay and response
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ success: true, message: "OTP verified" }); // Mock success
-    }, 1000);
+  const response = await fetch(`${API_URL}/v1/auth/email-verification`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, token, code }),
   });
+  return response.json();
 };
 
 export default function OTPVerificationScreen() {
@@ -88,6 +98,14 @@ export default function OTPVerificationScreen() {
             text2Style: { fontSize: 12, fontWeight: "bold" },
           });
           router.replace("/reset-password");
+        } else if (!response.success) {
+          Toast.show({
+            type: "error",
+            text1: "Error",
+            text2:
+              response.message || "Failed to verify OTP. Please try again.",
+            text2Style: { fontSize: 12, fontWeight: "bold" },
+          });
         }
       } catch (error) {
         Toast.show({
