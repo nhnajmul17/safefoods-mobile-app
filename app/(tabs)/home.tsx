@@ -8,29 +8,75 @@ import {
   StyleSheet,
   ScrollView,
   StatusBar,
+  Animated,
+  Easing,
 } from "react-native";
 import { useColorScheme } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-import { GestureHandlerRootView } from "react-native-gesture-handler"; // Import GestureHandlerRootView
 import HomeCategorySection from "@/components/homeScreen/categorySection";
 import HomeBestSelling from "@/components/homeScreen/bestSelling";
 import WhySafeFoodsSection from "@/components/homeScreen/whySafefoods";
 import { Colors, lightGreenColor } from "@/constants/Colors";
 import { useAuthStore } from "@/store/authStore";
 import BannerCarousel from "@/components/homeScreen/bannerCarousel";
-// Get device dimensions for responsive design
-// const { width: screenWidth } = Dimensions.get("window");
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
   const { userId, userName } = useAuthStore();
-  const [isCategoryLoaded, setIsCategoryLoaded] = React.useState(false);
 
-  // Toggle theme on button press
-  //   const toggleTheme = () => {
-  //     const newScheme = colorScheme === "dark" ? "light" : "dark";
-  //     Appearance.setColorScheme(newScheme);
-  //   };
+  const [isCategoryLoaded, setIsCategoryLoaded] = React.useState(false);
+  const [isReadyToRender, setIsReadyToRender] = React.useState(false);
+
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
+  const textZoomAnim = React.useRef(new Animated.Value(0)).current;
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fadeAnim.setValue(0);
+      textZoomAnim.setValue(0);
+      setIsReadyToRender(false);
+
+      const timeout = setTimeout(() => {
+        setIsReadyToRender(true);
+
+        Animated.parallel([
+          Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 2500,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
+          }),
+          Animated.timing(textZoomAnim, {
+            toValue: 1,
+            duration: 2500,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
+          }),
+        ]).start();
+      }, 50); // prevent initial blink
+
+      return () => clearTimeout(timeout);
+    }, [])
+  );
+
+  const textTransform = {
+    transform: [
+      {
+        scale: textZoomAnim.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0.5, 1],
+        }),
+      },
+      {
+        translateY: textZoomAnim.interpolate({
+          inputRange: [0, 1],
+          outputRange: [50, 0],
+        }),
+      },
+    ],
+  };
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -41,103 +87,113 @@ export default function HomeScreen() {
           barStyle={colorScheme === "dark" ? "light-content" : "dark-content"}
           backgroundColor={colorScheme === "dark" ? "#1a1a1a" : "#f5f5f5"}
         />
-        {/* Header */}
-        <View style={styles.appHeader}>
-          <Image
-            source={{
-              uri: "https://safefoods.com.bd/_next/image?url=%2Fassets%2Fimages%2Flogo-safefoods.png&w=64&q=75",
-            }}
-            style={styles.appIcon}
-          />
 
-          <View style={styles.header}>
-            {/* User Info */}
-            {userId && (
-              <View style={styles.userInfo}>
-                <View>
-                  <Text style={[styles.greeting, { color: Colors.light.text }]}>
-                    {(() => {
-                      const hour = new Date().getHours();
-                      if (hour < 12) return "Good Morning";
-                      if (hour < 18) return "Good Afternoon";
-                      return "Good Evening";
-                    })()}
-                  </Text>
-                  <Text style={[styles.userName, { color: Colors.light.text }]}>
-                    {userName || "John Abram"}
-                  </Text>
-                </View>
+        {isReadyToRender && (
+          <Animated.View
+            style={{
+              flex: 1,
+              opacity: fadeAnim,
+              transform: [
+                {
+                  translateY: fadeAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [20, 0],
+                  }),
+                },
+              ],
+            }}
+          >
+            {/* Header */}
+            <View style={styles.appHeader}>
+              <Image
+                source={{
+                  uri: "https://safefoods.com.bd/_next/image?url=%2Fassets%2Fimages%2Flogo-safefoods.png&w=64&q=75",
+                }}
+                style={styles.appIcon}
+              />
+
+              <View style={styles.header}>
+                {userId && (
+                  <View style={styles.userInfo}>
+                    <View>
+                      <Text
+                        style={[styles.greeting, { color: Colors.light.text }]}
+                      >
+                        {(() => {
+                          const hour = new Date().getHours();
+                          if (hour < 12) return "Good Morning";
+                          if (hour < 18) return "Good Afternoon";
+                          return "Good Evening";
+                        })()}
+                      </Text>
+                      <Text
+                        style={[styles.userName, { color: Colors.light.text }]}
+                      >
+                        {userName || "John Abram"}
+                      </Text>
+                    </View>
+                    <Image
+                      source={{
+                        uri: "https://randomuser.me/api/portraits/men/44.jpg",
+                      }}
+                      style={styles.avatar}
+                      onError={(e) =>
+                        console.log("Avatar load error:", e.nativeEvent.error)
+                      }
+                    />
+                  </View>
+                )}
+              </View>
+            </View>
+
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.scrollContent}
+            >
+              {/* Hero Section */}
+              <View style={styles.heroSection}>
                 <Image
                   source={{
-                    uri: "https://randomuser.me/api/portraits/men/44.jpg",
+                    uri: "https://images.unsplash.com/photo-1467453678174-768ec283a940?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
                   }}
-                  style={styles.avatar}
-                  onError={(e) =>
-                    console.log("Avatar load error:", e.nativeEvent.error)
-                  }
+                  style={styles.heroImage}
                 />
+                <Animated.Text style={[styles.heroText, textTransform]}>
+                  Safe Food {"\n"}
+                  <Text style={{ fontSize: 26 }}>For Your Family</Text>.
+                </Animated.Text>
               </View>
-            )}
-          </View>
 
-          {/* <TouchableOpacity
-            style={[
-              styles.themeButton,
-              { backgroundColor: colorScheme === "dark" ? "#333" : "#fff" },
-            ]}
-            onPress={toggleTheme}
-          >
-            <Feather
-              name={colorScheme === "dark" ? "sun" : "moon"}
-              size={24}
-              color={colorScheme === "dark" ? "#fff" : "#000"}
-            />
-          </TouchableOpacity> */}
-        </View>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
-          {/* Hero Section */}
-          <View style={styles.heroSection}>
-            <Image
-              source={{
-                uri: "https://images.unsplash.com/photo-1467453678174-768ec283a940?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-              }}
-              style={styles.heroImage}
-            />
-            <Text style={styles.heroText}>
-              Safe Food {"\n"}
-              <Text style={{ fontSize: 26 }}>For Your Family</Text>.
-            </Text>
-          </View>
+              {/*  Banner Carousel */}
+              <BannerCarousel />
 
-          {/*  Banner Carousel */}
-          <BannerCarousel />
+              {/* Categories Section */}
+              <HomeCategorySection
+                isCategoryLoaded={isCategoryLoaded}
+                setIsCategoryLoaded={setIsCategoryLoaded}
+              />
 
-          {/* Categories Section */}
-          <HomeCategorySection
-            isCategoryLoaded={isCategoryLoaded}
-            setIsCategoryLoaded={setIsCategoryLoaded}
-          />
+              {/* Best Selling Section */}
+              <View style={styles.sectionHeader}>
+                <View style={styles.sectionTitleContainer}>
+                  <Text
+                    style={[styles.sectionTitle, { color: Colors.light.text }]}
+                  >
+                    Best selling
+                  </Text>
+                  <Text style={styles.emoji}>🔥</Text>
+                </View>
+              </View>
 
-          {/* Best Selling Section */}
-          <View style={styles.sectionHeader}>
-            <View style={styles.sectionTitleContainer}>
-              <Text style={[styles.sectionTitle, { color: Colors.light.text }]}>
-                Best selling
-              </Text>
-              <Text style={styles.emoji}>🔥</Text>
-            </View>
-          </View>
+              <HomeBestSelling
+                isCategoryLoaded={isCategoryLoaded}
+                setIsCategoryLoaded={setIsCategoryLoaded}
+              />
 
-          {/* Product Cards */}
-          <HomeBestSelling
-            isCategoryLoaded={isCategoryLoaded}
-            setIsCategoryLoaded={setIsCategoryLoaded}
-          />
-          <WhySafeFoodsSection />
-        </ScrollView>
+              <WhySafeFoodsSection />
+            </ScrollView>
+          </Animated.View>
+        )}
       </SafeAreaView>
     </GestureHandlerRootView>
   );
@@ -160,8 +216,6 @@ const styles = StyleSheet.create({
     height: 40,
     resizeMode: "contain",
   },
-
-  // user info styles
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -185,28 +239,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
-  // theme button styles
-  themeButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
   scrollContent: {
     paddingBottom: 40,
   },
-
-  // Hero Section
   heroSection: {
     position: "relative",
     height: 150,
-    // marginBottom: 16,
   },
   heroImage: {
     width: "100%",
@@ -221,10 +259,9 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     width: "100%",
-    top: "50%",
+    top: "25%",
     transform: [{ translateY: -50 }],
   },
-
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",

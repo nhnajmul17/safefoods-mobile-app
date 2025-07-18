@@ -1,4 +1,4 @@
-import { Colors } from "@/constants/Colors";
+import { Colors, lightGreenColor } from "@/constants/Colors";
 import { Link } from "expo-router";
 import {
   View,
@@ -10,24 +10,114 @@ import {
   SafeAreaView,
   Animated,
 } from "react-native";
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { categories } from "@/components/categoryScreen/lib/categoryDataAndTypes";
 
 export default function CategoryScreen() {
   const colorScheme = useColorScheme();
   const opacity = useRef(new Animated.Value(0)).current;
+  const [loading, setLoading] = useState(true);
+  const scaleValue = useRef(new Animated.Value(1)).current;
+
+  // Simulate initial load or data fetch
+  useEffect(() => {
+    // Start scale animation
+    const scaleAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(scaleValue, {
+          toValue: 1.2,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleValue, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    scaleAnimation.start();
+
+    // Simulate a delay (e.g., 1000ms) to show the loader
+    const timer = setTimeout(() => {
+      setLoading(false);
+      scaleAnimation.stop(); // Stop animation when loading ends
+    }, 1000); // Adjust delay as needed
+
+    return () => {
+      clearTimeout(timer); // Cleanup timer on unmount
+      scaleAnimation.stop(); // Cleanup animation on unmount
+    };
+  }, [scaleValue]);
+
+  // Trigger fade-in animation when loading ends
+  useEffect(() => {
+    if (!loading) {
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 1000, // Adjust duration for smooth fade-in
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [loading, opacity]);
 
   useFocusEffect(
     React.useCallback(() => {
+      // Reset opacity when screen is focused to ensure animation restarts
       opacity.setValue(0);
-      Animated.timing(opacity, {
-        toValue: 1,
-        duration: 1000,
-        useNativeDriver: true,
-      }).start();
-    }, [])
+      if (!loading) {
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }).start();
+      }
+    }, [loading, opacity])
   );
+
+  if (loading) {
+    return (
+      <SafeAreaView style={[styles.container, styles.loaderContainer]}>
+        <Animated.View
+          style={[
+            styles.loader,
+            { transform: [{ scale: scaleValue }] }, // Apply scale animation
+          ]}
+        >
+          <View
+            style={[
+              styles.loaderCircle,
+              { width: 60, height: 60, backgroundColor: lightGreenColor },
+            ]}
+          />
+          <View
+            style={[
+              styles.loaderCircle,
+              {
+                width: 40,
+                height: 40,
+                backgroundColor: "#fff",
+                position: "absolute",
+              },
+            ]}
+          />
+          <View
+            style={[
+              styles.loaderCircle,
+              {
+                width: 20,
+                height: 20,
+                backgroundColor: lightGreenColor,
+                position: "absolute",
+              },
+            ]}
+          />
+        </Animated.View>
+        <Text style={styles.loaderText}>Loading categories...</Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView
@@ -116,5 +206,27 @@ const styles = StyleSheet.create({
   cardText: {
     fontSize: 14,
     textAlign: "center",
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f9f9f9",
+  },
+  loader: {
+    width: 80,
+    height: 80,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loaderCircle: {
+    borderRadius: 30,
+    position: "absolute",
+    opacity: 0.7,
+  },
+  loaderText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: Colors.light.text,
   },
 });
