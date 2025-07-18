@@ -5,7 +5,6 @@ import {
   TextInput,
   FlatList,
   TouchableOpacity,
-  ActivityIndicator,
 } from "react-native";
 import { useState, useEffect, useMemo } from "react";
 import { Picker } from "@react-native-picker/picker";
@@ -27,6 +26,7 @@ import {
   PROTEINS,
   VEGETABLES,
 } from "@/constants/variables";
+import { CustomLoader } from "@/components/common/loader";
 
 const getProductsAPI = async () => {
   try {
@@ -141,10 +141,7 @@ export default function ShopNowScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color={greenColor} />
-        <Text style={styles.loaderText}>Loading products...</Text>
-      </View>
+      <CustomLoader isLoading={loading} loadingText="Loading products..." />
     );
   }
 

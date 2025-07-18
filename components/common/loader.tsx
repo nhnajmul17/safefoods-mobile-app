@@ -1,55 +1,86 @@
 import { Colors, lightGreenColor } from "@/constants/Colors";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { Animated, SafeAreaView, StyleSheet, Text, View } from "react-native";
 
-export const CustomLoader = () => {
+type CustomLoaderProps = {
+  isLoading: boolean;
+  loadingText?: string;
+};
+
+export const CustomLoader = ({
+  isLoading,
+  loadingText = "Loading...",
+}: CustomLoaderProps) => {
   const scaleValue = useRef(new Animated.Value(1)).current;
 
-  <SafeAreaView style={[styles.container, styles.loaderContainer]}>
-    <Animated.View
-      style={[
-        styles.loader,
-        { transform: [{ scale: scaleValue }] }, // Apply scale animation
-      ]}
-    >
-      <View
+  // Start scale animation
+  useEffect(() => {
+    if (isLoading) {
+      const scaleAnimation = Animated.loop(
+        Animated.sequence([
+          Animated.timing(scaleValue, {
+            toValue: 1.2,
+            duration: 500,
+            useNativeDriver: true,
+          }),
+          Animated.timing(scaleValue, {
+            toValue: 1,
+            duration: 500,
+            useNativeDriver: true,
+          }),
+        ])
+      );
+      scaleAnimation.start();
+
+      return () => scaleAnimation.stop(); // Cleanup on unmount or when isLoading changes
+    }
+  }, [isLoading, scaleValue]);
+
+  if (!isLoading) return null; // Render nothing if not loading
+
+  return (
+    <SafeAreaView style={styles.loaderContainer}>
+      <Animated.View
         style={[
-          styles.loaderCircle,
-          { width: 60, height: 60, backgroundColor: lightGreenColor },
+          styles.loader,
+          { transform: [{ scale: scaleValue }] }, // Apply scale animation
         ]}
-      />
-      <View
-        style={[
-          styles.loaderCircle,
-          {
-            width: 40,
-            height: 40,
-            backgroundColor: "#fff",
-            position: "absolute",
-          },
-        ]}
-      />
-      <View
-        style={[
-          styles.loaderCircle,
-          {
-            width: 20,
-            height: 20,
-            backgroundColor: lightGreenColor,
-            position: "absolute",
-          },
-        ]}
-      />
-    </Animated.View>
-    <Text style={styles.loaderText}>Loading categories...</Text>
-  </SafeAreaView>;
+      >
+        <View
+          style={[
+            styles.loaderCircle,
+            { width: 60, height: 60, backgroundColor: lightGreenColor },
+          ]}
+        />
+        <View
+          style={[
+            styles.loaderCircle,
+            {
+              width: 40,
+              height: 40,
+              backgroundColor: "#fff",
+              position: "absolute",
+            },
+          ]}
+        />
+        <View
+          style={[
+            styles.loaderCircle,
+            {
+              width: 20,
+              height: 20,
+              backgroundColor: lightGreenColor,
+              position: "absolute",
+            },
+          ]}
+        />
+      </Animated.View>
+      <Text style={styles.loaderText}>{loadingText}</Text>
+    </SafeAreaView>
+  );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 10,
-  },
   loaderContainer: {
     flex: 1,
     justifyContent: "center",

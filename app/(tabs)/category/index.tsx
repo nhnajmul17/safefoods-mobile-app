@@ -13,6 +13,7 @@ import {
 import React, { useRef, useState, useEffect } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { categories } from "@/components/categoryScreen/lib/categoryDataAndTypes";
+import { CustomLoader } from "@/components/common/loader";
 
 export default function CategoryScreen() {
   const colorScheme = useColorScheme();
@@ -22,34 +23,15 @@ export default function CategoryScreen() {
 
   // Simulate initial load or data fetch
   useEffect(() => {
-    // Start scale animation
-    const scaleAnimation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(scaleValue, {
-          toValue: 1.2,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(scaleValue, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ])
-    );
-    scaleAnimation.start();
-
-    // Simulate a delay (e.g., 1000ms) to show the loader
+    // Start scale animation (handled by CustomLoader now)
     const timer = setTimeout(() => {
       setLoading(false);
-      scaleAnimation.stop(); // Stop animation when loading ends
     }, 1000); // Adjust delay as needed
 
     return () => {
       clearTimeout(timer); // Cleanup timer on unmount
-      scaleAnimation.stop(); // Cleanup animation on unmount
     };
-  }, [scaleValue]);
+  }, []);
 
   // Trigger fade-in animation when loading ends
   useEffect(() => {
@@ -78,44 +60,7 @@ export default function CategoryScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={[styles.container, styles.loaderContainer]}>
-        <Animated.View
-          style={[
-            styles.loader,
-            { transform: [{ scale: scaleValue }] }, // Apply scale animation
-          ]}
-        >
-          <View
-            style={[
-              styles.loaderCircle,
-              { width: 60, height: 60, backgroundColor: lightGreenColor },
-            ]}
-          />
-          <View
-            style={[
-              styles.loaderCircle,
-              {
-                width: 40,
-                height: 40,
-                backgroundColor: "#fff",
-                position: "absolute",
-              },
-            ]}
-          />
-          <View
-            style={[
-              styles.loaderCircle,
-              {
-                width: 20,
-                height: 20,
-                backgroundColor: lightGreenColor,
-                position: "absolute",
-              },
-            ]}
-          />
-        </Animated.View>
-        <Text style={styles.loaderText}>Loading categories...</Text>
-      </SafeAreaView>
+      <CustomLoader isLoading={loading} loadingText="Loading categories..." />
     );
   }
 
@@ -206,27 +151,5 @@ const styles = StyleSheet.create({
   cardText: {
     fontSize: 14,
     textAlign: "center",
-  },
-  loaderContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f9f9f9",
-  },
-  loader: {
-    width: 80,
-    height: 80,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  loaderCircle: {
-    borderRadius: 30,
-    position: "absolute",
-    opacity: 0.7,
-  },
-  loaderText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: Colors.light.text,
   },
 });
