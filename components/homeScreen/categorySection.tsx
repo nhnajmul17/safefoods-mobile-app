@@ -85,7 +85,7 @@ export default function HomeCategorySection({
               />
             </TouchableOpacity>
             <Text style={[styles.categoryText, { color: Colors.light.text }]}>
-              {category.name}
+              {category.name.charAt(0).toUpperCase() + category.name.slice(1)}
             </Text>
           </View>
         ))}

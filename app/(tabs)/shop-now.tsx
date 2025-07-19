@@ -17,20 +17,10 @@ import ShopNowProductCard, {
   ProductVariant,
 } from "@/components/shopNowScreen/shopNowProductCard";
 // import { allProductsData } from "@/hooks/productsData";
-import {
-  API_URL,
-  CHICKEN,
-  DAIRY,
-  EGG,
-  FISH,
-  FRUITS,
-  HONEY,
-  MEAT,
-  OIL,
-  PROTEINS,
-  VEGETABLES,
-} from "@/constants/variables";
+import { API_URL } from "@/constants/variables";
 import { CustomLoader } from "@/components/common/loader";
+import { categories } from "@/components/categoryScreen/lib/categoryDataAndTypes";
+import { useAuthStore } from "@/store/authStore";
 
 const getProductsAPI = async () => {
   try {
@@ -50,6 +40,7 @@ const getProductsAPI = async () => {
 
 export default function ShopNowScreen() {
   const { addItem } = useCartStore();
+  const { userId, accessToken } = useAuthStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [quantities, setQuantities] = useState<QuantityMap>({});
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
@@ -132,6 +123,22 @@ export default function ShopNowScreen() {
         unit: selectedVariant.unitTitle,
         quantity,
       });
+      if (userId && accessToken) {
+        fetch(`${API_URL}/v1/cart`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            userId: userId,
+            variantProductId: selectedVariant.id,
+            quantity,
+          }),
+        })
+          .then((response) => response.json())
+          .catch((error) => console.error("Cart API Error:", error));
+      }
       Toast.show({
         type: "success",
         text1: "Added to Cart",
@@ -221,16 +228,15 @@ export default function ShopNowScreen() {
             dropdownIconColor="#1a1a1a"
           >
             <Picker.Item label="All" value="All" />
-            <Picker.Item label="Proteins" value={PROTEINS} />
-            <Picker.Item label="Dairy" value={DAIRY} />
-            <Picker.Item label="Meat" value={MEAT} />
-            <Picker.Item label="Egg" value={EGG} />
-            <Picker.Item label="Chicken" value={CHICKEN} />
-            <Picker.Item label="Fish" value={FISH} />
-            <Picker.Item label="Fruits" value={FRUITS} />
-            <Picker.Item label="Vegetables" value={VEGETABLES} />
-            <Picker.Item label="Oil" value={OIL} />
-            <Picker.Item label="Honey" value={HONEY} />
+            {categories.map((category) => (
+              <Picker.Item
+                key={category.id}
+                label={
+                  category.name.charAt(0).toUpperCase() + category.name.slice(1)
+                }
+                value={category.slug}
+              />
+            ))}
           </Picker>
 
           <Text style={styles.modalLabel}>Sort By Price</Text>

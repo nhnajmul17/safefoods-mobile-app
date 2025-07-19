@@ -19,17 +19,27 @@ import Animated, {
 import { useCartStore } from "@/store/cartStore";
 import Toast from "react-native-toast-message";
 import { greenColor } from "@/constants/Colors";
-import { ProductVariant } from "@/components/shopNowScreen/shopNowProductCard";
+import {
+  ProductVariant,
+  ShopNowProduct,
+} from "@/components/shopNowScreen/shopNowProductCard";
 // Assuming products array is defined elsewhere
 import { allProductsData } from "@/hooks/productsData";
+import { API_URL } from "@/constants/variables";
+import { useAuthStore } from "@/store/authStore";
+import { CustomLoader } from "@/components/common/loader";
 
 export default function ProductDetailsScreen() {
   const { productId } = useLocalSearchParams();
+  const [product, setProduct] = useState<ShopNowProduct | null>(null);
+  const [loading, setLoading] = useState(false);
+
   const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     null
   );
   const { addItem } = useCartStore();
+  const { userId, accessToken } = useAuthStore();
 
   // Animation values
   const imageOpacity = useSharedValue(0);
@@ -39,15 +49,35 @@ export default function ProductDetailsScreen() {
   const addToCartScale = useSharedValue(1);
   const variantScale = useSharedValue(1);
 
-  // Find the product by ID
-  const product = allProductsData.find((p) => p.id === productId);
-
-  // Initialize selected variant
   useEffect(() => {
-    if (product && !selectedVariant) {
-      setSelectedVariant(product.variants[0]);
+    setLoading(true);
+
+    // fetch(`${API_URL}/v1/products/${productId}`)
+    //   .then((res) => res.json())
+    //   .then((data) => {
+    //     setProduct(data.data);
+    //     setSelectedVariant(data.data.variants[0]);
+    //     setLoading(false);
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error fetching product:", error);
+    //     // Fallback to local data if API fails
+    //     const localProduct = allProductsData.find((p) => p.id === productId);
+    //     if (localProduct) {
+    //       setProduct(localProduct);
+    //       setSelectedVariant(localProduct.variants[0]);
+    //     }
+    //     setLoading(false);
+    //   });
+
+    // Initial local fallback (if API call is slow)
+    const localProduct = allProductsData.find((p) => p.id === productId);
+    if (localProduct && !selectedVariant) {
+      setProduct(localProduct);
+      setSelectedVariant(localProduct.variants[0]);
+      setLoading(false);
     }
-  }, [product, selectedVariant]);
+  }, [productId]);
 
   // Trigger animations on mount
   useEffect(() => {
@@ -95,11 +125,22 @@ export default function ProductDetailsScreen() {
         quantity,
       };
       addItem(cartItem);
-      console.log(
-        `Added ${quantity} ${product.title} (${selectedVariant.unitTitle}) to cart`,
-        cartItem
-      );
-
+      if (userId && accessToken) {
+        fetch(`${API_URL}/v1/cart`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            userId: userId,
+            variantProductId: selectedVariant.id,
+            quantity,
+          }),
+        })
+          .then((response) => response.json())
+          .catch((error) => console.error("Cart API Error:", error));
+      }
       Toast.show({
         type: "success",
         text1: "Added to Cart",
@@ -148,6 +189,14 @@ export default function ProductDetailsScreen() {
     transform: [{ scale: variantScale.value }],
   }));
 
+  if (loading) {
+    return (
+      <CustomLoader
+        isLoading={loading}
+        loadingText="Loading product details..."
+      />
+    );
+  }
   // Render fallback UI if product or selectedVariant is not found
   if (!product || !selectedVariant) {
     return (

@@ -8,6 +8,8 @@ import {
 } from "@/components/shopNowScreen/shopNowProductCard";
 
 import BestSellingProductCard from "./bestSellingProductCard";
+import { API_URL } from "@/constants/variables";
+import { useAuthStore } from "@/store/authStore";
 
 // Define QuantityMap interface
 interface QuantityMap {
@@ -162,6 +164,7 @@ export default function HomeBestSelling({
   setIsCategoryLoaded: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const { addItem } = useCartStore();
+  const { userId, accessToken } = useAuthStore();
   const [quantities, setQuantities] = useState<QuantityMap>({});
   const [selectedVariants, setSelectedVariants] = useState<{
     [productId: string]: ProductVariant;
@@ -188,6 +191,22 @@ export default function HomeBestSelling({
         unit: selectedVariant.unitTitle,
         quantity,
       });
+      if (userId && accessToken) {
+        fetch(`${API_URL}/v1/cart`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            userId: userId,
+            variantProductId: selectedVariant.id,
+            quantity,
+          }),
+        })
+          .then((response) => response.json())
+          .catch((error) => console.error("Cart API Error:", error));
+      }
       Toast.show({
         type: "success",
         text1: "Added to Cart",

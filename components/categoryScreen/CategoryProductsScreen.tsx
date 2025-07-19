@@ -15,6 +15,7 @@ import {
   ProductVariant,
 } from "@/components/shopNowScreen/shopNowProductCard";
 import { API_URL } from "@/constants/variables";
+import { useAuthStore } from "@/store/authStore";
 
 interface QuantityMap {
   [productId: string]: number;
@@ -28,6 +29,7 @@ export default function CategoryProductsScreen({
   categoryTitle,
 }: CategoryProductsScreenProps) {
   const { addItem } = useCartStore();
+  const { userId, accessToken } = useAuthStore();
   const [products, setProducts] = useState<ShopNowProduct[]>([]);
   const [loading, setLoading] = useState(false);
   const [quantities, setQuantities] = useState<QuantityMap>({});
@@ -85,6 +87,22 @@ export default function CategoryProductsScreen({
         unit: selectedVariant.unitTitle,
         quantity,
       });
+      if (userId && accessToken) {
+        fetch(`${API_URL}/v1/cart`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            userId: userId,
+            variantProductId: selectedVariant.id,
+            quantity,
+          }),
+        })
+          .then((response) => response.json())
+          .catch((error) => console.error("Cart API Error:", error));
+      }
       Toast.show({
         type: "success",
         text1: "Added to Cart",

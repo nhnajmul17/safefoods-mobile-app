@@ -101,7 +101,7 @@ export default function CategoryScreen() {
                   }
                 />
                 <Text style={[styles.cardText, { color: Colors.light.text }]}>
-                  {item.name}
+                  {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
                 </Text>
               </Animated.View>
             </Link>

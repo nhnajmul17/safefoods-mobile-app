@@ -11,15 +11,70 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 
 import { useRouter } from "expo-router";
 import Toast from "react-native-toast-message";
+import { useAuthStore } from "@/store/authStore";
+import { API_URL } from "@/constants/variables";
 
 export default function CartScreen() {
   const { cartItems, removeItem, updateQuantity, clearCart, getTotalPrice } =
     useCartStore();
+  const { userId, accessToken } = useAuthStore();
   const router = useRouter();
 
   const handleOrderNow = () => {
-    console.log("Cart Items on Order Now:", cartItems);
     router.push("/checkout");
+  };
+
+  const handleAddToCart = (
+    cartItemId: string,
+    variantId: string,
+    quantity: number,
+    action: "add" | "remove"
+  ) => {
+    if (userId && accessToken && quantity > 0) {
+      fetch(`${API_URL}/v1/cart`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          userId: userId,
+          variantProductId: variantId,
+          quantity: action === "add" ? 1 : -1,
+        }),
+      })
+        .then((response) => response.json())
+        .catch((error) => console.error("Cart API Error:", error));
+    } else if (userId && accessToken && quantity <= 0) {
+      fetch(`${API_URL}/v1/cart`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          userId: userId,
+          variantProductId: variantId,
+          quantity: -1,
+        }),
+      })
+        .then((response) => response.json())
+        .then(() => {
+          return fetch(`${API_URL}/v1/cart`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify({
+              id: cartItemId,
+              isDiscarded: true,
+            }),
+          });
+        })
+        .then((response) => response.json())
+        .catch((error) => console.error("Cart API Error:", error));
+    }
   };
 
   const renderItem = ({
@@ -60,18 +115,25 @@ export default function CartScreen() {
       {/* Quantity Controls */}
       <View style={styles.quantityContainer}>
         <TouchableOpacity
-          onPress={() =>
-            updateQuantity(item.id, item.variantId, item.quantity - 1)
-          }
+          onPress={() => {
+            updateQuantity(item.id, item.variantId, item.quantity - 1);
+            handleAddToCart(
+              item.id,
+              item.variantId,
+              item.quantity - 1,
+              "remove"
+            );
+          }}
           style={styles.quantityButton}
         >
           <Icon style={styles.quantityText} name="remove" />
         </TouchableOpacity>
         <Text style={styles.quantityText}>{item.quantity}</Text>
         <TouchableOpacity
-          onPress={() =>
-            updateQuantity(item.id, item.variantId, item.quantity + 1)
-          }
+          onPress={() => {
+            updateQuantity(item.id, item.variantId, item.quantity + 1);
+            handleAddToCart(item.id, item.variantId, item.quantity + 1, "add");
+          }}
           style={styles.quantityButton}
         >
           <Icon style={styles.quantityText} name="add" />
