@@ -1,10 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   SafeAreaView,
   View,
   Text,
   Image,
-  TouchableOpacity,
   StyleSheet,
   ScrollView,
   StatusBar,
@@ -20,11 +19,13 @@ import WhySafeFoodsSection from "@/components/homeScreen/whySafefoods";
 import { Colors, lightGreenColor } from "@/constants/Colors";
 import { useAuthStore } from "@/store/authStore";
 import BannerCarousel from "@/components/homeScreen/bannerCarousel";
-import { useFocusEffect } from "@react-navigation/native";
+import { useCartStore } from "@/store/cartStore"; // Import cart store
+import { API_URL } from "@/constants/variables"; // Import API URL
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
-  const { userId, userName } = useAuthStore();
+  const { userId, accessToken, userName } = useAuthStore();
+  const { addItem, isCartFetchedFromApi } = useCartStore();
 
   const [isCategoryLoaded, setIsCategoryLoaded] = React.useState(false);
   const [isReadyToRender, setIsReadyToRender] = React.useState(false);
@@ -32,34 +33,69 @@ export default function HomeScreen() {
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const textZoomAnim = React.useRef(new Animated.Value(0)).current;
 
-  useFocusEffect(
-    React.useCallback(() => {
-      fadeAnim.setValue(0);
-      textZoomAnim.setValue(0);
-      setIsReadyToRender(false);
+  // Fetch cart items only when userId and accessToken are present and not fetched yet
+  useEffect(() => {
+    const fetchCartItems = async () => {
+      if (userId && accessToken && !isCartFetchedFromApi) {
+        console.log("Fetching cart items..."); // Debug log
+        try {
+          const response = await fetch(`${API_URL}/v1/cart?userId=${userId}`, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+          const data = await response.json();
+          if (data.success) {
+            // Map API items to CartItem format and add to store
+            data.data.items.forEach((item: any) => {
+              addItem({
+                id: item.id,
+                variantId: item.variantProductId,
+                name: item.productTitle,
+                image: item.productImageUrl || "https://via.placeholder.com/50",
+                price: item.productPrice,
+                unit: item.unitTitle,
+                quantity: item.quantity,
+              });
+            });
+            useCartStore.setState({ isCartFetchedFromApi: true }); // Mark as fetched
+          }
+        } catch (error) {
+          console.error("Error fetching cart items:", error);
+        }
+      }
+    };
 
-      const timeout = setTimeout(() => {
-        setIsReadyToRender(true);
+    fetchCartItems();
+  }, [isCartFetchedFromApi]); // Trigger on userId, accessToken, or isCartFetchedFromApi change
 
-        Animated.parallel([
-          Animated.timing(fadeAnim, {
-            toValue: 1,
-            duration: 2500,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-          Animated.timing(textZoomAnim, {
-            toValue: 1,
-            duration: 2500,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-        ]).start();
-      }, 50); // prevent initial blink
+  // Animation and render logic
+  useEffect(() => {
+    fadeAnim.setValue(0);
+    textZoomAnim.setValue(0);
+    setIsReadyToRender(false);
 
-      return () => clearTimeout(timeout);
-    }, [])
-  );
+    const timeout = setTimeout(() => {
+      setIsReadyToRender(true);
+
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 2500,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(textZoomAnim, {
+          toValue: 1,
+          duration: 2500,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }, 50); // Prevent initial blink
+
+    return () => clearTimeout(timeout);
+  }, []); // Run once on mount
 
   const textTransform = {
     transform: [
@@ -164,7 +200,7 @@ export default function HomeScreen() {
                 </Animated.Text>
               </View>
 
-              {/*  Banner Carousel */}
+              {/* Banner Carousel */}
               <BannerCarousel />
 
               {/* Categories Section */}
@@ -280,10 +316,5 @@ const styles = StyleSheet.create({
   emoji: {
     fontSize: 18,
     marginLeft: 4,
-  },
-  seeAllText: {
-    fontSize: 14,
-    color: "#27ae60",
-    fontWeight: "500",
   },
 });

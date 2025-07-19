@@ -1,4 +1,5 @@
 import { useAuthStore } from "@/store/authStore";
+import { useCartStore } from "@/store/cartStore";
 import { useRouter } from "expo-router";
 import {
   View,
@@ -12,6 +13,7 @@ import {
 export default function ProfileScreen() {
   const router = useRouter();
   const { logout, userId, userName } = useAuthStore();
+  const { clearCart } = useCartStore();
 
   const menuItems = [
     ...(userId
@@ -84,6 +86,8 @@ export default function ProfileScreen() {
         : "https://cdn-icons-png.flaticon.com/512/1828/1828478.png", // Login icon
       action: () => {
         if (userId) {
+          useCartStore.setState({ isCartFetchedFromApi: false });
+          clearCart(); // Clear cart on logout
           logout();
           router.push("/login");
         } else {

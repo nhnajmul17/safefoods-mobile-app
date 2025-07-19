@@ -27,6 +27,7 @@ const saveCartToStorage = async (cartItems: CartItem[]) => {
 
 export const useCartStore = create<CartState>((set, get) => ({
   cartItems: [],
+  isCartFetchedFromApi: false,
   addItem: async (item: CartItem) =>
     set((state) => {
       const existingItem = state.cartItems.find(

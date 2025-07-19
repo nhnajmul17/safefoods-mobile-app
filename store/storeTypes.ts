@@ -10,6 +10,7 @@ export interface CartItem {
 
 export interface CartState {
   cartItems: CartItem[];
+  isCartFetchedFromApi: boolean;
   addItem: (item: CartItem) => void;
   removeItem: (id: string, variantId: string) => void;
   updateQuantity: (id: string, variantId: string, quantity: number) => void;
