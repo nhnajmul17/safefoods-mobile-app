@@ -1,67 +1,77 @@
 import { create } from "zustand";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { CartItem, CartState } from "./storeTypes"; // Define types in a separate file if needed
 
-interface CartItem {
-  id: string;
-  variantId: string;
-  name: string;
-  image: string;
-  price: number;
-  unit: string;
-  quantity: number;
-}
+// Storage key for AsyncStorage
+const CART_STORAGE_KEY = "@CartItems";
 
-interface CartState {
-  cartItems: CartItem[];
-  addItem: (item: CartItem) => void;
-  removeItem: (id: string, variantId: string) => void;
-  updateQuantity: (id: string, variantId: string, quantity: number) => void;
-  clearCart: () => void;
-  getTotalItems: () => number;
-  getTotalPrice: () => number;
-}
+// Load initial cart items from AsyncStorage
+const loadCartFromStorage = async () => {
+  try {
+    const storedCart = await AsyncStorage.getItem(CART_STORAGE_KEY);
+    return storedCart ? JSON.parse(storedCart) : [];
+  } catch (error) {
+    console.error("Error loading cart from storage:", error);
+    return [];
+  }
+};
+
+// Save cart items to AsyncStorage
+const saveCartToStorage = async (cartItems: CartItem[]) => {
+  try {
+    await AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
+  } catch (error) {
+    console.error("Error saving cart to storage:", error);
+  }
+};
 
 export const useCartStore = create<CartState>((set, get) => ({
   cartItems: [],
-  addItem: (item: CartItem) =>
+  addItem: async (item: CartItem) =>
     set((state) => {
       const existingItem = state.cartItems.find(
         (i) => i.id === item.id && i.variantId === item.variantId
       );
-      if (existingItem) {
-        return {
-          cartItems: state.cartItems.map((i) =>
+      const newCartItems = existingItem
+        ? state.cartItems.map((i) =>
             i.id === item.id && i.variantId === item.variantId
               ? { ...i, quantity: i.quantity + item.quantity }
               : i
-          ),
-        };
-      }
-      return { cartItems: [...state.cartItems, item] };
+          )
+        : [...state.cartItems, item];
+
+      saveCartToStorage(newCartItems); // Persist after update
+      return { cartItems: newCartItems };
     }),
-  removeItem: (id: string, variantId: string) =>
-    set((state) => ({
-      cartItems: state.cartItems.filter(
-        (item) => !(item.id === id && item.variantId === variantId)
-      ),
-    })),
-  updateQuantity: (id: string, variantId: string, quantity: number) =>
+  removeItem: async (id: string, variantId: string) =>
     set((state) => {
+      const newCartItems = state.cartItems.filter(
+        (item) => !(item.id === id && item.variantId === variantId)
+      );
+      saveCartToStorage(newCartItems); // Persist after update
+      return { cartItems: newCartItems };
+    }),
+  updateQuantity: async (id: string, variantId: string, quantity: number) =>
+    set((state) => {
+      let newCartItems;
       if (quantity <= 0) {
-        return {
-          cartItems: state.cartItems.filter(
-            (item) => !(item.id === id && item.variantId === variantId)
-          ),
-        };
-      }
-      return {
-        cartItems: state.cartItems.map((item) =>
+        newCartItems = state.cartItems.filter(
+          (item) => !(item.id === id && item.variantId === variantId)
+        );
+      } else {
+        newCartItems = state.cartItems.map((item) =>
           item.id === id && item.variantId === variantId
             ? { ...item, quantity }
             : item
-        ),
-      };
+        );
+      }
+      saveCartToStorage(newCartItems); // Persist after update
+      return { cartItems: newCartItems };
     }),
-  clearCart: () => set({ cartItems: [] }),
+  clearCart: async () => {
+    await AsyncStorage.removeItem(CART_STORAGE_KEY); // Clear persisted data
+    set({ cartItems: [] });
+  },
   getTotalItems: () =>
     get().cartItems.reduce((total, item) => total + item.quantity, 0),
   getTotalPrice: () =>
@@ -70,3 +80,8 @@ export const useCartStore = create<CartState>((set, get) => ({
       0
     ),
 }));
+
+// Initialize store with persisted data
+loadCartFromStorage().then((initialCart) => {
+  useCartStore.setState({ cartItems: initialCart });
+});
