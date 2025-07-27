@@ -13,3 +13,7 @@ export const FRUITS = "fruits";
 export const VEGETABLES = "vegetables";
 export const OIL = "oil";
 export const HONEY = "honey";
+
+// discount types
+export const DISCOUNT_TYPE_PERCENTAGE = "percentage";
+export const DISCOUNT_TYPE_FIXED = "fixed";

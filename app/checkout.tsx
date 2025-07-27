@@ -1,125 +1,214 @@
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  FlatList,
-  SafeAreaView,
-} from "react-native";
-import { useCartStore } from "@/store/cartStore";
-import { useRouter } from "expo-router";
-import { useState } from "react";
-import Toast from "react-native-toast-message";
+import React, { useEffect, useState } from "react";
+import { SafeAreaView, FlatList, StyleSheet } from "react-native";
 import ProtectedRoute from "@/components/auth/protectedRoute";
+import { useCartStore } from "@/store/cartStore";
+import { useAuthStore } from "@/store/authStore";
+import { DeliveryZoneSection } from "@/components/checkoutScreen/deliveryZoneSection";
+import { CouponSection } from "@/components/checkoutScreen/couponSection";
+import { OrderSummarySection } from "@/components/checkoutScreen/orderSummary";
+import { PaymentMethodSection } from "@/components/checkoutScreen/paymentMethods";
+import { PlaceOrderButton } from "@/components/checkoutScreen/placeOrderButton";
+import { API_URL } from "@/constants/variables";
+import { DeliveryAddressSection } from "@/components/checkoutScreen/deliveryAddress";
 
-interface CartItem {
+export interface DeliveryZone {
   id: string;
-  variantId: string;
+  areaName: string;
+  description: string;
+  deliveryCharge: number;
+  createdAt: string;
+  updatedAt: string;
+  isActive: boolean;
+  isDeleted: boolean;
+}
+
+interface ProductOrder {
+  variantProductId: string;
+  warehouseId: string;
+  price: string;
+  quantity: string;
+}
+
+interface PaymentMethod {
+  id: string;
   name: string;
-  image: string;
-  price: number;
-  unit: string;
-  quantity: number;
+}
+
+interface Address {
+  id: string;
+  fullName: string;
+  addressLine1: string;
 }
 
 export default function CheckoutScreen() {
-  const { cartItems, getTotalPrice, clearCart } = useCartStore();
-  const router = useRouter();
+  const { cartItems, getTotalPrice } = useCartStore();
+  const { userId } = useAuthStore();
+  const [deliveryZones, setDeliveryZones] = useState<DeliveryZone[]>([]);
+  const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
+  const [deliveryCharge, setDeliveryCharge] = useState<number>(0);
+  const [appliedDiscount, setAppliedDiscount] = useState<number>(0);
+  const [discountType, setDiscountType] = useState<string>("");
+  const [couponId, setCouponId] = useState<string | null>(null);
+  const [preferredDeliveryDateTime, setPreferredDeliveryDateTime] =
+    useState<Date | null>(new Date());
 
-  const handlePlaceOrder = () => {
-    // Basic validation for required fields
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
+  const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState<
+    string | null
+  >(null);
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
+    null
+  );
 
-    console.log("Order placed with details:", {
-      cartItems,
-      total: getTotalPrice(),
-    });
+  useEffect(() => {
+    const fetchDeliveryZones = async () => {
+      try {
+        const response = await fetch(`${API_URL}/v1/delivery-zones`);
+        const data = await response.json();
+        if (data.success) {
+          setDeliveryZones(data.data);
+          if (data.data.length > 0) {
+            setSelectedZoneId(data.data[0].id);
+            setDeliveryCharge(data.data[0].deliveryCharge);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching delivery zones:", error);
+      }
+    };
 
-    Toast.show({
-      type: "success",
-      text1: "Order Placed",
-      text2: "Your order has been placed successfully.",
-      text1Style: { fontSize: 16, fontWeight: "bold" },
-      text2Style: { fontSize: 14, fontWeight: "bold" },
-    });
-    clearCart();
-    router.push("/(tabs)/home");
+    const fetchPaymentMethodsAndAddresses = async () => {
+      try {
+        const dummyPaymentMethods: PaymentMethod[] = [
+          { id: "776a855a-70c1-4fa4-8376-bae8cf3c1ad7", name: "Credit Card" },
+          { id: "a1b2c3d4-e5f6-4758-9a0b-c1d2e3f4g5h6", name: "PayPal" },
+          {
+            id: "b2c3d4e5-f6g7-4819-8a0b-c2d3e4f5g6h7",
+            name: "Direct Bank Transfer",
+          },
+        ];
+        const dummyAddresses: Address[] = [
+          {
+            id: "2d1eebd1-334c-4721-88e0-52fbb878932d",
+            fullName: "John Doe",
+            addressLine1: "123 Main St, Dhaka",
+          },
+          {
+            id: "3e2ff2d2-445d-4832-89f1-63caa979b43e",
+            fullName: "Jane Smith",
+            addressLine1: "456 Elm St, Chittagong",
+          },
+        ];
+        setPaymentMethods(dummyPaymentMethods);
+        setSelectedPaymentMethodId(dummyPaymentMethods[0].id);
+        setAddresses(dummyAddresses);
+        setSelectedAddressId(dummyAddresses[0].id);
+      } catch (error) {
+        console.error("Error fetching payment methods and addresses:", error);
+      }
+    };
+
+    fetchDeliveryZones();
+    fetchPaymentMethodsAndAddresses();
+  }, []);
+
+  const handleZoneSelection = (zoneId: string) => {
+    const zone = deliveryZones.find((z) => z.id === zoneId);
+    if (zone) {
+      setSelectedZoneId(zone.id);
+      setDeliveryCharge(zone.deliveryCharge);
+    }
   };
 
-  const renderOrderItem = ({ item }: { item: CartItem }) => (
-    <View style={styles.orderItem}>
-      <Text style={styles.orderItemText}>
-        {item.name} ({item.unit}) x{item.quantity}
-      </Text>
-      <Text style={styles.orderItemPrice}>
-        ৳{(item.price * item.quantity).toFixed(2)}
-      </Text>
-    </View>
-  );
+  const handleCouponApplied = (
+    discount: number,
+    discountType: string,
+    id: string
+  ) => {
+    setAppliedDiscount(discount);
+    setDiscountType(discountType);
+    setCouponId(id);
+  };
+
+  const mapCartToProductOrders = (): ProductOrder[] => {
+    return cartItems.map((item) => ({
+      variantProductId: item.variantId,
+      warehouseId: "257b861a-50e6-4b79-a5fd-ae87ddefc88b", // Placeholder
+      price: item.price.toFixed(2),
+      quantity: item.quantity.toFixed(2),
+    }));
+  };
+
+  const data = [
+    { type: "delivery", key: "delivery" },
+    { type: "deliveryAddress", key: "deliveryAddress" },
+    { type: "order", key: "order" },
+    { type: "coupon", key: "coupon" },
+    { type: "payment", key: "payment" },
+    { type: "placeOrder", key: "placeOrder" },
+  ];
 
   const renderSection = ({ item }: { item: { type: string; key: string } }) => {
     switch (item.type) {
+      case "delivery":
+        return (
+          <DeliveryZoneSection
+            deliveryZones={deliveryZones}
+            selectedZoneId={selectedZoneId}
+            deliveryCharge={deliveryCharge}
+            onZoneSelection={handleZoneSelection}
+          />
+        );
+      case "deliveryAddress":
+        return (
+          <DeliveryAddressSection
+            addresses={addresses}
+            selectedAddressId={selectedAddressId}
+            onAddressSelect={setSelectedAddressId}
+          />
+        );
+
       case "order":
         return (
-          <View style={styles.orderSection}>
-            <Text style={styles.sectionTitle}>Your Order</Text>
-            <FlatList
-              data={cartItems}
-              renderItem={renderOrderItem}
-              keyExtractor={(item) => `${item.id}-${item.variantId}`}
-              ListFooterComponent={
-                <>
-                  <View style={styles.orderSummary}>
-                    <Text style={styles.summaryText}>Subtotal</Text>
-                    <Text style={styles.summaryPrice}>
-                      ৳{getTotalPrice().toFixed(2)}
-                    </Text>
-                  </View>
-                  <View style={styles.orderSummary}>
-                    <Text style={styles.summaryText}>Shipping</Text>
-                    <Text style={styles.summaryPrice}>৳0.00</Text>
-                  </View>
-                  <View style={styles.orderSummary}>
-                    <Text style={styles.totalText}>Total</Text>
-                    <Text style={styles.totalPrice}>
-                      ৳{getTotalPrice().toFixed(2)}
-                    </Text>
-                  </View>
-                </>
-              }
-            />
-            <View style={styles.paymentMethods}>
-              <Text style={styles.paymentTitle}>Payment Method</Text>
-              <TouchableOpacity style={styles.paymentOption}>
-                <View style={[styles.radio, styles.radioSelected]} />
-                <Text style={styles.paymentText}>Credit Card</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.paymentOption}>
-                <View style={styles.radio} />
-                <Text style={styles.paymentText}>PayPal</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.paymentOption}>
-                <View style={styles.radio} />
-                <Text style={styles.paymentText}>Direct Bank Transfer</Text>
-              </TouchableOpacity>
-            </View>
-            <TouchableOpacity
-              style={styles.placeOrderButton}
-              onPress={handlePlaceOrder}
-            >
-              <Text style={styles.placeOrderText}>Place Order</Text>
-            </TouchableOpacity>
-          </View>
+          <OrderSummarySection
+            cartItems={cartItems}
+            getTotalPrice={getTotalPrice}
+            deliveryCharge={deliveryCharge}
+            appliedDiscount={appliedDiscount}
+            discountType={discountType}
+          />
+        );
+      case "coupon":
+        return <CouponSection onCouponApplied={handleCouponApplied} />;
+      case "payment":
+        return (
+          <PaymentMethodSection
+            paymentMethods={paymentMethods}
+            selectedPaymentMethodId={selectedPaymentMethodId}
+            onPaymentMethodSelect={setSelectedPaymentMethodId}
+          />
+        );
+      case "placeOrder":
+        return (
+          <PlaceOrderButton
+            selectedZoneId={selectedZoneId}
+            deliveryCharge={deliveryCharge}
+            getTotalPrice={getTotalPrice}
+            appliedDiscount={appliedDiscount}
+            discountType={discountType}
+            preferredDeliveryDateTime={preferredDeliveryDateTime}
+            paymentMethodId={selectedPaymentMethodId}
+            addressId={selectedAddressId}
+            productOrders={mapCartToProductOrders()}
+            userId={userId}
+            couponId={couponId}
+          />
         );
       default:
         return null;
     }
   };
-
-  const data = [
-    { type: "billing", key: "billing" },
-    { type: "order", key: "order" },
-  ];
 
   return (
     <ProtectedRoute>
@@ -142,114 +231,5 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
-  },
-  billingSection: {
-    padding: 16,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    elevation: 2,
-    marginBottom: 16,
-  },
-  orderSection: {
-    padding: 16,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    elevation: 2,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 16,
-    color: "#333",
-  },
-  input: {
-    height: 40,
-    borderColor: "#ddd",
-    borderWidth: 1,
-    borderRadius: 4,
-    marginBottom: 12,
-    paddingHorizontal: 8,
-    fontSize: 16,
-  },
-  orderItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-  },
-  orderItemText: {
-    fontSize: 16,
-    color: "#333",
-    flex: 1,
-  },
-  orderItemPrice: {
-    fontSize: 16,
-    color: "#333",
-  },
-  orderSummary: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 8,
-  },
-  summaryText: {
-    fontSize: 16,
-    color: "#666",
-  },
-  summaryPrice: {
-    fontSize: 16,
-    color: "#333",
-  },
-  totalText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#333",
-  },
-  totalPrice: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#333",
-  },
-  paymentMethods: {
-    marginTop: 16,
-  },
-  paymentTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 8,
-    color: "#333",
-  },
-  paymentOption: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  radio: {
-    width: 16,
-    height: 16,
-    borderWidth: 1,
-    borderColor: "#666",
-    borderRadius: 8,
-    marginRight: 8,
-  },
-  radioSelected: {
-    backgroundColor: "#27ae60",
-    borderColor: "#27ae60",
-  },
-  paymentText: {
-    fontSize: 14,
-    color: "#333",
-  },
-  placeOrderButton: {
-    backgroundColor: "#27ae60",
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 16,
-  },
-  placeOrderText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
   },
 });
