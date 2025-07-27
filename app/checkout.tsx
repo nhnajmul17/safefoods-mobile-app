@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, FlatList, StyleSheet } from "react-native";
+import {
+  SafeAreaView,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  View,
+} from "react-native";
 import ProtectedRoute from "@/components/auth/protectedRoute";
 import { useCartStore } from "@/store/cartStore";
 import { useAuthStore } from "@/store/authStore";
@@ -10,6 +17,17 @@ import { PaymentMethodSection } from "@/components/checkoutScreen/paymentMethods
 import { PlaceOrderButton } from "@/components/checkoutScreen/placeOrderButton";
 import { API_URL } from "@/constants/variables";
 import { DeliveryAddressSection } from "@/components/checkoutScreen/deliveryAddress";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+
+interface CartItem {
+  id: string;
+  variantId: string;
+  name: string;
+  image: string;
+  price: number;
+  unit: string;
+  quantity: number;
+}
 
 export interface DeliveryZone {
   id: string;
@@ -43,19 +61,23 @@ interface Address {
 export default function CheckoutScreen() {
   const { cartItems, getTotalPrice } = useCartStore();
   const { userId } = useAuthStore();
+
   const [deliveryZones, setDeliveryZones] = useState<DeliveryZone[]>([]);
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [deliveryCharge, setDeliveryCharge] = useState<number>(0);
   const [appliedDiscount, setAppliedDiscount] = useState<number>(0);
   const [discountType, setDiscountType] = useState<string>("");
   const [couponId, setCouponId] = useState<string | null>(null);
+
   const [preferredDeliveryDateTime, setPreferredDeliveryDateTime] =
     useState<Date | null>(new Date());
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState<
     string | null
   >(null);
+
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
     null
@@ -140,6 +162,11 @@ export default function CheckoutScreen() {
     }));
   };
 
+  const handleConfirm = (date: Date) => {
+    setPreferredDeliveryDateTime(date);
+    setDatePickerVisibility(false);
+  };
+
   const data = [
     { type: "delivery", key: "delivery" },
     { type: "deliveryAddress", key: "deliveryAddress" },
@@ -168,7 +195,6 @@ export default function CheckoutScreen() {
             onAddressSelect={setSelectedAddressId}
           />
         );
-
       case "order":
         return (
           <OrderSummarySection
@@ -213,11 +239,36 @@ export default function CheckoutScreen() {
   return (
     <ProtectedRoute>
       <SafeAreaView style={styles.container}>
+        <DateTimePickerModal
+          isVisible={isDatePickerVisible}
+          mode="datetime"
+          onConfirm={handleConfirm}
+          onCancel={() => setDatePickerVisibility(false)}
+          minimumDate={new Date()}
+        />
+
         <FlatList
           data={data}
           renderItem={renderSection}
           keyExtractor={(item) => item.key}
           contentContainerStyle={styles.content}
+          ListHeaderComponent={
+            <View style={styles.datePickerHeader}>
+              <Text style={styles.datePickerTitle}>
+                Preferred Delivery Date & Time
+              </Text>
+              <TouchableOpacity
+                style={styles.datePickerButton}
+                onPress={() => setDatePickerVisibility(true)}
+              >
+                <Text style={styles.datePickerText}>
+                  {preferredDeliveryDateTime
+                    ? preferredDeliveryDateTime.toLocaleString()
+                    : "Select Delivery Date & Time"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          }
         />
       </SafeAreaView>
     </ProtectedRoute>
@@ -231,5 +282,26 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
+  },
+  datePickerTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 8,
+    color: "#333",
+  },
+  datePickerHeader: {
+    marginBottom: 16,
+  },
+  datePickerButton: {
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 4,
+    alignItems: "center",
+    backgroundColor: "#f9f9f9",
+  },
+  datePickerText: {
+    fontSize: 16,
+    color: "#333",
   },
 });
