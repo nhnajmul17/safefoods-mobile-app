@@ -1,23 +1,74 @@
-import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  TextInput,
+  Alert,
   SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { useState } from "react";
+import ProtectedRoute from "@/components/auth/protectedRoute";
 import { useAuthStore } from "@/store/authStore";
+import Toast from "react-native-toast-message";
+import { API_URL } from "@/constants/variables";
+import ProfileHeader from "@/components/myProfileScreen/profileHeader";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import AddressCard from "@/components/myProfileScreen/addressCard";
+import AddressFormModal from "@/components/myProfileScreen/addressFormModal";
+import { greenColor } from "@/constants/Colors";
+
+export interface Address {
+  id?: string;
+  userId: string;
+  flatNo: string;
+  floorNo: string;
+  addressLine: string;
+  name: string;
+  phoneNo: string;
+  deliveryNotes: string;
+  city: string;
+  state: string;
+  country: string;
+  postalCode: string;
+  createdAt?: string;
+  updatedAt?: string;
+  isActive: boolean;
+}
 
 export default function MyProfileScreen() {
-  const router = useRouter();
-  const [isEditing, setIsEditing] = useState(false);
   const { userId, userName, userEmail } = useAuthStore();
+  const [isEditing, setIsEditing] = useState(false);
+  const [name, setName] = useState<string>(userName ?? "John Abram");
+  const [email, setEmail] = useState<string>(
+    userEmail ?? "johnabram@gmail.com"
+  );
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
 
-  const [name, setName] = useState(userName ?? "John Abram");
-  const [email, setEmail] = useState(userEmail ?? "johnabram@gmail.com");
+  useEffect(() => {
+    fetchAddresses();
+  }, []);
+
+  const fetchAddresses = async () => {
+    try {
+      const response = await fetch(`${API_URL}/v1/addresses/user/${userId}`);
+      const data = await response.json();
+      if (data.success) {
+        setAddresses(data.data);
+      } else {
+        Toast.show({ type: "error", text1: "Error", text2: data.message });
+      }
+    } catch (error) {
+      console.error("Error fetching addresses:", error);
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Failed to fetch addresses",
+      });
+    }
+  };
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -34,60 +85,182 @@ export default function MyProfileScreen() {
     setEmail(userEmail ?? "johnabram@gmail.com");
   };
 
+  const handleAddOrEditAddress = (address?: Address) => {
+    setSelectedAddress(address || null);
+    setShowAddressModal(true);
+  };
+
+  const handleSaveAddress = async (
+    formData: Omit<
+      Address,
+      "id" | "createdAt" | "updatedAt" | "userId" | "isActive"
+    > & {
+      isActive?: boolean;
+    }
+  ) => {
+    const url = selectedAddress
+      ? `${API_URL}/v1/addresses/${selectedAddress.id}`
+      : `${API_URL}/v1/addresses/`;
+    const method = selectedAddress ? "PATCH" : "POST";
+    const body = {
+      userId, // Explicitly use userId from useAuthStore
+      ...formData,
+      ...(selectedAddress && {
+        isActive: formData.isActive ?? selectedAddress.isActive,
+      }),
+    };
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await response.json();
+      if (data.success) {
+        Toast.show({
+          type: "success",
+          text1: "Success",
+          text2: `Address ${
+            selectedAddress ? "updated" : "added"
+          } successfully`,
+        });
+        setShowAddressModal(false);
+        fetchAddresses();
+      } else {
+        Toast.show({ type: "error", text1: "Error", text2: data.message });
+      }
+    } catch (error) {
+      console.error("Error saving address:", error);
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Failed to save address",
+      });
+    }
+  };
+
+  const handleDeleteAddress = (id: string) => {
+    Alert.alert(
+      "Confirm Delete",
+      "Are you sure you want to delete this address?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const response = await fetch(`${API_URL}/v1/addresses/${id}`, {
+                method: "DELETE",
+              });
+              const data = await response.json();
+              if (data.success) {
+                Toast.show({
+                  type: "success",
+                  text1: "Success",
+                  text2: "Address deleted",
+                });
+                fetchAddresses();
+              } else {
+                Toast.show({
+                  type: "error",
+                  text1: "Error",
+                  text2: data.message,
+                });
+              }
+            } catch (error) {
+              console.error("Error deleting address:", error);
+              Toast.show({
+                type: "error",
+                text1: "Error",
+                text2: "Failed to delete address",
+              });
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleSetActive = async (id: string, currentActive: boolean) => {
+    const address = addresses.find((a) => a.id === id);
+    if (!address) return;
+
+    try {
+      const response = await fetch(`${API_URL}/v1/addresses/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isActive: !currentActive }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        Toast.show({
+          type: "success",
+          text1: "Success",
+          text2: `Address ${!currentActive ? "activated" : "deactivated"}`,
+        });
+        fetchAddresses();
+      } else {
+        Toast.show({ type: "error", text1: "Error", text2: data.message });
+      }
+    } catch (error) {
+      console.error("Error setting active address:", error);
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Failed to update active status",
+      });
+    }
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Image
-            source={{ uri: "https://randomuser.me/api/portraits/men/44.jpg" }} // Placeholder profile image
-            style={styles.profileImage}
+    <ProtectedRoute>
+      <SafeAreaView style={styles.container}>
+        <ScrollView>
+          <ProfileHeader
+            name={name}
+            email={email}
+            isEditing={isEditing}
+            onEdit={handleEdit}
+            onSave={handleSave}
+            onCancel={handleCancel}
+            onNameChange={setName}
+            onEmailChange={setEmail}
           />
-          <View>
-            <Text style={styles.name}>
-              {isEditing ? (
-                <TextInput
-                  style={styles.input}
-                  value={name}
-                  onChangeText={setName}
-                  autoFocus
-                />
-              ) : (
-                name
-              )}
-            </Text>
-            <Text style={styles.email}>
-              {isEditing ? (
-                <TextInput
-                  style={styles.input}
-                  value={email}
-                  onChangeText={setEmail}
-                  keyboardType="email-address"
-                />
-              ) : (
-                email
-              )}
-            </Text>
-          </View>
-        </View>
-        {isEditing ? (
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-              <Text style={styles.buttonText}>Save</Text>
-            </TouchableOpacity>
+          <View style={styles.addressSection}>
+            <Text style={styles.sectionTitle}>Manage Addresses</Text>
             <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={handleCancel}
+              style={styles.addButton}
+              onPress={() => handleAddOrEditAddress()}
             >
-              <Text style={styles.buttonText}>Cancel</Text>
+              <Icon name="add" size={20} color="#fff" />
+              <Text style={styles.addButtonText}>Add New Address</Text>
             </TouchableOpacity>
+            {addresses.length > 0 && (
+              <View style={styles.addressList}>
+                {addresses.map((address) => (
+                  <AddressCard
+                    key={address.id}
+                    address={address}
+                    onEdit={() => handleAddOrEditAddress(address)}
+                    onDelete={handleDeleteAddress}
+                    onSetActive={handleSetActive}
+                  />
+                ))}
+              </View>
+            )}
           </View>
-        ) : (
-          <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
-            <Text style={styles.buttonText}>Edit Profile</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-    </SafeAreaView>
+        </ScrollView>
+        <AddressFormModal
+          visible={showAddressModal}
+          onClose={() => setShowAddressModal(false)}
+          onSave={handleSaveAddress}
+          initialData={selectedAddress}
+        />
+        <Toast />
+      </SafeAreaView>
+    </ProtectedRoute>
   );
 }
 
@@ -98,68 +271,28 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingTop: 20,
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-    paddingBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+  addressSection: {
+    marginTop: 20,
   },
-  profileImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    marginRight: 15,
-  },
-  name: {
+  sectionTitle: {
     fontSize: 20,
     fontWeight: "bold",
     color: "#333",
-    marginBottom: 5,
+    marginBottom: 15,
   },
-  email: {
-    fontSize: 16,
-    color: "#666",
-  },
-  input: {
-    fontSize: 16,
-    color: "#333",
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-    paddingVertical: 5,
-    width: 200,
-  },
-  buttonContainer: {
+  addButton: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 20,
-  },
-  editButton: {
-    backgroundColor: "#007BFF",
+    backgroundColor: greenColor,
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
-    marginTop: 20,
+    marginBottom: 15,
   },
-  saveButton: {
-    backgroundColor: "#28a745",
-    padding: 12,
-    borderRadius: 8,
-    alignItems: "center",
-    flex: 1,
-    marginRight: 10,
-  },
-  cancelButton: {
-    backgroundColor: "#dc3545",
-    padding: 12,
-    borderRadius: 8,
-    alignItems: "center",
-    flex: 1,
-  },
-  buttonText: {
+  addButtonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+    marginLeft: 10,
   },
+  addressList: {},
 });
