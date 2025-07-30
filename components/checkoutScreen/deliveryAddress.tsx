@@ -2,10 +2,22 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 
-interface Address {
+export interface Address {
   id: string;
-  fullName: string;
-  addressLine1: string;
+  userId: string;
+  flatNo: string;
+  floorNo: string;
+  addressLine: string;
+  name: string;
+  phoneNo: string;
+  deliveryNotes: string;
+  city: string;
+  state: string;
+  country: string;
+  postalCode: string;
+  createdAt?: string;
+  updatedAt?: string;
+  isActive: boolean;
 }
 
 interface DeliveryAddressSectionProps {
@@ -31,7 +43,7 @@ export const DeliveryAddressSection = ({
           {addresses.map((address) => (
             <Picker.Item
               key={address.id}
-              label={`${address.fullName}, ${address.addressLine1}`}
+              label={`${address.flatNo}, ${address.floorNo}, ${address.addressLine}, ${address.city}, ${address.postalCode}`}
               value={address.id}
             />
           ))}

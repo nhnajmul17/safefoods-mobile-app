@@ -19,16 +19,6 @@ import { API_URL } from "@/constants/variables";
 import { DeliveryAddressSection } from "@/components/checkoutScreen/deliveryAddress";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
-interface CartItem {
-  id: string;
-  variantId: string;
-  name: string;
-  image: string;
-  price: number;
-  unit: string;
-  quantity: number;
-}
-
 export interface DeliveryZone {
   id: string;
   areaName: string;
@@ -47,15 +37,32 @@ interface ProductOrder {
   quantity: string;
 }
 
-interface PaymentMethod {
+export interface PaymentMethod {
   id: string;
-  name: string;
+  title: string;
+  description: string;
+  isActive: boolean;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
-interface Address {
+export interface Address {
   id: string;
-  fullName: string;
-  addressLine1: string;
+  userId: string;
+  flatNo: string;
+  floorNo: string;
+  addressLine: string;
+  name: string;
+  phoneNo: string;
+  deliveryNotes: string;
+  city: string;
+  state: string;
+  country: string;
+  postalCode: string;
+  createdAt?: string;
+  updatedAt?: string;
+  isActive: boolean;
 }
 
 export default function CheckoutScreen() {
@@ -67,7 +74,7 @@ export default function CheckoutScreen() {
   const [deliveryCharge, setDeliveryCharge] = useState<number>(0);
   const [appliedDiscount, setAppliedDiscount] = useState<number>(0);
   const [discountType, setDiscountType] = useState<string>("");
-  const [couponId, setCouponId] = useState<string | null>(null);
+  const [couponId, setCouponId] = useState<string>("");
 
   const [preferredDeliveryDateTime, setPreferredDeliveryDateTime] =
     useState<Date | null>(new Date());
@@ -102,30 +109,37 @@ export default function CheckoutScreen() {
 
     const fetchPaymentMethodsAndAddresses = async () => {
       try {
-        const dummyPaymentMethods: PaymentMethod[] = [
-          { id: "776a855a-70c1-4fa4-8376-bae8cf3c1ad7", name: "Credit Card" },
-          { id: "a1b2c3d4-e5f6-4758-9a0b-c1d2e3f4g5h6", name: "PayPal" },
-          {
-            id: "b2c3d4e5-f6g7-4819-8a0b-c2d3e4f5g6h7",
-            name: "Direct Bank Transfer",
-          },
-        ];
-        const dummyAddresses: Address[] = [
-          {
-            id: "2d1eebd1-334c-4721-88e0-52fbb878932d",
-            fullName: "John Doe",
-            addressLine1: "123 Main St, Dhaka",
-          },
-          {
-            id: "3e2ff2d2-445d-4832-89f1-63caa979b43e",
-            fullName: "Jane Smith",
-            addressLine1: "456 Elm St, Chittagong",
-          },
-        ];
-        setPaymentMethods(dummyPaymentMethods);
-        setSelectedPaymentMethodId(dummyPaymentMethods[0].id);
-        setAddresses(dummyAddresses);
-        setSelectedAddressId(dummyAddresses[0].id);
+        // Fetch payment methods from API
+        const paymentResponse = await fetch(`${API_URL}/v1/payment-methods`);
+        const paymentData = await paymentResponse.json();
+        if (paymentData.success) {
+          setPaymentMethods(paymentData.data);
+          // Select the first active payment method by default
+          const activePaymentMethod = paymentData.data.find(
+            (method: PaymentMethod) => method.isActive
+          );
+          setSelectedPaymentMethodId(
+            activePaymentMethod
+              ? activePaymentMethod.id
+              : paymentData.data[0]?.id || null
+          );
+        }
+
+        // Fetch addresses from API
+        const addressResponse = await fetch(
+          `${API_URL}/v1/addresses/user/${userId}`
+        );
+        const addressData = await addressResponse.json();
+        if (addressData.success) {
+          setAddresses(addressData.data);
+          // Select the active address by default
+          const activeAddress = addressData.data.find(
+            (addr: Address) => addr.isActive
+          );
+          setSelectedAddressId(
+            activeAddress ? activeAddress.id : addressData.data[0]?.id || null
+          );
+        }
       } catch (error) {
         console.error("Error fetching payment methods and addresses:", error);
       }
@@ -133,7 +147,7 @@ export default function CheckoutScreen() {
 
     fetchDeliveryZones();
     fetchPaymentMethodsAndAddresses();
-  }, []);
+  }, [userId]);
 
   const handleZoneSelection = (zoneId: string) => {
     const zone = deliveryZones.find((z) => z.id === zoneId);

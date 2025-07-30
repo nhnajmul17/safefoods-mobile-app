@@ -37,7 +37,6 @@ export default function HomeScreen() {
   useEffect(() => {
     const fetchCartItems = async () => {
       if (userId && accessToken && !isCartFetchedFromApi) {
-        console.log("Fetching cart items..."); // Debug log
         try {
           const response = await fetch(`${API_URL}/v1/cart?userId=${userId}`, {
             headers: {

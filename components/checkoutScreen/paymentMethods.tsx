@@ -1,9 +1,14 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 
-interface PaymentMethod {
+export interface PaymentMethod {
   id: string;
-  name: string;
+  title: string;
+  description: string;
+  isActive: boolean;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface PaymentMethodSectionProps {
@@ -25,14 +30,16 @@ export const PaymentMethodSection = ({
           key={method.id}
           style={styles.paymentOption}
           onPress={() => onPaymentMethodSelect(method.id)}
+          disabled={!method.isActive || method.isDeleted}
         >
-          <View
-            style={[
-              styles.radio,
-              selectedPaymentMethodId === method.id && styles.radioSelected,
-            ]}
-          />
-          <Text style={styles.paymentText}>{method.name}</Text>
+          <View style={styles.radio}>
+            {selectedPaymentMethodId === method.id && (
+              <View style={styles.radioSelected} />
+            )}
+          </View>
+          <View>
+            <Text style={styles.paymentText}>{method.title}</Text>
+          </View>
         </TouchableOpacity>
       ))}
     </View>
@@ -52,7 +59,7 @@ const styles = StyleSheet.create({
   paymentOption: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: 12,
   },
   radio: {
     width: 16,
@@ -73,5 +80,6 @@ const styles = StyleSheet.create({
   paymentText: {
     fontSize: 14,
     color: "#333",
+    fontWeight: "500",
   },
 });

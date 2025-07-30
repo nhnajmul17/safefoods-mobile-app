@@ -25,7 +25,7 @@ interface PlaceOrderButtonProps {
     quantity: string;
   }[];
   userId: string | null;
-  couponId: string | null;
+  couponId: string;
 }
 
 export const PlaceOrderButton = ({
@@ -74,61 +74,66 @@ export const PlaceOrderButton = ({
       subtotal - (discountAmount > subtotal ? subtotal : discountAmount);
     const total = afterDiscountTotal + deliveryCharge;
 
-    const orderData = {
-      subTotal: subtotal.toFixed(2),
-      discount: discountAmount.toFixed(2),
-      couponId: couponId,
-      afterDiscountTotal: afterDiscountTotal.toFixed(2),
-      deliveryCharge: deliveryCharge.toFixed(2),
+    const orderData: any = {
+      subTotal: Number(subtotal.toFixed(2)),
+      discount: Number(discountAmount.toFixed(2)),
+      afterDiscountTotal: Number(afterDiscountTotal.toFixed(2)),
+      deliveryCharge: Number(deliveryCharge.toFixed(2)),
       deliveryZoneId: selectedZoneId,
-      total: total.toFixed(2),
+      total: Number(total.toFixed(2)),
       paymentStatus: "unpaid",
       orderStatus: "pending",
       preferredDeliveryDateAndTime: preferredDeliveryDateTime.toISOString(),
       paymentMethodId: paymentMethodId,
       addressId: addressId,
-      productOrders,
-      userId,
+      productOrders: productOrders.map((item) => ({
+        ...item,
+        price: item.price,
+        quantity: item.quantity,
+      })),
+      userId: userId,
     };
 
-    console.log("orderData:", orderData);
-    // try {
-    //   const response = await fetch(`${API_URL}/v1/orders`, {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify(orderData),
-    //   });
-    //   const data = await response.json();
+    if (couponId) {
+      orderData.couponId = couponId;
+    }
+    try {
+      const response = await fetch(`${API_URL}/v1/orders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderData),
+      });
+      const data = await response.json();
 
-    //   if (data.success) {
-    //     Toast.show({
-    //       type: "success",
-    //       text1: "Order Placed",
-    //       text2: "Your order has been placed successfully.",
-    //       text1Style: { fontSize: 16, fontWeight: "bold" },
-    //       text2Style: { fontSize: 14, fontWeight: "bold" },
-    //     });
-    //     clearCart();
-    //     router.push("/(tabs)/home");
-    //   } else {
-    //     Toast.show({
-    //       type: "error",
-    //       text1: "Error",
-    //       text2: data.message || "Failed to place order.",
-    //       text1Style: { fontSize: 16, fontWeight: "bold" },
-    //       text2Style: { fontSize: 14, fontWeight: "bold" },
-    //     });
-    //   }
-    // } catch (error) {
-    //   console.error("Error placing order:", error);
-    //   Toast.show({
-    //     type: "error",
-    //     text1: "Error",
-    //     text2: "Failed to place order. Please try again.",
-    //     text1Style: { fontSize: 16, fontWeight: "bold" },
-    //     text2Style: { fontSize: 14, fontWeight: "bold" },
-    //   });
-    // }
+      if (data.success) {
+        Toast.show({
+          type: "success",
+          text1: "Order Placed",
+          text2: "Your order has been placed successfully.",
+          text1Style: { fontSize: 16, fontWeight: "bold" },
+          text2Style: { fontSize: 14, fontWeight: "bold" },
+        });
+        clearCart();
+        router.push("/(tabs)/home");
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: data.message || "Failed to place order.",
+          text1Style: { fontSize: 16, fontWeight: "bold" },
+          text2Style: { fontSize: 14, fontWeight: "bold" },
+        });
+      }
+    } catch (error) {
+      console.error("Error placing order:", error);
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Failed to place order. Please try again.",
+        text1Style: { fontSize: 16, fontWeight: "bold" },
+        text2Style: { fontSize: 14, fontWeight: "bold" },
+      });
+    }
   };
 
   return (
