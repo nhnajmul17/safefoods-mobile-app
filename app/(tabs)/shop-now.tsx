@@ -6,7 +6,7 @@ import {
   FlatList,
   TouchableOpacity,
 } from "react-native";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Picker } from "@react-native-picker/picker";
 import { useCartStore } from "@/store/cartStore";
 import Toast from "react-native-toast-message";
@@ -16,15 +16,21 @@ import ShopNowProductCard, {
   ShopNowProduct,
   ProductVariant,
 } from "@/components/shopNowScreen/shopNowProductCard";
-// import { allProductsData } from "@/hooks/productsData";
 import { API_URL } from "@/constants/variables";
 import { CustomLoader } from "@/components/common/loader";
 import { categories } from "@/components/categoryScreen/lib/categoryDataAndTypes";
 import { useAuthStore } from "@/store/authStore";
 
-const getProductsAPI = async () => {
+const getProductsAPI = async (
+  page: number,
+  limit: number,
+  searchQuery: string
+) => {
   try {
-    const response = await fetch(`${API_URL}/v1/products`, {
+    let url = `${API_URL}/v1/products?limit=${limit}&page=${page}`;
+    if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`;
+
+    const response = await fetch(url, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     });
@@ -48,38 +54,47 @@ export default function ShopNowScreen() {
   const [sortOption, setSortOption] = useState("None");
   const [page, setPage] = useState(1);
   const [products, setProducts] = useState<ShopNowProduct[]>([]);
+  const [totalProducts, setTotalProducts] = useState(0); // To track total available products
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // const allProducts = allProductsData;
-
-  // Fetch products on mount
-  useEffect(() => {
-    const fetchProducts = async () => {
+  // Debounced search function
+  const debouncedFetchProducts = useCallback(
+    async (page: number, searchQuery: string, selectedCategory: string) => {
       try {
         setLoading(true);
         setError(null);
-        const data = await getProductsAPI();
-        console.log("Fetched products:", data.data);
-        setProducts(data.data); // Assuming data is an array of ShopNowProduct
+        const data = await getProductsAPI(page, 4, searchQuery); // Load 4 products per page
+        // console.log("Fetched products:", data.data);
+        if (data.success) {
+          setProducts((prev) =>
+            page === 1 ? data.data : [...prev, ...data.data]
+          );
+          setTotalProducts(data.pagination?.totalRecords || data.data.length); // Adjust based on API response
+        } else {
+          throw new Error("Failed to fetch products");
+        }
       } catch (err) {
         setError("Failed to load products. Please try again later.");
       } finally {
         setLoading(false);
       }
-    };
-    fetchProducts();
-  }, []);
+    },
+    []
+  );
+
+  // Fetch products on mount, page change, or after debounced search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      debouncedFetchProducts(page, searchQuery, selectedCategory);
+    }, 500); // 500ms debounce delay
+    return () => clearTimeout(timer); // Cleanup timer on unmount or dependency change
+  }, [page, searchQuery, selectedCategory, debouncedFetchProducts]);
 
   const filteredProducts = useMemo(() => {
-    let result = [...products]; //allProductsData
+    let result = [...products];
 
-    if (searchQuery) {
-      result = result.filter((product) =>
-        product.title.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
+    // Apply category filter on frontend
     if (selectedCategory !== "All") {
       result = result.filter(
         (product) => product.categorySlug === selectedCategory
@@ -92,8 +107,8 @@ export default function ShopNowScreen() {
       result.sort((a, b) => b.variants[0].price - a.variants[0].price);
     }
 
-    return result.slice(0, page * 4);
-  }, [searchQuery, selectedCategory, sortOption, page, products]);
+    return result;
+  }, [products, selectedCategory, sortOption]);
 
   interface QuantityMap {
     [productId: string]: number;
@@ -148,7 +163,8 @@ export default function ShopNowScreen() {
     }
   };
 
-  const isFilterActive = selectedCategory !== "All" || sortOption !== "None";
+  const isFilterActive =
+    selectedCategory !== "All" || sortOption !== "None" || searchQuery !== "";
 
   if (loading) {
     return (
@@ -162,7 +178,10 @@ export default function ShopNowScreen() {
         <Text style={styles.errorText}>{error}</Text>
         <TouchableOpacity
           style={styles.retryButton}
-          onPress={() => setLoading(true)} // Retry on button press
+          onPress={() => {
+            setPage(1); // Reset to first page on retry
+            setLoading(true);
+          }}
         >
           <Text style={styles.retryText}>Retry</Text>
         </TouchableOpacity>
@@ -207,6 +226,8 @@ export default function ShopNowScreen() {
             onPress={() => {
               setSelectedCategory("All");
               setSortOption("None");
+              setSearchQuery("");
+              setPage(1); // Reset to first page on clear
             }}
             style={styles.clearFilterButton}
           >
@@ -223,6 +244,7 @@ export default function ShopNowScreen() {
             onValueChange={(itemValue) => {
               setShowFilterDrawer(!showFilterDrawer);
               setSelectedCategory(itemValue);
+              setPage(1); // Reset to first page on category change
             }}
             style={{ color: "#1a1a1a" }}
             dropdownIconColor="#1a1a1a"
@@ -245,6 +267,7 @@ export default function ShopNowScreen() {
             onValueChange={(itemValue) => {
               setSortOption(itemValue);
               setShowFilterDrawer(!showFilterDrawer);
+              setPage(1); // Reset to first page on sort change
             }}
             style={{ color: "#1a1a1a" }}
             dropdownIconColor="#1a1a1a"
@@ -271,8 +294,8 @@ export default function ShopNowScreen() {
         numColumns={2}
         columnWrapperStyle={styles.columnWrapper}
         contentContainerStyle={{ paddingBottom: 100 }}
-        initialNumToRender={6}
-        maxToRenderPerBatch={6}
+        initialNumToRender={4}
+        maxToRenderPerBatch={4}
         windowSize={5}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
@@ -280,7 +303,7 @@ export default function ShopNowScreen() {
         }
       />
 
-      {filteredProducts.length < products.length && ( //all products
+      {products.length < totalProducts && (
         <TouchableOpacity
           style={styles.loadMoreButton}
           onPress={() => setPage((prev) => prev + 1)}
