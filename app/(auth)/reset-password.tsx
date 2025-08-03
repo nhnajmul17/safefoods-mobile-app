@@ -19,29 +19,16 @@ const resetPasswordAPI = async (
   password: string,
   confirmPassword: string
 ) => {
-  const response = await fetch(`${API_URL}/v1/auth/reset-password`, {
+  const response = await fetch(`${API_URL}/v2/auth/reset-password`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, token, code, password, confirmPassword }),
+    headers: {
+      "Content-Type": "application/json",
+      forgot_password_token: token,
+    },
+    body: JSON.stringify({ email, password, confirmPassword }),
   });
   return response.json();
 };
-
-// Mock API call (replace with your actual API)
-// const resetPasswordAPI = async (
-//   email: string,
-//   token: string,
-//   code: string,
-//   password: string,
-//   confirmPassword: string
-// ) => {
-//   // Simulate API delay and response
-//   return new Promise((resolve) => {
-//     setTimeout(() => {
-//       resolve({ success: true, message: "Password reset successful" }); // Mock success
-//     }, 1000);
-//   });
-// };
 
 export default function ResetPasswordScreen() {
   const [password, setPassword] = useState("");

@@ -12,7 +12,7 @@ import { useAuthStore } from "@/store/authStore";
 import { API_URL } from "@/constants/variables";
 
 const forgotPasswordAPI = async (email: string) => {
-  const response = await fetch(`${API_URL}/v1/auth/forgot-password`, {
+  const response = await fetch(`${API_URL}/v2/auth/forgot-password`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email }),

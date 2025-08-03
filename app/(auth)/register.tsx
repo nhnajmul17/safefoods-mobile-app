@@ -17,7 +17,7 @@ const registerAPI = async (
   password: string,
   confirmPassword: string
 ) => {
-  const response = await fetch(`${API_URL}/v1/auth/register`, {
+  const response = await fetch(`${API_URL}/v2/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password, confirmPassword }),

@@ -9,6 +9,7 @@ import {
   StatusBar,
   Animated,
   Easing,
+  TouchableOpacity,
 } from "react-native";
 import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -21,6 +22,7 @@ import { useAuthStore } from "@/store/authStore";
 import BannerCarousel from "@/components/homeScreen/bannerCarousel";
 import { useCartStore } from "@/store/cartStore"; // Import cart store
 import { API_URL } from "@/constants/variables"; // Import API URL
+import { router } from "expo-router";
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
@@ -167,15 +169,17 @@ export default function HomeScreen() {
                         {userName || "John Abram"}
                       </Text>
                     </View>
-                    <Image
-                      source={{
-                        uri: "https://randomuser.me/api/portraits/men/44.jpg",
-                      }}
-                      style={styles.avatar}
-                      onError={(e) =>
-                        console.log("Avatar load error:", e.nativeEvent.error)
-                      }
-                    />
+                    <TouchableOpacity onPress={() => router.push("/profile")}>
+                      <Image
+                        source={{
+                          uri: "https://randomuser.me/api/portraits/men/44.jpg",
+                        }}
+                        style={styles.avatar}
+                        onError={(e) =>
+                          console.log("Avatar load error:", e.nativeEvent.error)
+                        }
+                      />
+                    </TouchableOpacity>
                   </View>
                 )}
               </View>

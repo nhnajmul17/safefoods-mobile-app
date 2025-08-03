@@ -21,12 +21,18 @@ import { API_URL } from "@/constants/variables";
 //   });
 // };
 
-const verifyOTPAPI = async (email: string, token: string, code: string) => {
-  const response = await fetch(`${API_URL}/v1/auth/email-verification`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, token, code }),
-  });
+const verifyOtpAPI = async (email: string, token: string, code: string) => {
+  const response = await fetch(
+    `${API_URL}/v2/auth/forgot-password-otp-verification`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        forgot_password_token: token,
+      },
+      body: JSON.stringify({ email, otp: parseInt(code) }),
+    }
+  );
   return response.json();
 };
 
@@ -89,7 +95,7 @@ export default function OTPVerificationScreen() {
 
       try {
         setOtpCode(otpString); // Store the OTP code in authStore
-        const response = await verifyOTPAPI(resetEmail, resetToken, otpString);
+        const response = await verifyOtpAPI(resetEmail, resetToken, otpString);
         if (response.success) {
           Toast.show({
             type: "success",

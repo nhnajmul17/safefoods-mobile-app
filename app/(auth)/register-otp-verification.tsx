@@ -11,11 +11,14 @@ import Toast from "react-native-toast-message";
 import { useAuthStore } from "@/store/authStore";
 import { API_URL } from "@/constants/variables";
 
-const verifyOTPAPI = async (email: string, token: string, code: string) => {
-  const response = await fetch(`${API_URL}/v1/auth/email-verification`, {
+const verifyOtpAPI = async (email: string, token: string, code: string) => {
+  const response = await fetch(`${API_URL}/v2/auth/email-verification`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, token, code }),
+    headers: {
+      "Content-Type": "application/json",
+      email_verification_token: token,
+    },
+    body: JSON.stringify({ email, otp: parseInt(code) }),
   });
   return response.json();
 };
@@ -79,7 +82,7 @@ export default function RegisterOTPVerificationScreen() {
 
       try {
         setOtpCode(otpString); // Store the OTP code in authStore
-        const response = await verifyOTPAPI(
+        const response = await verifyOtpAPI(
           registerEmail,
           registerToken,
           otpString
