@@ -17,3 +17,8 @@ export const HONEY = "honey";
 // discount types
 export const DISCOUNT_TYPE_PERCENTAGE = "percentage";
 export const DISCOUNT_TYPE_FIXED = "fixed";
+
+// order statuses
+export const ORDER_STATUS_PENDING = "pending";
+export const ORDER_STATUS_PROCESSING = "processing";
+export const ORDER_STATUS_DELIVERED = "delivered";

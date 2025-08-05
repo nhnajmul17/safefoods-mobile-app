@@ -5,244 +5,184 @@ import {
   StyleSheet,
   FlatList,
   SafeAreaView,
-  Image,
 } from "react-native";
 import Modal from "react-native-modal";
-import { useState } from "react";
-import { useRouter } from "expo-router";
+import { useState, useEffect, useCallback } from "react";
+
+import { useAuthStore } from "@/store/authStore";
+import {
+  API_URL,
+  ORDER_STATUS_DELIVERED,
+  ORDER_STATUS_PROCESSING,
+} from "@/constants/variables";
+
+// Define TypeScript types based on API response
+type OrderHistory = {
+  id: string;
+  status: string;
+  changedBy: string;
+  createdAt: string;
+};
+
+type Order = {
+  id: string;
+  userId: string;
+  subTotal: number;
+  discount: number;
+  couponId: string | null;
+  afterDiscountTotal: number;
+  deliveryCharge: number;
+  deliveryZoneId: string;
+  total: number;
+  preferredDeliveryDateAndTime: string;
+  paymentMethodId: string;
+  transactionNo: string | null;
+  transactionPhoneNo: string | null;
+  transactionDate: string | null;
+  addressId: string;
+  paymentStatus: string;
+  orderStatus: string;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+  orderHistory: OrderHistory[];
+};
+
+type Pagination = {
+  offset: number;
+  limit: number;
+  total: number;
+  currentCount: number;
+};
+
+type ApiResponse = {
+  success: boolean;
+  message: string;
+  data: Order[];
+  pagination: Pagination;
+  _links: {
+    self: { href: string };
+    next: string | null;
+    previous: string | null;
+    collection: { href: string };
+  };
+};
+
+type OrderDetail = {
+  date: string;
+  timeline: { status: string; time: string; description: string }[];
+  items: { name: string; quantity: number; price: number }[];
+  shipping: { name: string; address: string; method: string };
+  payment: {
+    method: string;
+    subtotal: number;
+    shipping: number;
+    tax: number;
+    total: number;
+  };
+};
 
 export default function MyOrdersScreen() {
-  const router = useRouter();
-
-  // Mock order data (replace with real data from API or store)
-  const [orders] = useState([
-    {
-      id: "ORD-12345",
-      date: "2023-05-15",
-      items: 3,
-      total: 125.99,
-      status: "Delivered",
-    },
-    {
-      id: "ORD-12346",
-      date: "2023-05-10",
-      items: 2,
-      total: 89.5,
-      status: "Processing",
-    },
-    {
-      id: "ORD-12347",
-      date: "2023-05-05",
-      items: 4,
-      total: 210.75,
-      status: "Shipped",
-    },
-    {
-      id: "ORD-12348",
-      date: "2023-04-28",
-      items: 1,
-      total: 45.25,
-      status: "Delivered",
-    },
-  ]);
-
-  // State for modal
+  const { userId, accessToken } = useAuthStore();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [pagination, setPagination] = useState<Pagination | null>(null);
+  const [loading, setLoading] = useState(true);
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<OrderDetail | null>(null);
 
-  // Mock order details for the modal (replace with real data)
-  type OrderDetail = {
-    date: string;
-    timeline: { status: string; time: string; description: string }[];
-    items: { name: string; quantity: number; price: number }[];
-    shipping: { name: string; address: string; method: string };
-    payment: {
-      method: string;
-      subtotal: number;
-      shipping: number;
-      tax: number;
-      total: number;
-    };
-  };
+  const fetchOrders = useCallback(
+    async (offset: number = 0) => {
+      setLoading(true);
+      try {
+        const response = await fetch(
+          `${API_URL}/v1/orders/user/${userId}?offset=${offset}&limit=10`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+        const data: ApiResponse = await response.json();
+        if (data.success) {
+          setOrders((prev) =>
+            offset === 0 ? data.data : [...prev, ...data.data]
+          );
+          setPagination(data.pagination);
+        } else {
+          console.error("Failed to fetch orders:", data.message);
+        }
+      } catch (error) {
+        console.error("API Error:", error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [accessToken, userId]
+  );
 
-  const orderDetails: { [orderId: string]: OrderDetail } = {
-    "ORD-12345": {
-      date: "May 15, 2023 at 09:00 AM",
-      timeline: [
-        {
-          status: "Order Placed",
-          time: "May 15, 2023 at 09:15 AM",
-          description: "Your order has been received and is being processed.",
-        },
-        {
-          status: "Processing",
-          time: "May 15, 2023 at 10:00 AM",
-          description: "Your order is being prepared for shipping.",
-        },
-        {
-          status: "Shipped",
-          time: "May 16, 2023 at 08:00 AM",
-          description: "Your order has been shipped.",
-        },
-        {
-          status: "Delivered",
-          time: "May 18, 2023 at 02:30 PM",
-          description: "Your order has been delivered.",
-        },
-      ],
-      items: [
-        { name: "Apple", quantity: 2, price: 3.99 },
-        { name: "Banana", quantity: 5, price: 2.49 },
-        { name: "Orange", quantity: 3, price: 3.29 },
-      ],
-      shipping: {
-        name: "Jane Smith",
-        address: "456 Oak St, Los Angeles, CA 90001, United States",
-        method: "Standard Shipping (3-5 business days)",
-      },
-      payment: {
-        method: "Credit Card",
-        subtotal: 115.99,
-        shipping: 5.0,
-        tax: 5.0,
-        total: 125.99,
-      },
-    },
-    "ORD-12346": {
-      date: "May 10, 2023 at 06:00 AM",
-      timeline: [
-        {
-          status: "Order Placed",
-          time: "May 10, 2023 at 03:45 PM",
-          description: "Your order has been received and is being processed.",
-        },
-        {
-          status: "Processing",
-          time: "May 10, 2023 at 04:30 PM",
-          description: "Your order is being prepared for shipping.",
-        },
-      ],
-      items: [
-        { name: "Organic Apples", quantity: 3, price: 6.99 },
-        { name: "Free Range Eggs", quantity: 2, price: 4.99 },
-      ],
-      shipping: {
-        name: "John Doe",
-        address: "123 Main St, New York, NY 10001, United States",
-        method: "Express Shipping (1-2 business days)",
-      },
-      payment: {
-        method: "PayPal",
-        subtotal: 79.5,
-        shipping: 5.0,
-        tax: 5.0,
-        total: 89.5,
-      },
-    },
-    "ORD-12347": {
-      date: "May 05, 2023 at 11:00 AM",
-      timeline: [
-        {
-          status: "Order Placed",
-          time: "May 05, 2023 at 11:15 AM",
-          description: "Your order has been received and is being processed.",
-        },
-        {
-          status: "Processing",
-          time: "May 05, 2023 at 12:00 PM",
-          description: "Your order is being prepared for shipping.",
-        },
-        {
-          status: "Shipped",
-          time: "May 06, 2023 at 09:00 AM",
-          description: "Your order has been shipped.",
-        },
-      ],
-      items: [
-        { name: "Chicken Breast", quantity: 2, price: 9.99 },
-        { name: "Beef Steak", quantity: 3, price: 14.99 },
-        { name: "Mutton Leg", quantity: 1, price: 12.49 },
-        { name: "Lamb Chop", quantity: 2, price: 19.99 },
-      ],
-      shipping: {
-        name: "Alice Johnson",
-        address: "789 Pine St, Chicago, IL 60601, United States",
-        method: "Express Shipping (1-2 business days)",
-      },
-      payment: {
-        method: "Credit Card",
-        subtotal: 200.75,
-        shipping: 5.0,
-        tax: 5.0,
-        total: 210.75,
-      },
-    },
-    "ORD-12348": {
-      date: "April 28, 2023 at 02:00 PM",
-      timeline: [
-        {
-          status: "Order Placed",
-          time: "April 28, 2023 at 02:15 PM",
-          description: "Your order has been received and is being processed.",
-        },
-        {
-          status: "Processing",
-          time: "April 28, 2023 at 03:00 PM",
-          description: "Your order is being prepared for shipping.",
-        },
-        {
-          status: "Shipped",
-          time: "April 29, 2023 at 10:00 AM",
-          description: "Your order has been shipped.",
-        },
-        {
-          status: "Delivered",
-          time: "May 01, 2023 at 01:30 PM",
-          description: "Your order has been delivered.",
-        },
-      ],
-      items: [{ name: "Cheddar", quantity: 1, price: 7.99 }],
-      shipping: {
-        name: "Bob Wilson",
-        address: "321 Elm St, Houston, TX 77001, United States",
-        method: "Standard Shipping (3-5 business days)",
-      },
-      payment: {
-        method: "PayPal",
-        subtotal: 35.25,
-        shipping: 5.0,
-        tax: 5.0,
-        total: 45.25,
-      },
-    },
-  };
+  useEffect(() => {
+    fetchOrders(0);
+  }, [fetchOrders]);
 
   const toggleModal = (orderId: string | null) => {
-    setSelectedOrder(orderId ? orderDetails[orderId] : null);
+    if (orderId) {
+      const order = orders.find((o) => o.id === orderId);
+      if (order) {
+        setSelectedOrder({
+          date: new Date(order.createdAt).toLocaleString(),
+          timeline: order.orderHistory.map((history) => ({
+            status: history.status,
+            time: new Date(history.createdAt).toLocaleString(),
+            description: `Order status updated to ${history.status} by user.`,
+          })),
+          items: [], // Placeholder; API doesn't provide items, consider a separate API call if needed
+          shipping: {
+            name: "User", // Placeholder; API doesn't provide shipping details
+            address: "Address not available", // Placeholder
+            method: "Standard Shipping", // Placeholder
+          },
+          payment: {
+            method: order.paymentMethodId || "Unknown", // Placeholder; map paymentMethodId to method if possible
+            subtotal: order.subTotal,
+            shipping: order.deliveryCharge,
+            tax: 0, // Placeholder; API doesn't provide tax
+            total: order.total,
+          },
+        });
+      }
+    } else {
+      setSelectedOrder(null);
+    }
     setModalVisible(!isModalVisible);
   };
 
-  const renderOrder = ({ item }: { item: any }) => {
+  const renderOrder = ({ item }: { item: Order }) => {
     const statusColor =
-      item.status === "Delivered"
+      item.orderStatus === ORDER_STATUS_DELIVERED
         ? "#27ae60"
-        : item.status === "Processing"
+        : item.orderStatus === ORDER_STATUS_PROCESSING
         ? "#3498db"
         : "#f1c40f";
     const statusBackgroundColor =
-      item.status === "Delivered"
+      item.orderStatus === ORDER_STATUS_DELIVERED
         ? "#e8f5e9"
-        : item.status === "Processing"
+        : item.orderStatus === ORDER_STATUS_PROCESSING
         ? "#e6f3fa"
         : "#fef9e7";
 
     return (
       <View style={styles.orderCard}>
         <View style={styles.orderInfo}>
-          <Text style={styles.orderId}>ORD-{item.id}</Text>
-          <Text style={styles.orderDate}>Placed on {item.date}</Text>
-          <Text style={styles.orderItems}>{item.items} items</Text>
-          <Text style={styles.orderTotal}>${item.total.toFixed(2)}</Text>
+          <Text style={styles.orderId}>Order #{item.id.slice(0, 8)}</Text>
+          <Text style={styles.orderDate}>
+            Placed on {new Date(item.createdAt).toLocaleDateString()}
+          </Text>
+          <Text style={styles.orderItems}>
+            {item.subTotal > 0 ? "Multiple items" : "1 item"}
+          </Text>
+          <Text style={styles.orderTotal}>৳{item.total.toFixed(2)}</Text>
         </View>
         <View
           style={[
@@ -251,7 +191,7 @@ export default function MyOrdersScreen() {
           ]}
         >
           <Text style={[styles.statusText, { color: statusColor }]}>
-            {item.status}
+            {item.orderStatus}
           </Text>
         </View>
         <TouchableOpacity
@@ -264,18 +204,46 @@ export default function MyOrdersScreen() {
     );
   };
 
+  const handleLoadMore = () => {
+    if (pagination && orders.length < pagination.total) {
+      fetchOrders(orders.length);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        {/* <Text style={styles.title}>My Orders</Text> */}
         <Text style={styles.subtitle}>View and track your order history</Text>
       </View>
-      <FlatList
-        data={orders}
-        renderItem={renderOrder}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContent}
-      />
+      {loading && orders.length === 0 ? (
+        <View style={styles.loadingContainer}>
+          <Text>Loading orders...</Text>
+        </View>
+      ) : orders.length === 0 ? (
+        <View style={styles.noOrdersContainer}>
+          <Text style={styles.noOrdersText}>No orders found.</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={orders}
+          renderItem={renderOrder}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContent}
+          ListFooterComponent={
+            pagination && orders.length < pagination.total ? (
+              <TouchableOpacity
+                style={styles.loadMoreButton}
+                onPress={handleLoadMore}
+                disabled={loading}
+              >
+                <Text style={styles.loadMoreText}>
+                  {loading ? "Loading..." : "Load More"}
+                </Text>
+              </TouchableOpacity>
+            ) : null
+          }
+        />
+      )}
       <Modal
         isVisible={isModalVisible}
         onBackdropPress={() => toggleModal(null)}
@@ -316,7 +284,7 @@ export default function MyOrdersScreen() {
                   <Text style={styles.itemName}>{item.name}</Text>
                   <Text style={styles.itemQuantity}>Qty: {item.quantity}</Text>
                 </View>
-                <Text style={styles.itemPrice}>${item.price}</Text>
+                <Text style={styles.itemPrice}>৳{item.price}</Text>
               </View>
             ))}
             <View style={styles.infoRow}>
@@ -338,16 +306,16 @@ export default function MyOrdersScreen() {
                   Method: {selectedOrder.payment.method}
                 </Text>
                 <Text style={styles.infoText}>
-                  Subtotal: ${selectedOrder.payment.subtotal}
+                  Subtotal: ৳{selectedOrder.payment.subtotal}
                 </Text>
                 <Text style={styles.infoText}>
-                  Shipping: ${selectedOrder.payment.shipping}
+                  Shipping: ৳{selectedOrder.payment.shipping}
                 </Text>
                 <Text style={styles.infoText}>
-                  Tax: ${selectedOrder.payment.tax}
+                  Tax: ৳{selectedOrder.payment.tax}
                 </Text>
                 <Text style={styles.infoTotal}>
-                  Total: ${selectedOrder.payment.total}
+                  Total: ৳{selectedOrder.payment.total}
                 </Text>
               </View>
             </View>
@@ -379,11 +347,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderBottomWidth: 1,
     borderBottomColor: "#eee",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#333",
   },
   subtitle: {
     fontSize: 16,
@@ -583,6 +546,35 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontSize: 14,
+    fontWeight: "bold",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  noOrdersContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 16,
+  },
+  noOrdersText: {
+    fontSize: 16,
+    color: "#666",
+    textAlign: "center",
+  },
+  loadMoreButton: {
+    backgroundColor: "#55796d",
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 16,
+    marginBottom: 16,
+  },
+  loadMoreText: {
+    color: "#fff",
+    fontSize: 16,
     fontWeight: "bold",
   },
 });
