@@ -40,34 +40,34 @@ export default function CategoryProductsScreen({
   useEffect(() => {
     setLoading(true);
 
-    // fetch(`${API_URL}/v1/products/category/${categoryTitle}`)
-    //   .then((res) => res.json())
-    //   .then((data) => {
-    //     console.log("object", data);
-    //     setProducts(data.data);
-    //     setSelectedVariants(
-    //       Object.fromEntries(
-    //         data.data.map((product: ShopNowProduct) => [
-    //           product.id,
-    //           product.variants[0],
-    //         ])
-    //       )
-    //     );
-    //     setLoading(false);
-    //   })
-    //   .catch(() => setLoading(false));
+    fetch(`${API_URL}/v1/products/category/${categoryTitle}`)
+      .then((res) => res.json())
+      .then((data) => {
+        // console.log("object", data);
+        setProducts(data.data);
+        setSelectedVariants(
+          Object.fromEntries(
+            data.data.map((product: ShopNowProduct) => [
+              product.id,
+              product.variants[0],
+            ])
+          )
+        );
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
 
     // Local data
-    const filtered = allProductsData.filter(
-      (product) => product.categorySlug === categoryTitle
-    );
-    setProducts(filtered);
-    setSelectedVariants(
-      Object.fromEntries(
-        filtered.map((product) => [product.id, product.variants[0]])
-      )
-    );
-    setLoading(false);
+    // const filtered = allProductsData.filter(
+    //   (product) => product.categorySlug === categoryTitle
+    // );
+    // setProducts(filtered);
+    // setSelectedVariants(
+    //   Object.fromEntries(
+    //     filtered.map((product) => [product.id, product.variants[0]])
+    //   )
+    // );
+    // setLoading(false);
   }, [categoryTitle]);
 
   const handleAddToCart = (

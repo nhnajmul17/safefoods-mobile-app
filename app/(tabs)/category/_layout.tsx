@@ -1,18 +1,31 @@
 import { Stack } from "expo-router";
-import { useColorScheme } from "react-native";
 
 export default function CategoryLayout() {
-  const colorScheme = useColorScheme();
+  // Map to convert slug to display title
+  const categoryTitles: { [key: string]: string } = {
+    protein: "Protein",
+    dairy: "Dairy",
+    meat: "Meat",
+    egg: "Egg",
+    chicken: "Chicken",
+    fish: "Fish",
+    fruits: "Fruits",
+    vegetables: "Vegetables",
+    oil: "Oil",
+    honey: "Honey",
+  };
+
   return (
     <Stack
       screenOptions={{
         headerStyle: {
-          backgroundColor: "#f4511e",
+          backgroundColor: "#98fb98",
         },
         headerTintColor: "#fff",
         headerTitleStyle: {
           fontWeight: "bold",
         },
+        headerTitleAlign: "center",
       }}
     >
       <Stack.Screen
@@ -20,8 +33,6 @@ export default function CategoryLayout() {
         options={{
           headerShown: true,
           title: "Category",
-          headerStyle: { backgroundColor: "#98fb98" },
-          headerTitleAlign: "center",
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 24,
@@ -29,92 +40,21 @@ export default function CategoryLayout() {
         }}
       />
       <Stack.Screen
-        name="fruits"
-        options={{
-          title: "Fruits",
-          headerTitleAlign: "center",
-          headerStyle: { backgroundColor: "#98fb98" },
+        name="[category]"
+        options={({ route }) => {
+          // Safe access to route params
+          const params = route.params as { category?: string };
+          const category = params?.category || "";
+          return {
+            title: categoryTitles[category] || "Category",
+          };
         }}
       />
       <Stack.Screen
-        name="vegetables"
-        options={{
-          title: "Vegetables",
-          headerTitleAlign: "center",
-          headerStyle: { backgroundColor: "#98fb98" },
-        }}
-      />
-      <Stack.Screen
-        name="dairy"
-        options={{
-          title: "Dairy",
-          headerTitleAlign: "center",
-          headerStyle: { backgroundColor: "#98fb98" },
-        }}
-      />
-      <Stack.Screen
-        name="meat"
-        options={{
-          title: "Meat",
-          headerTitleAlign: "center",
-          headerStyle: { backgroundColor: "#98fb98" },
-        }}
-      />
-      <Stack.Screen
-        name="protein"
-        options={{
-          title: "Protein",
-          headerTitleAlign: "center",
-          headerStyle: { backgroundColor: "#98fb98" },
-        }}
-      />
-      <Stack.Screen
-        name="egg"
-        options={{
-          title: "Egg",
-          headerTitleAlign: "center",
-          headerStyle: { backgroundColor: "#98fb98" },
-        }}
-      />
-      <Stack.Screen
-        name="chicken"
-        options={{
-          title: "Chicken",
-          headerTitleAlign: "center",
-          headerStyle: { backgroundColor: "#98fb98" },
-        }}
-      />
-      <Stack.Screen
-        name="fish"
-        options={{
-          title: "Fish",
-          headerTitleAlign: "center",
-          headerStyle: { backgroundColor: "#98fb98" },
-        }}
-      />
-      <Stack.Screen
-        name="oil"
-        options={{
-          title: "Oil",
-          headerTitleAlign: "center",
-          headerStyle: { backgroundColor: "#98fb98" },
-        }}
-      />
-      <Stack.Screen
-        name="honey"
-        options={{
-          title: "Honey",
-          headerTitleAlign: "center",
-          headerStyle: { backgroundColor: "#98fb98" },
-        }}
-      />
-      <Stack.Screen
-        name="[productId]"
+        name="(product-details)/[productId]"
         options={{
           headerShown: true,
-          title: "",
-          headerTitleAlign: "center",
-          headerStyle: { backgroundColor: "#98fb98" },
+          headerTitle: "",
         }}
       />
     </Stack>

@@ -81,7 +81,7 @@ const CategoryProductCard = ({
     <Animated.View
       style={[styles.productCard, { width: cardWidth }, cardStyle]}
     >
-      <Link href={`/category/${item.id}`}>
+      <Link href={`/(tabs)/category/(product-details)/${item.id}`}>
         <Image
           source={{
             uri:

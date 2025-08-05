@@ -88,7 +88,9 @@ const BestSellingProductCard = ({
   return (
     <Animated.View style={[styles.productCard, cardStyle]}>
       <TouchableOpacity
-        onPress={() => handleProductCardPress(`/category/${item.id}`)}
+        onPress={() =>
+          handleProductCardPress(`/category/(product-details)/${item.id}`)
+        }
       >
         <Image
           source={{
