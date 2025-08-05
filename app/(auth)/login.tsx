@@ -142,6 +142,27 @@ export default function LoginScreen() {
           <Text style={styles.signupLink}>Sign up</Text>
         </TouchableOpacity>
       </View>
+
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          marginVertical: 20,
+        }}
+      >
+        <View style={{ flex: 1, height: 1, backgroundColor: "#ccc" }} />
+        <Text style={{ marginHorizontal: 12, fontSize: 16, color: "#999" }}>
+          Or
+        </Text>
+        <View style={{ flex: 1, height: 1, backgroundColor: "#ccc" }} />
+      </View>
+
+      <View style={styles.signupContainer}>
+        <Text style={styles.signupText}>Sign in with </Text>
+        <TouchableOpacity onPress={() => router.replace("/login-with-phone")}>
+          <Text style={styles.signupLink}>Phone Number</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }

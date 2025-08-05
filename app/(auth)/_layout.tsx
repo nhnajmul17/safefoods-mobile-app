@@ -76,6 +76,18 @@ export default function AuthLayout() {
           },
         }}
       />
+      <Stack.Screen
+        name="login-with-phone"
+        options={{
+          headerShown: false,
+          headerTitle: "Login with Phone",
+          headerTitleAlign: "center",
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 24,
+          },
+        }}
+      />
     </Stack>
   );
 }
