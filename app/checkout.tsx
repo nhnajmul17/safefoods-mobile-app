@@ -19,6 +19,8 @@ import { API_URL } from "@/constants/variables";
 import { DeliveryAddressSection } from "@/components/checkoutScreen/deliveryAddress";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import TransactionDetailsSection from "@/components/checkoutScreen/transactionDetails";
+import AddressFormModal from "@/components/myProfileScreen/addressFormModal";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
 export interface DeliveryZone {
   id: string;
@@ -97,6 +99,9 @@ export default function CheckoutScreen() {
   const [transactionDate, setTransactionDate] = useState<Date | null>(null);
   const [isTransactionDatePickerVisible, setTransactionDatePickerVisibility] =
     useState(false);
+
+  // New state for address modal
+  const [showAddressModal, setShowAddressModal] = useState(false);
 
   useEffect(() => {
     const fetchDeliveryZones = async () => {
@@ -190,6 +195,63 @@ export default function CheckoutScreen() {
     setTransactionDatePickerVisibility(false);
   };
 
+  const handleSaveAddress = async (
+    formData: Omit<
+      Address,
+      "id" | "createdAt" | "updatedAt" | "userId" | "isActive"
+    > & {
+      isActive?: boolean;
+    }
+  ) => {
+    if (!userId) {
+      console.error("User ID is null");
+      return;
+    }
+
+    const url = `${API_URL}/v1/addresses/`;
+    const method = "POST";
+    const body = {
+      userId: userId,
+      ...formData,
+      isActive: formData.isActive ?? false, // Default to false for new addresses
+    };
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await response.json();
+      if (data.success) {
+        const newAddress: Address = {
+          id: data.data.id,
+          userId: userId, // Ensure userId is string
+          flatNo: formData.flatNo,
+          floorNo: formData.floorNo,
+          addressLine: formData.addressLine,
+          name: formData.name,
+          phoneNo: formData.phoneNo,
+          deliveryNotes: formData.deliveryNotes,
+          city: formData.city,
+          state: formData.state,
+          country: formData.country,
+          postalCode: formData.postalCode,
+          isActive: false,
+          createdAt: data.data.createdAt || undefined,
+          updatedAt: data.data.updatedAt || undefined,
+        };
+        setAddresses((prev) => [...prev, newAddress]);
+        setShowAddressModal(false);
+        setSelectedAddressId(newAddress.id); // Auto-select the new address
+      } else {
+        console.error("Failed to save address:", data.message);
+      }
+    } catch (error) {
+      console.error("Error saving address:", error);
+    }
+  };
+
   const data = [
     { type: "delivery", key: "delivery" },
     { type: "deliveryAddress", key: "deliveryAddress" },
@@ -213,11 +275,20 @@ export default function CheckoutScreen() {
         );
       case "deliveryAddress":
         return (
-          <DeliveryAddressSection
-            addresses={addresses}
-            selectedAddressId={selectedAddressId}
-            onAddressSelect={setSelectedAddressId}
-          />
+          <View>
+            <DeliveryAddressSection
+              addresses={addresses}
+              selectedAddressId={selectedAddressId}
+              onAddressSelect={setSelectedAddressId}
+            />
+            <TouchableOpacity
+              style={styles.addAddressButton}
+              onPress={() => setShowAddressModal(true)}
+            >
+              <Icon name="add" size={20} color="#fff" />
+              <Text style={styles.addAddressButtonText}>Add New Address</Text>
+            </TouchableOpacity>
+          </View>
         );
       case "order":
         return (
@@ -318,6 +389,12 @@ export default function CheckoutScreen() {
             </View>
           }
         />
+        <AddressFormModal
+          visible={showAddressModal}
+          onClose={() => setShowAddressModal(false)}
+          onSave={handleSaveAddress}
+          initialData={null}
+        />
       </SafeAreaView>
     </ProtectedRoute>
   );
@@ -351,5 +428,20 @@ const styles = StyleSheet.create({
   datePickerText: {
     fontSize: 16,
     color: "#333",
+  },
+  addAddressButton: {
+    flexDirection: "row",
+    backgroundColor: "#27ae60",
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: 10,
+  },
+
+  addAddressButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
