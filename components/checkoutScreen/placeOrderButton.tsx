@@ -26,6 +26,9 @@ interface PlaceOrderButtonProps {
   }[];
   userId: string | null;
   couponId: string;
+  transactionNo: string;
+  transactionPhoneNo: string;
+  transactionDate: Date | null;
 }
 
 export const PlaceOrderButton = ({
@@ -40,6 +43,9 @@ export const PlaceOrderButton = ({
   productOrders,
   userId,
   couponId,
+  transactionNo,
+  transactionPhoneNo,
+  transactionDate,
 }: PlaceOrderButtonProps) => {
   const { clearCart } = useCartStore();
   const router = useRouter();
@@ -97,6 +103,13 @@ export const PlaceOrderButton = ({
     if (couponId) {
       orderData.couponId = couponId;
     }
+
+    // Add transaction details if they exist
+    if (transactionNo) orderData.transactionNo = transactionNo;
+    if (transactionPhoneNo) orderData.transactionPhoneNo = transactionPhoneNo;
+    if (transactionDate)
+      orderData.transactionDate = transactionDate.toISOString();
+
     try {
       const response = await fetch(`${API_URL}/v1/orders`, {
         method: "POST",

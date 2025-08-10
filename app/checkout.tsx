@@ -18,6 +18,7 @@ import { PlaceOrderButton } from "@/components/checkoutScreen/placeOrderButton";
 import { API_URL } from "@/constants/variables";
 import { DeliveryAddressSection } from "@/components/checkoutScreen/deliveryAddress";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import TransactionDetailsSection from "@/components/checkoutScreen/transactionDetails";
 
 export interface DeliveryZone {
   id: string;
@@ -90,6 +91,13 @@ export default function CheckoutScreen() {
     null
   );
 
+  // New state for transaction details
+  const [transactionNo, setTransactionNo] = useState<string>("");
+  const [transactionPhoneNo, setTransactionPhoneNo] = useState<string>("");
+  const [transactionDate, setTransactionDate] = useState<Date | null>(null);
+  const [isTransactionDatePickerVisible, setTransactionDatePickerVisibility] =
+    useState(false);
+
   useEffect(() => {
     const fetchDeliveryZones = async () => {
       try {
@@ -109,12 +117,10 @@ export default function CheckoutScreen() {
 
     const fetchPaymentMethodsAndAddresses = async () => {
       try {
-        // Fetch payment methods from API
         const paymentResponse = await fetch(`${API_URL}/v1/payment-methods`);
         const paymentData = await paymentResponse.json();
         if (paymentData.success) {
           setPaymentMethods(paymentData.data);
-          // Select the first active payment method by default
           const activePaymentMethod = paymentData.data.find(
             (method: PaymentMethod) => method.isActive
           );
@@ -125,14 +131,12 @@ export default function CheckoutScreen() {
           );
         }
 
-        // Fetch addresses from API
         const addressResponse = await fetch(
           `${API_URL}/v1/addresses/user/${userId}`
         );
         const addressData = await addressResponse.json();
         if (addressData.success) {
           setAddresses(addressData.data);
-          // Select the active address by default
           const activeAddress = addressData.data.find(
             (addr: Address) => addr.isActive
           );
@@ -181,12 +185,18 @@ export default function CheckoutScreen() {
     setDatePickerVisibility(false);
   };
 
+  const handleTransactionDateConfirm = (date: Date) => {
+    setTransactionDate(date);
+    setTransactionDatePickerVisibility(false);
+  };
+
   const data = [
     { type: "delivery", key: "delivery" },
     { type: "deliveryAddress", key: "deliveryAddress" },
     { type: "order", key: "order" },
     { type: "coupon", key: "coupon" },
     { type: "payment", key: "payment" },
+    { type: "transaction", key: "transaction" }, // New section for transaction details
     { type: "placeOrder", key: "placeOrder" },
   ];
 
@@ -229,6 +239,20 @@ export default function CheckoutScreen() {
             onPaymentMethodSelect={setSelectedPaymentMethodId}
           />
         );
+      case "transaction":
+        const isCashOnDelivery =
+          paymentMethods.find((method) => method.id === selectedPaymentMethodId)
+            ?.title !== "Cash On Delivery";
+        return isCashOnDelivery ? (
+          <TransactionDetailsSection
+            transactionNo={transactionNo}
+            transactionPhoneNo={transactionPhoneNo}
+            transactionDate={transactionDate}
+            onTransactionNoChange={setTransactionNo}
+            onTransactionPhoneNoChange={setTransactionPhoneNo}
+            onTransactionDateChange={setTransactionDatePickerVisibility}
+          />
+        ) : null;
       case "placeOrder":
         return (
           <PlaceOrderButton
@@ -243,6 +267,9 @@ export default function CheckoutScreen() {
             productOrders={mapCartToProductOrders()}
             userId={userId}
             couponId={couponId}
+            transactionNo={transactionNo}
+            transactionPhoneNo={transactionPhoneNo}
+            transactionDate={transactionDate}
           />
         );
       default:
@@ -258,6 +285,13 @@ export default function CheckoutScreen() {
           mode="datetime"
           onConfirm={handleConfirm}
           onCancel={() => setDatePickerVisibility(false)}
+          minimumDate={new Date()}
+        />
+        <DateTimePickerModal
+          isVisible={isTransactionDatePickerVisible}
+          mode="datetime"
+          onConfirm={handleTransactionDateConfirm}
+          onCancel={() => setTransactionDatePickerVisibility(false)}
           minimumDate={new Date()}
         />
 
