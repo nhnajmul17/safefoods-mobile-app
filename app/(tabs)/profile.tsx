@@ -26,18 +26,18 @@ export default function ProfileScreen() {
           },
         ]
       : []),
-    {
-      id: "2",
-      title: "Security",
-      icon: "https://cdn-icons-png.flaticon.com/512/3064/3064197.png",
-      // action: () => router.push("/security"),
-    },
-    {
-      id: "3",
-      title: "Settings",
-      icon: "https://cdn-icons-png.flaticon.com/512/2099/2099058.png",
-      action: () => router.push("/settings"),
-    },
+    // {
+    //   id: "2",
+    //   title: "Security",
+    //   icon: "https://cdn-icons-png.flaticon.com/512/3064/3064197.png",
+    //   // action: () => router.push("/security"),
+    // },
+    // {
+    //   id: "3",
+    //   title: "Settings",
+    //   icon: "https://cdn-icons-png.flaticon.com/512/2099/2099058.png",
+    //   action: () => router.push("/settings"),
+    // },
     ...(userId
       ? [
           {
