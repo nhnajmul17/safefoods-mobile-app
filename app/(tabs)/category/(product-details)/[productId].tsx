@@ -23,8 +23,6 @@ import {
   ProductVariant,
   ShopNowProduct,
 } from "@/components/shopNowScreen/shopNowProductCard";
-// Assuming products array is defined elsewhere
-import { allProductsData } from "@/hooks/productsData";
 import { API_URL } from "@/constants/variables";
 import { useAuthStore } from "@/store/authStore";
 import { CustomLoader } from "@/components/common/loader";
@@ -33,6 +31,7 @@ export default function ProductDetailsScreen() {
   const { productId } = useLocalSearchParams();
   const [product, setProduct] = useState<ShopNowProduct | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
@@ -51,42 +50,35 @@ export default function ProductDetailsScreen() {
 
   useEffect(() => {
     setLoading(true);
+    setError(null);
 
-    // fetch(`${API_URL}/v1/products/${productId}`)
-    //   .then((res) => res.json())
-    //   .then((data) => {
-    //     setProduct(data.data);
-    //     setSelectedVariant(data.data.variants[0]);
-    //     setLoading(false);
-    //   })
-    //   .catch((error) => {
-    //     console.error("Error fetching product:", error);
-    //     // Fallback to local data if API fails
-    //     const localProduct = allProductsData.find((p) => p.id === productId);
-    //     if (localProduct) {
-    //       setProduct(localProduct);
-    //       setSelectedVariant(localProduct.variants[0]);
-    //     }
-    //     setLoading(false);
-    //   });
-
-    // Initial local fallback (if API call is slow)
-    const localProduct = allProductsData.find((p) => p.id === productId);
-    if (localProduct && !selectedVariant) {
-      setProduct(localProduct);
-      setSelectedVariant(localProduct.variants[0]);
-      setLoading(false);
-    }
+    fetch(`${API_URL}/v1/products/${productId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setProduct(data.data);
+        setSelectedVariant(data.data.variants[0] || null);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching product:", error);
+        setError("Failed to load product details. Please try again.");
+        setLoading(false);
+      });
   }, [productId]);
 
   // Trigger animations on mount
   useEffect(() => {
-    imageOpacity.value = withTiming(1, { duration: 800, easing: Easing.ease });
-    detailsTranslateY.value = withTiming(0, {
-      duration: 800,
-      easing: Easing.ease,
-    });
-  }, []);
+    if (product && selectedVariant) {
+      imageOpacity.value = withTiming(1, {
+        duration: 800,
+        easing: Easing.ease,
+      });
+      detailsTranslateY.value = withTiming(0, {
+        duration: 800,
+        easing: Easing.ease,
+      });
+    }
+  }, [product, selectedVariant]);
 
   const handleIncrement = () => {
     setQuantity(quantity + 1);
@@ -118,7 +110,7 @@ export default function ProductDetailsScreen() {
         variantId: selectedVariant.id,
         name: product.title,
         image:
-          selectedVariant.mediaItems[0]?.mediaUrl ||
+          selectedVariant.mediaItems?.[0]?.mediaUrl ||
           "https://via.placeholder.com/50",
         price: selectedVariant.price,
         unit: selectedVariant.unitTitle,
@@ -197,12 +189,12 @@ export default function ProductDetailsScreen() {
       />
     );
   }
-  // Render fallback UI if product or selectedVariant is not found
-  if (!product || !selectedVariant) {
+
+  if (error || !product || !selectedVariant) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.content}>
-          <Text style={styles.errorText}>Product not found</Text>
+          <Text style={styles.errorText}>{error || "Product not found"}</Text>
         </View>
       </SafeAreaView>
     );
@@ -215,8 +207,8 @@ export default function ProductDetailsScreen() {
           <Image
             source={{
               uri:
-                selectedVariant.mediaItems[0]?.mediaUrl ||
-                "https://via.placeholder.com/50",
+                selectedVariant.mediaItems?.[0]?.mediaUrl ||
+                "https://via.placeholder.com/200",
             }}
             style={styles.productImage}
             onError={(e) =>

@@ -16,7 +16,7 @@ export interface ProductVariant {
   bestDeal: boolean;
   discountedSale: boolean;
   unitTitle: string;
-  mediaItems: Array<{
+  mediaItems?: Array<{
     id: string;
     mediaId: string;
     mediaUrl: string;
@@ -73,7 +73,7 @@ const ShopNowProductCard = ({
         <Image
           source={{
             uri:
-              selectedVariant.mediaItems[0]?.mediaTitle ||
+              selectedVariant.mediaItems?.[0]?.mediaUrl ||
               "https://via.placeholder.com/50",
           }}
           style={styles.productImage}

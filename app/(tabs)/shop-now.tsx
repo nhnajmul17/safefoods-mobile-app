@@ -166,7 +166,7 @@ export default function ShopNowScreen() {
         variantId: selectedVariant.id,
         name: item.title,
         image:
-          selectedVariant.mediaItems[0]?.mediaUrl ||
+          selectedVariant.mediaItems?.[0]?.mediaUrl ||
           "https://via.placeholder.com/50",
         price: selectedVariant.price,
         unit: selectedVariant.unitTitle,
