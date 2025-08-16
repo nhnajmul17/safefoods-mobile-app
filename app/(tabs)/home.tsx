@@ -190,7 +190,7 @@ export default function HomeScreen() {
               contentContainerStyle={styles.scrollContent}
             >
               {/* Hero Section */}
-              <View style={styles.heroSection}>
+              {/* <View style={styles.heroSection}>
                 <Image
                   source={{
                     uri: "https://images.unsplash.com/photo-1467453678174-768ec283a940?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
@@ -201,7 +201,7 @@ export default function HomeScreen() {
                   Safe Food {"\n"}
                   <Text style={{ fontSize: 26 }}>For Your Family</Text>.
                 </Animated.Text>
-              </View>
+              </View> */}
 
               {/* Banner Carousel */}
               <BannerCarousel />

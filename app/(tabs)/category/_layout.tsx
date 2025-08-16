@@ -1,3 +1,4 @@
+import { lightGreenColor } from "@/constants/Colors";
 import { Stack } from "expo-router";
 
 export default function CategoryLayout() {
@@ -31,11 +32,14 @@ export default function CategoryLayout() {
       <Stack.Screen
         name="index"
         options={{
-          headerShown: true,
           title: "Category",
+          headerShown: true,
+          headerTitleAlign: "center",
+          headerStyle: { backgroundColor: lightGreenColor },
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 24,
+            color: "#fff",
           },
         }}
       />

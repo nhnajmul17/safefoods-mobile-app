@@ -37,7 +37,7 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({
     <View style={styles.tabBarContainer}>
       {/* Left-side tabs (Home, Category) and Right-side tab (Settings) */}
       {state.routes
-        .filter((route: any) => route.name !== "cart")
+        .filter((route: any) => route.name !== "cart" && route.name !== "index")
         .map((route: any) => {
           const actualIndex = state.routes.findIndex(
             (r: any) => r.key === route.key
@@ -147,6 +147,14 @@ export default function TabLayout() {
   return (
     <Tabs tabBar={(props) => <CustomTabBar {...props} />}>
       <Tabs.Screen
+        name="index"
+        options={{
+          headerShown: false,
+          title: "Index",
+          tabBarButton: () => null,
+        }}
+      />
+      <Tabs.Screen
         name="home"
         options={{
           headerShown: false,
@@ -173,7 +181,7 @@ export default function TabLayout() {
           headerShown: true,
           headerTitleAlign: "center",
 
-          headerStyle: { backgroundColor: lightGreenColor },
+          headerStyle: { backgroundColor: lightGreenColor, height: 90 },
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 24,
@@ -191,7 +199,7 @@ export default function TabLayout() {
           headerShown: true,
           headerTitleAlign: "center",
 
-          headerStyle: { backgroundColor: lightGreenColor },
+          headerStyle: { backgroundColor: lightGreenColor, height: 90 },
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 24,
@@ -209,7 +217,7 @@ export default function TabLayout() {
           title: "Cart",
           headerShown: true,
           headerTitleAlign: "center",
-          headerStyle: { backgroundColor: lightGreenColor },
+          headerStyle: { backgroundColor: lightGreenColor, height: 90 },
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 24,
