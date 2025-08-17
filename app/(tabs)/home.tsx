@@ -13,16 +13,18 @@ import {
 } from "react-native";
 import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-
+import Icon from "react-native-vector-icons/MaterialIcons";
 import HomeCategorySection from "@/components/homeScreen/categorySection";
 import HomeBestSelling from "@/components/homeScreen/bestSelling";
 import WhySafeFoodsSection from "@/components/homeScreen/whySafefoods";
 import { Colors, lightGreenColor } from "@/constants/Colors";
 import { useAuthStore } from "@/store/authStore";
 import BannerCarousel from "@/components/homeScreen/bannerCarousel";
-import { useCartStore } from "@/store/cartStore"; // Import cart store
-import { API_URL } from "@/constants/variables"; // Import API URL
+import { useCartStore } from "@/store/cartStore";
+import { API_URL } from "@/constants/variables";
 import { router } from "expo-router";
+import safefoodTitlePng from "../../assets/images/safefood.png";
+import safefoodLogoPng from "../../assets/images/logo-safefood.png";
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
@@ -47,7 +49,6 @@ export default function HomeScreen() {
           });
           const data = await response.json();
           if (data.success) {
-            // Map API items to CartItem format and add to store
             data.data.items.forEach((item: any) => {
               addItem({
                 id: item.id,
@@ -59,7 +60,7 @@ export default function HomeScreen() {
                 quantity: item.quantity,
               });
             });
-            useCartStore.setState({ isCartFetchedFromApi: true }); // Mark as fetched
+            useCartStore.setState({ isCartFetchedFromApi: true });
           }
         } catch (error) {
           console.error("Error fetching cart items:", error);
@@ -68,7 +69,7 @@ export default function HomeScreen() {
     };
 
     fetchCartItems();
-  }, [isCartFetchedFromApi]); // Trigger on userId, accessToken, or isCartFetchedFromApi change
+  }, [userId, accessToken, isCartFetchedFromApi]);
 
   // Animation and render logic
   useEffect(() => {
@@ -93,10 +94,10 @@ export default function HomeScreen() {
           useNativeDriver: true,
         }),
       ]).start();
-    }, 50); // Prevent initial blink
+    }, 50);
 
     return () => clearTimeout(timeout);
-  }, []); // Run once on mount
+  }, []);
 
   const textTransform = {
     transform: [
@@ -142,17 +143,27 @@ export default function HomeScreen() {
           >
             {/* Header */}
             <View style={styles.appHeader}>
-              <Image
-                source={{
-                  uri: "https://safefoods.com.bd/_next/image?url=%2Fassets%2Fimages%2Flogo-safefoods.png&w=64&q=75",
-                }}
-                style={styles.appIcon}
-              />
-
-              <View style={styles.header}>
-                {userId && (
+              <View style={styles.logoContainer}>
+                <Image
+                  source={safefoodLogoPng}
+                  style={styles.appLogo}
+                />
+                <Image
+                  source={safefoodTitlePng}
+                  style={styles.appTitle}
+                />
+              </View>
+              <View style={styles.userInfoContainer}>
+                {!userId ? (
+                  <TouchableOpacity
+                    style={styles.iconCircle}
+                    onPress={() => router.push("/login")}
+                  >
+                    <Icon name="person" size={24} color="#6b6b6b" />
+                  </TouchableOpacity>
+                ) : (
                   <View style={styles.userInfo}>
-                    <View>
+                    <View style={styles.userText}>
                       <Text
                         style={[styles.greeting, { color: Colors.light.text }]}
                       >
@@ -169,10 +180,13 @@ export default function HomeScreen() {
                         {userName || "John Abram"}
                       </Text>
                     </View>
-                    <TouchableOpacity onPress={() => router.push("/profile")}>
+                    <TouchableOpacity
+                      style={styles.avatarCircle}
+                      onPress={() => router.push("/profile")}
+                    >
                       <Image
                         source={{
-                          uri: "https://randomuser.me/api/portraits/men/44.jpg",
+                          uri: "https://randomuser.me/api/portraits/lego/5.jpg",
                         }}
                         style={styles.avatar}
                         onError={(e) =>
@@ -248,31 +262,64 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 40,
     paddingBottom: 16,
+    paddingHorizontal: 16,
     backgroundColor: lightGreenColor,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(0, 0, 0, 0.1)",
   },
-  appIcon: {
+  logoContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  appLogo: {
+    width: 40,
+    height: 40,
+    resizeMode: "contain",
+  },
+  appTitle: {
     width: 100,
     height: 40,
     resizeMode: "contain",
   },
-  header: {
+  userInfoContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 16,
   },
   userInfo: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 12,
+  },
+  userText: {
+    flexDirection: "column",
+    justifyContent: "center",
+  },
+  iconCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  avatarCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
   },
   avatar: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    marginLeft: 12,
   },
   greeting: {
     fontSize: 14,
+    fontWeight: "400",
   },
   userName: {
     fontSize: 16,

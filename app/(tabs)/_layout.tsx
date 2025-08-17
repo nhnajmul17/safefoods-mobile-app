@@ -195,7 +195,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profile",
+          title: "Menu",
           headerShown: true,
           headerTitleAlign: "center",
 
@@ -205,9 +205,9 @@ export default function TabLayout() {
             fontSize: 24,
             color: "#fff",
           },
-          tabBarLabel: "Profile",
+          tabBarLabel: "Menu",
           tabBarIcon: ({ color, focused, size }) => (
-            <IconSymbol size={size} name="person.fill" color={color} />
+            <IconSymbol size={size} name="menu.fill" color={color} />
           ),
         }}
       />

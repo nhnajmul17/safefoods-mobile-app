@@ -25,7 +25,7 @@ const verifyOtpAPI = async (phone: string, otp: string, token: string) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      otp_verification_token: token,
+      "otp_verification_token": token,
     },
     body: JSON.stringify({ phoneNumber: phone, otp: parseInt(otp) }),
   });

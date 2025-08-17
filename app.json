@@ -4,7 +4,7 @@
     "slug": "Safe-Foods-App",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/safefoods-logo.png",
+    "icon": "./assets/images/logo-safefood.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -18,11 +18,11 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "com.softpiper.safefoods",
+      "package": "safefoods.com.bd",
       "versionCode": 1,
       "permissions": [],
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/safefoods-logo.png",
+        "foregroundImage": "./assets/images/logo-safefood.png",
         "backgroundColor": "#ffffff"
       }
     },

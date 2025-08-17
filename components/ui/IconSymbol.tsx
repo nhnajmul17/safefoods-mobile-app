@@ -19,6 +19,7 @@ const MAPPING = {
   "person.fill": "person",
   "basket.fill": "shopping-basket",
   "shop.now": "add-shopping-cart",
+  "menu.fill": "menu",
 } as Partial<
   Record<
     import("expo-symbols").SymbolViewProps["name"],
