@@ -9,7 +9,7 @@ import {
   ProductVariant,
   ShopNowProduct,
 } from "../shopNowScreen/shopNowProductCard";
-import { Colors, greenColor } from "@/constants/Colors";
+import { Colors, deepGreenColor, yellowColor } from "@/constants/Colors";
 import { useRouter } from "expo-router";
 
 interface QuantityMap {
@@ -95,7 +95,7 @@ const BestSellingProductCard = ({
         <Image
           source={{
             uri:
-              selectedVariant.mediaItems[0]?.mediaUrl ||
+              selectedVariant.mediaItems?.[0]?.mediaUrl ||
               "https://via.placeholder.com/50",
           }}
           style={styles.productImage}
@@ -119,7 +119,7 @@ const BestSellingProductCard = ({
               style={[
                 styles.variantBadge,
                 selectedVariant.id === variant.id &&
-                  styles.selectedVariantBadge,
+                styles.selectedVariantBadge,
               ]}
               onPress={() => handleVariantChange(variant)}
             >
@@ -127,7 +127,7 @@ const BestSellingProductCard = ({
                 style={[
                   styles.variantText,
                   selectedVariant.id === variant.id &&
-                    styles.selectedVariantText,
+                  styles.selectedVariantText,
                 ]}
               >
                 {variant.unitTitle}
@@ -229,14 +229,14 @@ const styles = StyleSheet.create({
     margin: 2,
   },
   selectedVariantBadge: {
-    backgroundColor: greenColor,
+    backgroundColor: deepGreenColor,
   },
   variantText: {
     fontSize: 12,
     color: "#333",
   },
   selectedVariantText: {
-    color: "#fff",
+    color: yellowColor,
     fontWeight: "600",
   },
   priceContainer: {
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
   },
   productPrice: {
     fontSize: 14,
-    color: greenColor,
+    color: deepGreenColor,
     fontWeight: "600",
   },
   originalPrice: {
@@ -270,12 +270,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: greenColor,
+    borderColor: deepGreenColor,
     marginHorizontal: 4,
   },
   quantityButtonText: {
     fontSize: 16,
-    color: greenColor,
+    color: deepGreenColor,
     fontWeight: "bold",
   },
   quantityText: {
@@ -285,14 +285,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   addButton: {
-    backgroundColor: greenColor,
+    backgroundColor: deepGreenColor,
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 6,
     alignItems: "center",
   },
   addButtonText: {
-    color: "#fff",
+    color: yellowColor,
     fontSize: 12,
     fontWeight: "600",
   },

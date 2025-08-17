@@ -1,5 +1,5 @@
 import { Address } from "@/app/my-profile";
-import { lightGreenColor } from "@/constants/Colors";
+import { deepGreenColor, yellowColor } from "@/constants/Colors";
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   saveButton: {
-    backgroundColor: lightGreenColor,
+    backgroundColor: deepGreenColor,
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   buttonText: {
-    color: "#fff",
+    color: yellowColor,
     fontSize: 16,
     fontWeight: "bold",
   },

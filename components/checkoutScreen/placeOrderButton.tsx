@@ -8,6 +8,7 @@ import {
   DISCOUNT_TYPE_FIXED,
   DISCOUNT_TYPE_PERCENTAGE,
 } from "@/constants/variables";
+import { deepGreenColor, yellowColor } from "@/constants/Colors";
 
 interface PlaceOrderButtonProps {
   selectedZoneId: string | null;
@@ -161,14 +162,14 @@ export const PlaceOrderButton = ({
 
 const styles = StyleSheet.create({
   placeOrderButton: {
-    backgroundColor: "#27ae60",
+    backgroundColor: deepGreenColor,
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: "center",
     marginTop: 16,
   },
   placeOrderText: {
-    color: "#fff",
+    color: yellowColor,
     fontSize: 16,
     fontWeight: "bold",
   },

@@ -17,7 +17,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import HomeCategorySection from "@/components/homeScreen/categorySection";
 import HomeBestSelling from "@/components/homeScreen/bestSelling";
 import WhySafeFoodsSection from "@/components/homeScreen/whySafefoods";
-import { Colors, lightGreenColor } from "@/constants/Colors";
+import { Colors, deepGreenColor } from "@/constants/Colors";
 import { useAuthStore } from "@/store/authStore";
 import BannerCarousel from "@/components/homeScreen/bannerCarousel";
 import { useCartStore } from "@/store/cartStore";
@@ -159,7 +159,7 @@ export default function HomeScreen() {
                     style={styles.iconCircle}
                     onPress={() => router.push("/login")}
                   >
-                    <Icon name="person" size={24} color="#6b6b6b" />
+                    <Icon name="person" size={24} color={deepGreenColor} />
                   </TouchableOpacity>
                 ) : (
                   <View style={styles.userInfo}>
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
     paddingTop: 40,
     paddingBottom: 16,
     paddingHorizontal: 16,
-    backgroundColor: lightGreenColor,
+    backgroundColor: deepGreenColor,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(0, 0, 0, 0.1)",
   },

@@ -8,6 +8,8 @@ export const greenColor = "#4CAF50";
 // export const lightGreenColor = "#A5D6A7";
 export const lightGreenColor = "#98fb98";
 export const lightGreenTextColor = "#4f998e";
+export const deepGreenColor = "#1A3240";
+export const yellowColor = "#FFEE4B";
 
 export const Colors = {
   light: {

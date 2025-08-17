@@ -1,4 +1,4 @@
-import { greenColor } from "@/constants/Colors";
+import { deepGreenColor, yellowColor } from "@/constants/Colors";
 import React from "react";
 import {
   View,
@@ -124,14 +124,14 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   editButton: {
-    backgroundColor: greenColor,
+    backgroundColor: deepGreenColor,
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
     marginTop: 20,
   },
   saveButton: {
-    backgroundColor: "#28a745",
+    backgroundColor: deepGreenColor,
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   buttonText: {
-    color: "#fff",
+    color: yellowColor,
     fontSize: 16,
     fontWeight: "bold",
   },

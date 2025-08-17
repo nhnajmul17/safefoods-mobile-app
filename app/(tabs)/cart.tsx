@@ -13,6 +13,7 @@ import { useRouter } from "expo-router";
 import Toast from "react-native-toast-message";
 import { useAuthStore } from "@/store/authStore";
 import { API_URL } from "@/constants/variables";
+import { deepGreenColor, yellowColor } from "@/constants/Colors";
 
 export default function CartScreen() {
   const { cartItems, removeItem, updateQuantity, clearCart, getTotalPrice } =
@@ -290,7 +291,7 @@ const styles = StyleSheet.create({
   },
   itemPrice: {
     fontSize: 14,
-    color: "#ff6b6b",
+    color: deepGreenColor,
     fontWeight: "500",
   },
   quantityContainer: {
@@ -344,13 +345,13 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   orderButton: {
-    backgroundColor: "#27ae60",
+    backgroundColor: deepGreenColor,
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
   },
   orderButtonText: {
-    color: "#fff",
+    color: yellowColor,
     fontSize: 16,
     fontWeight: "bold",
   },

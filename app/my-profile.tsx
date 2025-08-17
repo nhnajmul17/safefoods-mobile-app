@@ -16,7 +16,7 @@ import ProfileHeader from "@/components/myProfileScreen/profileHeader";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import AddressCard from "@/components/myProfileScreen/addressCard";
 import AddressFormModal from "@/components/myProfileScreen/addressFormModal";
-import { greenColor } from "@/constants/Colors";
+import { deepGreenColor, yellowColor } from "@/constants/Colors";
 
 export interface Address {
   id?: string;
@@ -121,9 +121,8 @@ export default function MyProfileScreen() {
         Toast.show({
           type: "success",
           text1: "Success",
-          text2: `Address ${
-            selectedAddress ? "updated" : "added"
-          } successfully`,
+          text2: `Address ${selectedAddress ? "updated" : "added"
+            } successfully`,
         });
         setShowAddressModal(false);
         fetchAddresses();
@@ -234,7 +233,7 @@ export default function MyProfileScreen() {
               style={styles.addButton}
               onPress={() => handleAddOrEditAddress()}
             >
-              <Icon name="add" size={20} color="#fff" />
+              <Icon name="add" size={20} color={yellowColor} />
               <Text style={styles.addButtonText}>Add New Address</Text>
             </TouchableOpacity>
             {addresses.length > 0 && (
@@ -282,14 +281,14 @@ const styles = StyleSheet.create({
   },
   addButton: {
     flexDirection: "row",
-    backgroundColor: greenColor,
+    backgroundColor: deepGreenColor,
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
     marginBottom: 15,
   },
   addButtonText: {
-    color: "#fff",
+    color: yellowColor,
     fontSize: 16,
     fontWeight: "bold",
     marginLeft: 10,

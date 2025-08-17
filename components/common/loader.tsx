@@ -1,4 +1,4 @@
-import { Colors, lightGreenColor } from "@/constants/Colors";
+import { Colors, deepGreenColor, yellowColor } from "@/constants/Colors";
 import { useRef, useEffect } from "react";
 import { Animated, SafeAreaView, StyleSheet, Text, View } from "react-native";
 
@@ -49,7 +49,7 @@ export const CustomLoader = ({
         <View
           style={[
             styles.loaderCircle,
-            { width: 60, height: 60, backgroundColor: lightGreenColor },
+            { width: 60, height: 60, backgroundColor: deepGreenColor },
           ]}
         />
         <View
@@ -58,7 +58,7 @@ export const CustomLoader = ({
             {
               width: 40,
               height: 40,
-              backgroundColor: "#fff",
+              backgroundColor: yellowColor,
               position: "absolute",
             },
           ]}
@@ -69,7 +69,7 @@ export const CustomLoader = ({
             {
               width: 20,
               height: 20,
-              backgroundColor: lightGreenColor,
+              backgroundColor: deepGreenColor,
               position: "absolute",
             },
           ]}

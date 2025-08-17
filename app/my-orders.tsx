@@ -12,6 +12,7 @@ import {
 import OrderHeader from "@/components/myOrdersScreen/orderHeader";
 import OrderList from "@/components/myOrdersScreen/orderList";
 import OrderModal from "@/components/myOrdersScreen/orderModal";
+import ProtectedRoute from "@/components/auth/protectedRoute";
 
 export default function MyOrdersScreen() {
   const { userId, accessToken } = useAuthStore();
@@ -101,21 +102,23 @@ export default function MyOrdersScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <OrderHeader />
-      <OrderList
-        orders={orders}
-        loading={loading}
-        pagination={pagination}
-        onLoadMore={handleLoadMore}
-        toggleModal={toggleModal}
-      />
-      <OrderModal
-        isVisible={isModalVisible}
-        onClose={() => toggleModal(null)} // Use toggleModal to close and reset
-        selectedOrder={selectedOrder}
-      />
-    </SafeAreaView>
+    <ProtectedRoute>
+      <SafeAreaView style={styles.container}>
+        <OrderHeader />
+        <OrderList
+          orders={orders}
+          loading={loading}
+          pagination={pagination}
+          onLoadMore={handleLoadMore}
+          toggleModal={toggleModal}
+        />
+        <OrderModal
+          isVisible={isModalVisible}
+          onClose={() => toggleModal(null)} // Use toggleModal to close and reset
+          selectedOrder={selectedOrder}
+        />
+      </SafeAreaView>
+    </ProtectedRoute>
   );
 }
 

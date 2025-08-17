@@ -11,7 +11,7 @@ import { Picker } from "@react-native-picker/picker";
 import { useCartStore } from "@/store/cartStore";
 import Toast from "react-native-toast-message";
 import { Feather, Ionicons } from "@expo/vector-icons";
-import { Colors, greenColor } from "@/constants/Colors";
+import { Colors, deepGreenColor, yellowColor } from "@/constants/Colors";
 import ShopNowProductCard, {
   ShopNowProduct,
   ProductVariant,
@@ -264,7 +264,7 @@ export default function ShopNowScreen() {
         <TouchableOpacity
           onPress={() => setShowFilterDrawer(!showFilterDrawer)}
         >
-          <Ionicons name="filter" size={26} color={greenColor} />
+          <Ionicons name="filter" size={26} color={deepGreenColor} />
         </TouchableOpacity>
         <Text style={{ fontSize: 18, fontWeight: "bold" }}>
           {isFilterActive && `${filteredProducts.length} Results`}
@@ -417,14 +417,14 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   loadMoreButton: {
-    backgroundColor: greenColor,
+    backgroundColor: deepGreenColor,
     padding: 12,
     borderRadius: 10,
     alignItems: "center",
     margin: 16,
   },
   loadMoreText: {
-    color: "#fff",
+    color: yellowColor,
     fontSize: 16,
     fontWeight: "bold",
   },
@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   retryButton: {
-    backgroundColor: greenColor,
+    backgroundColor: deepGreenColor,
     padding: 10,
     borderRadius: 6,
   },

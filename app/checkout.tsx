@@ -21,6 +21,7 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import TransactionDetailsSection from "@/components/checkoutScreen/transactionDetails";
 import AddressFormModal from "@/components/myProfileScreen/addressFormModal";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import { deepGreenColor, yellowColor } from "@/constants/Colors";
 
 export interface DeliveryZone {
   id: string;
@@ -285,7 +286,7 @@ export default function CheckoutScreen() {
               style={styles.addAddressButton}
               onPress={() => setShowAddressModal(true)}
             >
-              <Icon name="add" size={20} color="#fff" />
+              <Icon name="add" size={20} color={yellowColor} />
               <Text style={styles.addAddressButtonText}>Add New Address</Text>
             </TouchableOpacity>
           </View>
@@ -431,7 +432,7 @@ const styles = StyleSheet.create({
   },
   addAddressButton: {
     flexDirection: "row",
-    backgroundColor: "#27ae60",
+    backgroundColor: deepGreenColor,
     paddingVertical: 10,
     borderRadius: 8,
     alignItems: "center",
@@ -440,7 +441,7 @@ const styles = StyleSheet.create({
   },
 
   addAddressButtonText: {
-    color: "#fff",
+    color: yellowColor,
     fontSize: 16,
     fontWeight: "bold",
   },

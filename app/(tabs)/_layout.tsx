@@ -4,7 +4,7 @@ import { Tabs } from "expo-router";
 import { View, TouchableOpacity, StyleSheet, Text } from "react-native";
 import type { BottomTabNavigationOptions } from "@react-navigation/bottom-tabs";
 import { useCartStore } from "@/store/cartStore";
-import { lightGreenColor } from "@/constants/Colors";
+import { deepGreenColor, yellowColor } from "@/constants/Colors";
 import { CommonActions } from "@react-navigation/native";
 
 // Define navigation prop type
@@ -107,14 +107,14 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({
               }
             >
               {options.tabBarIcon?.({
-                color: isFocused ? "#00C853" : "#666",
+                color: isFocused ? yellowColor : "#666",
                 focused: isFocused,
                 size: 24,
               }) ?? null}
               <Text
                 style={[
                   styles.tabLabel,
-                  { color: isFocused ? "#00C853" : "#666" },
+                  { color: isFocused ? yellowColor : "#666" },
                 ]}
               >
                 {typeof options.tabBarLabel === "string"
@@ -133,7 +133,7 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({
         accessibilityLabel="Cart"
       >
         <View style={styles.cartIconContainer}>
-          <IconSymbol size={28} name="cart.fill" color="#fff" />
+          <IconSymbol size={28} name="cart.fill" color={yellowColor} />
           <View style={styles.badge}>
             <Text style={styles.badgeText}>{totalItems}</Text>
           </View>
@@ -181,7 +181,7 @@ export default function TabLayout() {
           headerShown: true,
           headerTitleAlign: "center",
 
-          headerStyle: { backgroundColor: lightGreenColor, height: 90 },
+          headerStyle: { backgroundColor: deepGreenColor, height: 90 },
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 24,
@@ -199,7 +199,7 @@ export default function TabLayout() {
           headerShown: true,
           headerTitleAlign: "center",
 
-          headerStyle: { backgroundColor: lightGreenColor, height: 90 },
+          headerStyle: { backgroundColor: deepGreenColor, height: 90 },
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 24,
@@ -217,7 +217,7 @@ export default function TabLayout() {
           title: "Cart",
           headerShown: true,
           headerTitleAlign: "center",
-          headerStyle: { backgroundColor: lightGreenColor, height: 90 },
+          headerStyle: { backgroundColor: deepGreenColor, height: 90 },
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 24,
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
   tabBarContainer: {
     flexDirection: "row",
     height: 60,
-    backgroundColor: "#fff",
+    backgroundColor: deepGreenColor,
     borderTopWidth: 1,
     borderTopColor: "#ddd",
     alignItems: "center",
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: "#00C853",
+    backgroundColor: deepGreenColor,
     justifyContent: "center",
     alignItems: "center",
     elevation: 8, // Increased elevation for a stronger shadow effect
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -5,
     right: -5,
-    backgroundColor: "#FF0000", // Red badge to match common design
+    backgroundColor: deepGreenColor, // Red badge to match common design
     borderRadius: 10,
     width: 20,
     height: 20,

@@ -18,7 +18,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useCartStore } from "@/store/cartStore";
 import Toast from "react-native-toast-message";
-import { greenColor } from "@/constants/Colors";
+import { deepGreenColor, yellowColor } from "@/constants/Colors";
 import {
   ProductVariant,
   ShopNowProduct,
@@ -249,7 +249,7 @@ export default function ProductDetailsScreen() {
                   style={[
                     styles.variantBadge,
                     selectedVariant.id === variant.id &&
-                      styles.selectedVariantBadge,
+                    styles.selectedVariantBadge,
                   ]}
                   onPress={() => handleVariantChange(variant)}
                 >
@@ -257,7 +257,7 @@ export default function ProductDetailsScreen() {
                     style={[
                       styles.variantText,
                       selectedVariant.id === variant.id &&
-                        styles.selectedVariantText,
+                      styles.selectedVariantText,
                     ]}
                   >
                     {variant.unitTitle}
@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
   quantityText: {
     fontSize: 24,
     fontWeight: "bold",
-    color: greenColor,
+    color: deepGreenColor,
   },
   quantity: {
     fontSize: 24,
@@ -407,14 +407,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   selectedVariantBadge: {
-    backgroundColor: greenColor,
+    backgroundColor: deepGreenColor,
   },
   variantText: {
     fontSize: 14,
     color: "#333",
   },
   selectedVariantText: {
-    color: "#fff",
+    color: yellowColor,
     fontWeight: "600",
   },
   priceContainer: {
@@ -425,7 +425,7 @@ const styles = StyleSheet.create({
   weightPrice: {
     fontSize: 20,
     fontWeight: "bold",
-    color: greenColor,
+    color: deepGreenColor,
   },
   originalPrice: {
     fontSize: 16,
@@ -475,7 +475,7 @@ const styles = StyleSheet.create({
     bottom: 20,
     left: 0,
     right: 0,
-    backgroundColor: greenColor,
+    backgroundColor: deepGreenColor,
     paddingVertical: 18,
     borderRadius: 25,
     alignItems: "center",
@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
   },
   addToCartText: {
     fontSize: 18,
-    color: "#fff",
+    color: yellowColor,
     fontWeight: "bold",
   },
 });

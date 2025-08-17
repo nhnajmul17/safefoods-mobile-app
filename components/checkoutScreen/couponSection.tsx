@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import Toast from "react-native-toast-message";
 import { API_URL } from "@/constants/variables";
+import { deepGreenColor, yellowColor } from "@/constants/Colors";
 
 interface CouponSectionProps {
   onCouponApplied: (discount: number, discountType: string, id: string) => void;
@@ -121,12 +122,12 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderWidth: 1,
-    borderColor: "#27ae60",
+    borderColor: yellowColor,
     borderRadius: 4,
     alignItems: "center",
   },
   haveCouponText: {
-    color: "#27ae60",
+    color: deepGreenColor,
     fontSize: 16,
   },
   couponInputContainer: {
@@ -144,14 +145,14 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   applyButton: {
-    backgroundColor: "#27ae60",
+    backgroundColor: deepGreenColor,
     paddingVertical: 10,
     paddingHorizontal: 12,
     borderRadius: 4,
     justifyContent: "center",
   },
   applyButtonText: {
-    color: "#fff",
+    color: yellowColor,
     fontSize: 16,
     fontWeight: "bold",
   },

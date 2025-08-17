@@ -5,6 +5,12 @@
         "gradleCommand": ":app:assembleRelease"
       },
       "distribution": "store"
+    },
+    "local": {
+      "android": {
+        "gradleCommand": ":app:assembleRelease",
+        "buildType": "apk"
+      }
     }
   }
 }

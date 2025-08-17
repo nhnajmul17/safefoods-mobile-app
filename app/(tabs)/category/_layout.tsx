@@ -1,4 +1,4 @@
-import { lightGreenColor } from "@/constants/Colors";
+import { deepGreenColor } from "@/constants/Colors";
 import { Stack } from "expo-router";
 
 export default function CategoryLayout() {
@@ -20,7 +20,7 @@ export default function CategoryLayout() {
     <Stack
       screenOptions={{
         headerStyle: {
-          backgroundColor: "#98fb98",
+          backgroundColor: deepGreenColor,
         },
         headerTintColor: "#fff",
         headerTitleStyle: {
@@ -35,7 +35,7 @@ export default function CategoryLayout() {
           title: "Category",
           headerShown: true,
           headerTitleAlign: "center",
-          headerStyle: { backgroundColor: lightGreenColor },
+          headerStyle: { backgroundColor: deepGreenColor },
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 24,
