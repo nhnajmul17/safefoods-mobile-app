@@ -1,10 +1,18 @@
 import type React from "react";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Tabs } from "expo-router";
-import { View, TouchableOpacity, StyleSheet, Text } from "react-native";
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  Text,
+  Platform,
+  StatusBar as RNStatusBar,
+} from "react-native";
 import type { BottomTabNavigationOptions } from "@react-navigation/bottom-tabs";
 import { useCartStore } from "@/store/cartStore";
 import { deepGreenColor, yellowColor } from "@/constants/Colors";
+import { HEADER_HEIGHT } from "../_layout";
 import { CommonActions } from "@react-navigation/native";
 
 // Define navigation prop type
@@ -145,7 +153,25 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({
 
 export default function TabLayout() {
   return (
-    <Tabs tabBar={(props) => <CustomTabBar {...props} />}>
+    <Tabs
+      tabBar={(props) => <CustomTabBar {...props} />}
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: deepGreenColor,
+          height:
+            HEADER_HEIGHT +
+            (Platform.OS === "android" ? RNStatusBar.currentHeight || 0 : 0),
+          paddingTop:
+            Platform.OS === "android" ? RNStatusBar.currentHeight || 0 : 0,
+        },
+        headerTitleStyle: {
+          fontWeight: "bold",
+          fontSize: 24,
+          color: "#fff",
+        },
+        headerTitleAlign: "center",
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
@@ -179,14 +205,6 @@ export default function TabLayout() {
         options={{
           title: "Shop Now",
           headerShown: true,
-          headerTitleAlign: "center",
-
-          headerStyle: { backgroundColor: deepGreenColor, height: 90 },
-          headerTitleStyle: {
-            fontWeight: "bold",
-            fontSize: 24,
-            color: "#fff",
-          },
           tabBarIcon: ({ color, focused, size }) => (
             <IconSymbol size={size} name="cart.fill" color={color} />
           ),
@@ -197,14 +215,6 @@ export default function TabLayout() {
         options={{
           title: "Menu",
           headerShown: true,
-          headerTitleAlign: "center",
-
-          headerStyle: { backgroundColor: deepGreenColor, height: 90 },
-          headerTitleStyle: {
-            fontWeight: "bold",
-            fontSize: 24,
-            color: "#fff",
-          },
           tabBarLabel: "Menu",
           tabBarIcon: ({ color, focused, size }) => (
             <IconSymbol size={size} name="menu.fill" color={color} />
@@ -216,13 +226,6 @@ export default function TabLayout() {
         options={{
           title: "Cart",
           headerShown: true,
-          headerTitleAlign: "center",
-          headerStyle: { backgroundColor: deepGreenColor, height: 90 },
-          headerTitleStyle: {
-            fontWeight: "bold",
-            fontSize: 24,
-            color: "#fff",
-          },
           tabBarButton: () => null, // Hide the default tab bar button for cart
         }}
       />
@@ -241,6 +244,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     paddingHorizontal: 10,
     position: "relative",
+    // Remove extra margin/padding at top
+    marginTop: 0,
+    paddingTop: 0,
   },
   tabButton: {
     flex: 1,

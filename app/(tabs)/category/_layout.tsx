@@ -1,4 +1,6 @@
 import { deepGreenColor } from "@/constants/Colors";
+import { Platform, StatusBar as RNStatusBar } from "react-native";
+import { HEADER_HEIGHT } from "../../_layout";
 import { Stack } from "expo-router";
 
 export default function CategoryLayout() {
@@ -21,10 +23,17 @@ export default function CategoryLayout() {
       screenOptions={{
         headerStyle: {
           backgroundColor: deepGreenColor,
+          height:
+            HEADER_HEIGHT +
+            (Platform.OS === "android" ? RNStatusBar.currentHeight || 0 : 0),
+          paddingTop:
+            Platform.OS === "android" ? RNStatusBar.currentHeight || 0 : 0,
         },
         headerTintColor: "#fff",
         headerTitleStyle: {
           fontWeight: "bold",
+          fontSize: 24,
+          color: "#fff",
         },
         headerTitleAlign: "center",
       }}
@@ -34,13 +43,6 @@ export default function CategoryLayout() {
         options={{
           title: "Category",
           headerShown: true,
-          headerTitleAlign: "center",
-          headerStyle: { backgroundColor: deepGreenColor },
-          headerTitleStyle: {
-            fontWeight: "bold",
-            fontSize: 24,
-            color: "#fff",
-          },
         }}
       />
       <Stack.Screen

@@ -144,14 +144,8 @@ export default function HomeScreen() {
             {/* Header */}
             <View style={styles.appHeader}>
               <View style={styles.logoContainer}>
-                <Image
-                  source={safefoodLogoPng}
-                  style={styles.appLogo}
-                />
-                <Image
-                  source={safefoodTitlePng}
-                  style={styles.appTitle}
-                />
+                <Image source={safefoodLogoPng} style={styles.appLogo} />
+                <Image source={safefoodTitlePng} style={styles.appTitle} />
               </View>
               <View style={styles.userInfoContainer}>
                 {!userId ? (
@@ -255,12 +249,15 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    // Remove paddingTop so header background covers status bar
+    paddingTop: 0,
   },
   appHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingTop: 40,
+    // Remove paddingTop so header background covers status bar
+    paddingTop: 0,
     paddingBottom: 16,
     paddingHorizontal: 16,
     backgroundColor: deepGreenColor,
