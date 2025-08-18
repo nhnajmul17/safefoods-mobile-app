@@ -1,4 +1,4 @@
-import { Colors } from "@/constants/Colors";
+import { Colors, deepGreenColor } from "@/constants/Colors";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
   },
   seeAllText: {
     fontSize: 14,
-    color: "#27ae60",
+    color: deepGreenColor,
     fontWeight: "500",
   },
   categoriesContainer: {

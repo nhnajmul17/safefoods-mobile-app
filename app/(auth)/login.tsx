@@ -86,7 +86,7 @@ export default function LoginScreen() {
             // color: "#4f998e",
           }}
         >
-          Welcome Back to <Text style={{ color: "#4f998e" }}>Safe Foods</Text>
+          Welcome Back to <Text style={{ color: "#4f998e" }}>Safe Food</Text>
         </Text>
         <Text style={{ fontSize: 20, color: "#999", textAlign: "center" }}>
           Sign in with your credentials

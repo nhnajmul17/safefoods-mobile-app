@@ -23,7 +23,7 @@ import BannerCarousel from "@/components/homeScreen/bannerCarousel";
 import { useCartStore } from "@/store/cartStore";
 import { API_URL } from "@/constants/variables";
 import { router } from "expo-router";
-import safefoodTitlePng from "../../assets/images/safefood.png";
+// import safefoodTitlePng from "../../assets/images/safefood.png";
 import safefoodLogoPng from "../../assets/images/logo-safefood.png";
 
 export default function HomeScreen() {
@@ -144,14 +144,12 @@ export default function HomeScreen() {
             {/* Header */}
             <View style={styles.appHeader}>
               <View style={styles.logoContainer}>
-                <Image
-                  source={safefoodLogoPng}
-                  style={styles.appLogo}
-                />
-                <Image
-                  source={safefoodTitlePng}
-                  style={styles.appTitle}
-                />
+                <Image source={safefoodLogoPng} style={styles.appLogo} />
+                {/* <Image source={safefoodTitlePng} style={styles.appTitle} /> */}
+                <View style={{ flexDirection: "column", alignItems: "center" }}>
+                  <Text style={styles.appTitleText}>Safe Food</Text>
+                  <Text style={[styles.appSubtitleText]}>for your family</Text>
+                </View>
               </View>
               <View style={styles.userInfoContainer}>
                 {!userId ? (
@@ -281,6 +279,16 @@ const styles = StyleSheet.create({
     width: 100,
     height: 40,
     resizeMode: "contain",
+  },
+  appTitleText: {
+    fontSize: 30,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  appSubtitleText: {
+    fontSize: 14,
+    color: "#fff",
+    alignSelf: "center",
   },
   userInfoContainer: {
     flexDirection: "row",

@@ -225,7 +225,7 @@ const WhySafeFoodsSection = () => {
       style={[styles.section, { backgroundColor: Colors.light.background }]}
     >
       <Text style={[styles.sectionTitle, { color: Colors.light.text }]}>
-        Why Safe Foods
+        Why Safe Food
       </Text>
       <Text style={[styles.sectionDescription, { color: Colors.light.text }]}>
         We prioritize quality, freshness, and safety in every product we offer.

@@ -249,13 +249,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   shopNowButton: {
-    backgroundColor: "#27ae60",
+    backgroundColor: deepGreenColor,
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
   },
   shopNowButtonText: {
-    color: "#fff",
+    color: yellowColor,
     fontSize: 16,
     fontWeight: "bold",
   },

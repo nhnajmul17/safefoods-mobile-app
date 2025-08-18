@@ -25,7 +25,7 @@ const verifyOtpAPI = async (phone: string, otp: string, token: string) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "otp_verification_token": token,
+      otp_verification_token: token,
     },
     body: JSON.stringify({ phoneNumber: phone, otp: parseInt(otp) }),
   });
@@ -197,7 +197,7 @@ export default function LoginWithPhoneScreen() {
             textAlign: "center",
           }}
         >
-          Welcome Back to <Text style={{ color: "#4f998e" }}>Safe Foods</Text>
+          Welcome Back to <Text style={{ color: "#4f998e" }}>Safe Food</Text>
         </Text>
         <Text style={{ fontSize: 20, color: "#999", textAlign: "center" }}>
           Sign in with your phone

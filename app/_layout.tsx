@@ -38,16 +38,18 @@ export default function RootLayout() {
       <ThemeProvider
         value={colorScheme === "dark" ? DefaultTheme : DefaultTheme}
       >
-        <Stack screenOptions={{
-          headerStyle: {
-            backgroundColor: deepGreenColor,
-          },
-          headerTintColor: "#fff",
-          headerTitleStyle: {
-            fontWeight: "bold",
-          },
-          headerTitleAlign: "center",
-        }}>
+        <Stack
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: deepGreenColor,
+            },
+            headerTintColor: "#fff",
+            headerTitleStyle: {
+              fontWeight: "bold",
+            },
+            headerTitleAlign: "center",
+          }}
+        >
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
@@ -100,7 +102,7 @@ export default function RootLayout() {
           <Stack.Screen
             name="webview"
             options={{
-              headerTitle: "Safe Foods",
+              headerTitle: "Safe Food",
               headerTitleAlign: "center",
               headerTitleStyle: {
                 fontWeight: "bold",
