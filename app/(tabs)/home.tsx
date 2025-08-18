@@ -10,6 +10,7 @@ import {
   Animated,
   Easing,
   TouchableOpacity,
+  Platform,
 } from "react-native";
 import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -26,6 +27,7 @@ import { router } from "expo-router";
 // import safefoodTitlePng from "../../assets/images/safefood.png";
 import safefoodLogoPng from "../../assets/images/logo-safefood.png";
 
+const HEADER_HEIGHT = 90;
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
   const { userId, accessToken, userName } = useAuthStore();
@@ -118,13 +120,57 @@ export default function HomeScreen() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView
-        style={[styles.container, { backgroundColor: Colors.light.background }]}
-      >
-        <StatusBar
-          barStyle={colorScheme === "dark" ? "light-content" : "dark-content"}
-          backgroundColor={colorScheme === "dark" ? "#1a1a1a" : "#f5f5f5"}
-        />
+      <View style={styles.container}>
+        {/* Custom Header with consistent height */}
+        <View style={styles.appHeader}>
+          <View style={styles.logoContainer}>
+            <Image source={safefoodLogoPng} style={styles.appLogo} />
+            <View style={{ flexDirection: "column", alignItems: "center" }}>
+              <Text style={styles.appTitleText}>Safe Food</Text>
+              <Text style={[styles.appSubtitleText]}>for your family</Text>
+            </View>
+          </View>
+          <View style={styles.userInfoContainer}>
+            {!userId ? (
+              <TouchableOpacity
+                style={styles.iconCircle}
+                onPress={() => router.push("/login")}
+              >
+                <Icon name="person" size={24} color={deepGreenColor} />
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.userInfo}>
+                <View style={styles.userText}>
+                  <Text style={[styles.greeting, { color: Colors.dark.text }]}>
+                    {(() => {
+                      const hour = new Date().getHours();
+                      if (hour < 12) return "Good Morning";
+                      if (hour < 18) return "Good Afternoon";
+                      return "Good Evening";
+                    })()}
+                  </Text>
+                  <Text style={[styles.userName, { color: Colors.dark.text }]}>
+                    {userName || "John Abram"}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.avatarCircle}
+                  onPress={() => router.push("/profile")}
+                >
+                  <Image
+                    source={{
+                      uri: "https://randomuser.me/api/portraits/lego/5.jpg",
+                    }}
+                    style={styles.avatar}
+                    onError={(e) =>
+                      console.log("Avatar load error:", e.nativeEvent.error)
+                    }
+                  />
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        </View>
 
         {isReadyToRender && (
           <Animated.View
@@ -142,10 +188,9 @@ export default function HomeScreen() {
             }}
           >
             {/* Header */}
-            <View style={styles.appHeader}>
+            {/* <View style={styles.appHeader}>
               <View style={styles.logoContainer}>
                 <Image source={safefoodLogoPng} style={styles.appLogo} />
-                {/* <Image source={safefoodTitlePng} style={styles.appTitle} /> */}
                 <View style={{ flexDirection: "column", alignItems: "center" }}>
                   <Text style={styles.appTitleText}>Safe Food</Text>
                   <Text style={[styles.appSubtitleText]}>for your family</Text>
@@ -163,7 +208,7 @@ export default function HomeScreen() {
                   <View style={styles.userInfo}>
                     <View style={styles.userText}>
                       <Text
-                        style={[styles.greeting, { color: Colors.light.text }]}
+                        style={[styles.greeting, { color: Colors.dark.text }]}
                       >
                         {(() => {
                           const hour = new Date().getHours();
@@ -173,7 +218,7 @@ export default function HomeScreen() {
                         })()}
                       </Text>
                       <Text
-                        style={[styles.userName, { color: Colors.light.text }]}
+                        style={[styles.userName, { color: Colors.dark.text }]}
                       >
                         {userName || "John Abram"}
                       </Text>
@@ -195,7 +240,7 @@ export default function HomeScreen() {
                   </View>
                 )}
               </View>
-            </View>
+            </View> */}
 
             <ScrollView
               showsVerticalScrollIndicator={false}
@@ -245,7 +290,7 @@ export default function HomeScreen() {
             </ScrollView>
           </Animated.View>
         )}
-      </SafeAreaView>
+      </View>
     </GestureHandlerRootView>
   );
 }
@@ -253,17 +298,21 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.light.background,
   },
   appHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingTop: 40,
+    // Let React Navigation handle the height automatically
+    paddingTop:
+      Platform.OS === "ios" ? 50 : (StatusBar.currentHeight || 0) + 10,
     paddingBottom: 16,
     paddingHorizontal: 16,
     backgroundColor: deepGreenColor,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(0, 0, 0, 0.1)",
+    minHeight: 90, // Minimum height for consistency
   },
   logoContainer: {
     flexDirection: "row",
@@ -376,3 +425,9 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
 });
+
+export const LAYOUT_CONSTANTS = {
+  HEADER_HEIGHT: 90,
+  STATUS_BAR_HEIGHT: StatusBar.currentHeight || 44,
+  TOTAL_HEADER_HEIGHT: 90 + (StatusBar.currentHeight || 44),
+};

@@ -6,6 +6,7 @@ import type { BottomTabNavigationOptions } from "@react-navigation/bottom-tabs";
 import { useCartStore } from "@/store/cartStore";
 import { deepGreenColor, yellowColor } from "@/constants/Colors";
 import { CommonActions } from "@react-navigation/native";
+import { SHARED_HEADER_OPTIONS } from "@/constants/headerConfig";
 
 // Define navigation prop type
 type TabNavigation = {
@@ -145,7 +146,10 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({
 
 export default function TabLayout() {
   return (
-    <Tabs tabBar={(props) => <CustomTabBar {...props} />}>
+    <Tabs
+      tabBar={(props) => <CustomTabBar {...props} />}
+      screenOptions={SHARED_HEADER_OPTIONS}
+    >
       <Tabs.Screen
         name="index"
         options={{
@@ -157,8 +161,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="home"
         options={{
-          headerShown: false,
-          title: "Home",
+          headerShown: false, // We'll handle header in the component
+          title: "",
+          tabBarLabel: "Home",
           tabBarIcon: ({ color, focused, size }) => (
             <IconSymbol size={size} name="house.fill" color={color} />
           ),
@@ -178,15 +183,7 @@ export default function TabLayout() {
         name="shop-now"
         options={{
           title: "Shop Now",
-          headerShown: true,
-          headerTitleAlign: "center",
-
-          headerStyle: { backgroundColor: deepGreenColor, height: 90 },
-          headerTitleStyle: {
-            fontWeight: "bold",
-            fontSize: 24,
-            color: "#fff",
-          },
+          headerShown: false, // Stack will handle this
           tabBarIcon: ({ color, focused, size }) => (
             <IconSymbol size={size} name="cart.fill" color={color} />
           ),
@@ -198,13 +195,6 @@ export default function TabLayout() {
           title: "Menu",
           headerShown: true,
           headerTitleAlign: "center",
-
-          headerStyle: { backgroundColor: deepGreenColor, height: 90 },
-          headerTitleStyle: {
-            fontWeight: "bold",
-            fontSize: 24,
-            color: "#fff",
-          },
           tabBarLabel: "Menu",
           tabBarIcon: ({ color, focused, size }) => (
             <IconSymbol size={size} name="menu.fill" color={color} />
@@ -216,14 +206,7 @@ export default function TabLayout() {
         options={{
           title: "Cart",
           headerShown: true,
-          headerTitleAlign: "center",
-          headerStyle: { backgroundColor: deepGreenColor, height: 90 },
-          headerTitleStyle: {
-            fontWeight: "bold",
-            fontSize: 24,
-            color: "#fff",
-          },
-          tabBarButton: () => null, // Hide the default tab bar button for cart
+          tabBarButton: () => null,
         }}
       />
     </Tabs>

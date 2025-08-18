@@ -69,7 +69,7 @@ const ShopNowProductCard = ({
 
   return (
     <Animated.View style={[styles.productCard, cardStyle]}>
-      <Link href={`/(tabs)/category/(product-details)/${item.id}`}>
+      <Link href={`/(tabs)/shop-now/(product-details)/${item.id}`}>
         <Image
           source={{
             uri:

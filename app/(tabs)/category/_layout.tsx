@@ -1,4 +1,5 @@
 import { deepGreenColor } from "@/constants/Colors";
+import { SHARED_HEADER_OPTIONS } from "@/constants/headerConfig";
 import { Stack } from "expo-router";
 
 export default function CategoryLayout() {
@@ -17,30 +18,12 @@ export default function CategoryLayout() {
   };
 
   return (
-    <Stack
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: deepGreenColor,
-        },
-        headerTintColor: "#fff",
-        headerTitleStyle: {
-          fontWeight: "bold",
-        },
-        headerTitleAlign: "center",
-      }}
-    >
+    <Stack screenOptions={SHARED_HEADER_OPTIONS}>
       <Stack.Screen
         name="index"
         options={{
           title: "Category",
           headerShown: true,
-          headerTitleAlign: "center",
-          headerStyle: { backgroundColor: deepGreenColor },
-          headerTitleStyle: {
-            fontWeight: "bold",
-            fontSize: 24,
-            color: "#fff",
-          },
         }}
       />
       <Stack.Screen
@@ -58,7 +41,7 @@ export default function CategoryLayout() {
         name="(product-details)/[productId]"
         options={{
           headerShown: true,
-          headerTitle: "",
+          headerTitle: "Product Details",
         }}
       />
     </Stack>
