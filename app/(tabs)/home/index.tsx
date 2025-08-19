@@ -23,7 +23,7 @@ import BannerCarousel from "@/components/homeScreen/bannerCarousel";
 import { useCartStore } from "@/store/cartStore";
 import { API_URL } from "@/constants/variables";
 import { router } from "expo-router";
-import safefoodLogoPng from "../../assets/images/logo-safefood.png";
+import safefoodLogoPng from "@/assets/images/logo-safefood.png";
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();

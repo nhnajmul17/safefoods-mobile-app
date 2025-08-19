@@ -89,7 +89,7 @@ const BestSellingProductCard = ({
     <Animated.View style={[styles.productCard, cardStyle]}>
       <TouchableOpacity
         onPress={() =>
-          handleProductCardPress(`/category/(product-details)/${item.id}`)
+          handleProductCardPress(`/(tabs)/home/(product-details)/${item.id}`)
         }
       >
         <Image
@@ -119,7 +119,7 @@ const BestSellingProductCard = ({
               style={[
                 styles.variantBadge,
                 selectedVariant.id === variant.id &&
-                styles.selectedVariantBadge,
+                  styles.selectedVariantBadge,
               ]}
               onPress={() => handleVariantChange(variant)}
             >
@@ -127,7 +127,7 @@ const BestSellingProductCard = ({
                 style={[
                   styles.variantText,
                   selectedVariant.id === variant.id &&
-                  styles.selectedVariantText,
+                    styles.selectedVariantText,
                 ]}
               >
                 {variant.unitTitle}
