@@ -13,6 +13,7 @@ import "react-native-reanimated";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import Toast from "react-native-toast-message";
 import { deepGreenColor } from "@/constants/Colors";
+import { SHARED_HEADER_OPTIONS } from "@/constants/headerConfig";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -43,7 +44,7 @@ export default function RootLayout() {
           backgroundColor={deepGreenColor}
           translucent={false}
         />
-        <Stack>
+        <Stack screenOptions={SHARED_HEADER_OPTIONS}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />

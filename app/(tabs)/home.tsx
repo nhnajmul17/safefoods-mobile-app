@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import {
-  SafeAreaView,
   View,
   Text,
   Image,
@@ -24,10 +23,8 @@ import BannerCarousel from "@/components/homeScreen/bannerCarousel";
 import { useCartStore } from "@/store/cartStore";
 import { API_URL } from "@/constants/variables";
 import { router } from "expo-router";
-// import safefoodTitlePng from "../../assets/images/safefood.png";
 import safefoodLogoPng from "../../assets/images/logo-safefood.png";
 
-const HEADER_HEIGHT = 90;
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
   const { userId, accessToken, userName } = useAuthStore();
@@ -101,23 +98,6 @@ export default function HomeScreen() {
     return () => clearTimeout(timeout);
   }, []);
 
-  const textTransform = {
-    transform: [
-      {
-        scale: textZoomAnim.interpolate({
-          inputRange: [0, 1],
-          outputRange: [0.5, 1],
-        }),
-      },
-      {
-        translateY: textZoomAnim.interpolate({
-          inputRange: [0, 1],
-          outputRange: [50, 0],
-        }),
-      },
-    ],
-  };
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View style={styles.container}>
@@ -136,7 +116,7 @@ export default function HomeScreen() {
                 style={styles.iconCircle}
                 onPress={() => router.push("/login")}
               >
-                <Icon name="person" size={24} color={deepGreenColor} />
+                <Icon name="person" size={24} color="#fff" />
               </TouchableOpacity>
             ) : (
               <View style={styles.userInfo}>
@@ -155,7 +135,7 @@ export default function HomeScreen() {
                 </View>
                 <TouchableOpacity
                   style={styles.avatarCircle}
-                  onPress={() => router.push("/profile")}
+                  onPress={() => router.push("/menu")}
                 >
                   <Image
                     source={{
@@ -187,61 +167,6 @@ export default function HomeScreen() {
               ],
             }}
           >
-            {/* Header */}
-            {/* <View style={styles.appHeader}>
-              <View style={styles.logoContainer}>
-                <Image source={safefoodLogoPng} style={styles.appLogo} />
-                <View style={{ flexDirection: "column", alignItems: "center" }}>
-                  <Text style={styles.appTitleText}>Safe Food</Text>
-                  <Text style={[styles.appSubtitleText]}>for your family</Text>
-                </View>
-              </View>
-              <View style={styles.userInfoContainer}>
-                {!userId ? (
-                  <TouchableOpacity
-                    style={styles.iconCircle}
-                    onPress={() => router.push("/login")}
-                  >
-                    <Icon name="person" size={24} color={deepGreenColor} />
-                  </TouchableOpacity>
-                ) : (
-                  <View style={styles.userInfo}>
-                    <View style={styles.userText}>
-                      <Text
-                        style={[styles.greeting, { color: Colors.dark.text }]}
-                      >
-                        {(() => {
-                          const hour = new Date().getHours();
-                          if (hour < 12) return "Good Morning";
-                          if (hour < 18) return "Good Afternoon";
-                          return "Good Evening";
-                        })()}
-                      </Text>
-                      <Text
-                        style={[styles.userName, { color: Colors.dark.text }]}
-                      >
-                        {userName || "John Abram"}
-                      </Text>
-                    </View>
-                    <TouchableOpacity
-                      style={styles.avatarCircle}
-                      onPress={() => router.push("/profile")}
-                    >
-                      <Image
-                        source={{
-                          uri: "https://randomuser.me/api/portraits/lego/5.jpg",
-                        }}
-                        style={styles.avatar}
-                        onError={(e) =>
-                          console.log("Avatar load error:", e.nativeEvent.error)
-                        }
-                      />
-                    </TouchableOpacity>
-                  </View>
-                )}
-              </View>
-            </View> */}
-
             <ScrollView
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.scrollContent}

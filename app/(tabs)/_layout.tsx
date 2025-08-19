@@ -190,10 +190,10 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="menu"
         options={{
           title: "Menu",
-          headerShown: true,
+          headerShown: false,
           headerTitleAlign: "center",
           tabBarLabel: "Menu",
           tabBarIcon: ({ color, focused, size }) => (
@@ -205,7 +205,7 @@ export default function TabLayout() {
         name="cart"
         options={{
           title: "Cart",
-          headerShown: true,
+          headerShown: false,
           tabBarButton: () => null,
         }}
       />

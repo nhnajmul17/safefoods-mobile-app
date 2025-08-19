@@ -41,7 +41,7 @@ export default function CategoryLayout() {
         name="(product-details)/[productId]"
         options={{
           headerShown: true,
-          headerTitle: "Product Details",
+          headerTitle: "",
         }}
       />
     </Stack>
