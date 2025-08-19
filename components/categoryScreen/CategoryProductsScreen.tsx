@@ -9,13 +9,13 @@ import { useState, useEffect } from "react";
 import { useCartStore } from "@/store/cartStore";
 import Toast from "react-native-toast-message";
 import CategoryProductCard from "@/components/categoryScreen/categoryProductCard";
-import { allProductsData } from "@/hooks/productsData";
 import {
   ShopNowProduct,
   ProductVariant,
 } from "@/components/shopNowScreen/shopNowProductCard";
 import { API_URL } from "@/constants/variables";
 import { useAuthStore } from "@/store/authStore";
+import { Link } from "expo-router";
 
 interface QuantityMap {
   [productId: string]: number;
@@ -43,7 +43,6 @@ export default function CategoryProductsScreen({
     fetch(`${API_URL}/v1/products/category/${categoryTitle}`)
       .then((res) => res.json())
       .then((data) => {
-        // console.log("object", data);
         setProducts(data.data);
         setSelectedVariants(
           Object.fromEntries(
@@ -56,18 +55,6 @@ export default function CategoryProductsScreen({
         setLoading(false);
       })
       .catch(() => setLoading(false));
-
-    // Local data
-    // const filtered = allProductsData.filter(
-    //   (product) => product.categorySlug === categoryTitle
-    // );
-    // setProducts(filtered);
-    // setSelectedVariants(
-    //   Object.fromEntries(
-    //     filtered.map((product) => [product.id, product.variants[0]])
-    //   )
-    // );
-    // setLoading(false);
   }, [categoryTitle]);
 
   const handleAddToCart = (
@@ -147,11 +134,13 @@ export default function CategoryProductsScreen({
             setSelectedVariants={setSelectedVariants}
             setQuantities={setQuantities}
             handleAddToCart={handleAddToCart}
-            isSingleItem={isSingleItem} // Pass the single item flag
+            isSingleItem={isSingleItem}
           />
         )}
         numColumns={2}
-        columnWrapperStyle={styles.columnWrapper}
+        columnWrapperStyle={
+          isSingleItem ? styles.singleColumnWrapper : styles.columnWrapper
+        }
         contentContainerStyle={styles.contentContainer}
         initialNumToRender={4}
         maxToRenderPerBatch={4}
@@ -170,11 +159,13 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: "#f9f9f9",
-    justifyContent: "center",
-    alignItems: "center",
   },
   columnWrapper: {
     justifyContent: "space-between",
+    paddingHorizontal: 4,
+  },
+  singleColumnWrapper: {
+    justifyContent: "flex-start",
     paddingHorizontal: 4,
   },
   contentContainer: {
