@@ -6,7 +6,7 @@ import type { BottomTabNavigationOptions } from "@react-navigation/bottom-tabs";
 import { useCartStore } from "@/store/cartStore";
 import { deepGreenColor, yellowColor } from "@/constants/Colors";
 import { CommonActions } from "@react-navigation/native";
-import { SHARED_HEADER_OPTIONS } from "@/constants/headerConfig";
+import { CUSTOM_HEADER_OPTIONS } from "@/constants/headerConfig";
 
 // Define navigation prop type
 type TabNavigation = {
@@ -148,7 +148,7 @@ export default function TabLayout() {
   return (
     <Tabs
       tabBar={(props) => <CustomTabBar {...props} />}
-      screenOptions={SHARED_HEADER_OPTIONS}
+      screenOptions={CUSTOM_HEADER_OPTIONS}
     >
       <Tabs.Screen
         name="index"

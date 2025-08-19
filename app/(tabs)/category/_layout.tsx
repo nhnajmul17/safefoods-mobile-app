@@ -1,9 +1,9 @@
-import { deepGreenColor } from "@/constants/Colors";
-import { SHARED_HEADER_OPTIONS } from "@/constants/headerConfig";
+import { CustomHeader } from "@/components/common/customerHeader";
+import { CUSTOM_HEADER_OPTIONS } from "@/constants/headerConfig";
+
 import { Stack } from "expo-router";
 
 export default function CategoryLayout() {
-  // Map to convert slug to display title
   const categoryTitles: { [key: string]: string } = {
     protein: "Protein",
     dairy: "Dairy",
@@ -18,22 +18,24 @@ export default function CategoryLayout() {
   };
 
   return (
-    <Stack screenOptions={SHARED_HEADER_OPTIONS}>
+    <Stack screenOptions={CUSTOM_HEADER_OPTIONS}>
       <Stack.Screen
         name="index"
         options={{
-          title: "Category",
           headerShown: true,
+          header: () => <CustomHeader title="Category" />,
         }}
       />
       <Stack.Screen
         name="[category]"
         options={({ route }) => {
-          // Safe access to route params
           const params = route.params as { category?: string };
           const category = params?.category || "";
+          const title = categoryTitles[category] || "Category";
+
           return {
-            title: categoryTitles[category] || "Category",
+            headerShown: true,
+            header: () => <CustomHeader title={title} canGoBack={true} />,
           };
         }}
       />
@@ -41,7 +43,7 @@ export default function CategoryLayout() {
         name="(product-details)/[productId]"
         options={{
           headerShown: true,
-          headerTitle: "",
+          header: () => <CustomHeader title="" canGoBack={true} />,
         }}
       />
     </Stack>

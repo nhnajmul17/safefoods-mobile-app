@@ -13,7 +13,11 @@ import "react-native-reanimated";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import Toast from "react-native-toast-message";
 import { deepGreenColor } from "@/constants/Colors";
-import { SHARED_HEADER_OPTIONS } from "@/constants/headerConfig";
+import {
+  CUSTOM_HEADER_OPTIONS,
+  SHARED_HEADER_OPTIONS,
+} from "@/constants/headerConfig";
+import { CustomHeader } from "@/components/common/customerHeader";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -44,65 +48,45 @@ export default function RootLayout() {
           backgroundColor={deepGreenColor}
           translucent={false}
         />
-        <Stack screenOptions={SHARED_HEADER_OPTIONS}>
+        <Stack screenOptions={CUSTOM_HEADER_OPTIONS}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
           <Stack.Screen
             name="checkout"
             options={{
-              headerTitle: "Checkout",
-              headerTitleAlign: "center",
-              headerStyle: { backgroundColor: deepGreenColor },
-              headerTitleStyle: {
-                fontWeight: "bold",
-                fontSize: 24,
-                color: "#fff",
-              },
+              headerShown: true,
+              header: () => <CustomHeader title="Checkout" canGoBack={true} />,
             }}
           />
           <Stack.Screen
             name="my-orders"
             options={{
-              headerTitle: "My Orders",
-              headerTitleAlign: "center",
-              headerTitleStyle: {
-                fontWeight: "bold",
-                fontSize: 24,
-              },
+              headerShown: true,
+              header: () => <CustomHeader title="My Orders" canGoBack={true} />,
             }}
           />
           <Stack.Screen
             name="my-profile"
             options={{
-              headerTitle: "My Profile",
-              headerTitleAlign: "center",
-              headerTitleStyle: {
-                fontWeight: "bold",
-                fontSize: 24,
-              },
+              headerShown: true,
+              header: () => (
+                <CustomHeader title="My Profile" canGoBack={true} />
+              ),
             }}
           />
           <Stack.Screen
             name="settings"
             options={{
-              headerTitle: "Settings",
-              headerTitleAlign: "center",
-              headerTitleStyle: {
-                fontWeight: "bold",
-                fontSize: 24,
-              },
+              headerShown: true,
+              header: () => <CustomHeader title="Settings" canGoBack={true} />,
             }}
           />
           <Stack.Screen
             name="webview"
             options={{
-              headerTitle: "Safe Food",
-              headerTitleAlign: "center",
-              headerTitleStyle: {
-                fontWeight: "bold",
-                fontSize: 20,
-              },
+              headerShown: true,
+              header: () => <CustomHeader title="Safe Food" canGoBack={true} />,
             }}
           />
         </Stack>

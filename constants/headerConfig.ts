@@ -12,3 +12,8 @@ export const SHARED_HEADER_OPTIONS = {
   },
   headerTitleAlign: "center" as const,
 };
+
+// Export the custom header options
+export const CUSTOM_HEADER_OPTIONS = {
+  headerShown: false, // Hide default header since we're using custom
+};
