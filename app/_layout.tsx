@@ -17,7 +17,7 @@ import {
   CUSTOM_HEADER_OPTIONS,
   SHARED_HEADER_OPTIONS,
 } from "@/constants/headerConfig";
-import { CustomHeader } from "@/components/common/customerHeader";
+import { CustomHeader } from "@/components/common/customHeader";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();

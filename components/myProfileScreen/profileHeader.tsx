@@ -34,7 +34,9 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     <View style={styles.profileSection}>
       <View style={styles.header}>
         <Image
-          source={{ uri: "https://randomuser.me/api/portraits/men/44.jpg" }}
+          source={{
+            uri: "https://cdn-icons-png.flaticon.com/512/847/847969.png",
+          }}
           style={styles.profileImage}
         />
         <View>

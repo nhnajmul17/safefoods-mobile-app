@@ -1,4 +1,4 @@
-import { CustomHeader } from "@/components/common/customerHeader";
+import { CustomHeader } from "@/components/common/customHeader";
 import { CUSTOM_HEADER_OPTIONS } from "@/constants/headerConfig";
 
 import { Stack } from "expo-router";

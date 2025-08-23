@@ -139,7 +139,7 @@ export default function HomeScreen() {
                 >
                   <Image
                     source={{
-                      uri: "https://randomuser.me/api/portraits/lego/5.jpg",
+                      uri: "https://cdn-icons-png.flaticon.com/512/847/847969.png",
                     }}
                     style={styles.avatar}
                     onError={(e) =>

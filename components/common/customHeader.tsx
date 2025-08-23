@@ -14,7 +14,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { deepGreenColor } from "@/constants/Colors";
 
-const CUSTOM_HEADER_HEIGHT = 120; // Increase this to your desired height
+const CUSTOM_HEADER_HEIGHT = 100; // Increase this to your desired height
+
 const STATUS_BAR_HEIGHT =
   Platform.OS === "ios" ? 44 : StatusBar.currentHeight || 0;
 const CONTENT_HEIGHT = 60; // Height of the actual content area

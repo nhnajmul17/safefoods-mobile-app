@@ -28,7 +28,7 @@ const verifyOtpAPI = async (email: string, token: string, code: string) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        forgot_password_token: token,
+        "forgot-password-token": token,
       },
       body: JSON.stringify({ email, otp: parseInt(code) }),
     }

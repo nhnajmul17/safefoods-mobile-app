@@ -23,7 +23,7 @@ const resetPasswordAPI = async (
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      forgot_password_token: token,
+      "forgot-password-token": token,
     },
     body: JSON.stringify({ email, password, confirmPassword }),
   });
