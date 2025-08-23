@@ -5,21 +5,24 @@ import {
   TextInput,
   FlatList,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { Picker } from "@react-native-picker/picker";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useCartStore } from "@/store/cartStore";
 import Toast from "react-native-toast-message";
-import { Feather, Ionicons } from "@expo/vector-icons";
-import { Colors, deepGreenColor, yellowColor } from "@/constants/Colors";
+import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { deepGreenColor, yellowColor } from "@/constants/Colors";
 import ShopNowProductCard, {
   ShopNowProduct,
   ProductVariant,
 } from "@/components/shopNowScreen/shopNowProductCard";
 import { API_URL } from "@/constants/variables";
 import { CustomLoader } from "@/components/common/loader";
-import { categories } from "@/components/categoryScreen/lib/categoryDataAndTypes";
 import { useAuthStore } from "@/store/authStore";
+
+interface QuantityMap {
+  [productId: string]: number;
+}
 
 const getProductsAPI = async (
   page: number,
@@ -47,52 +50,125 @@ export default function ShopNowScreen() {
   const { addItem } = useCartStore();
   const { userId, accessToken } = useAuthStore();
   const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState<ShopNowProduct[]>([]);
   const [quantities, setQuantities] = useState<QuantityMap>({});
-  const [showFilterDrawer, setShowFilterDrawer] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [sortOption, setSortOption] = useState("None");
   const [page, setPage] = useState(1);
   const [products, setProducts] = useState<ShopNowProduct[]>([]);
   const [totalProducts, setTotalProducts] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | number | null>(null);
 
-  // Reset products and page when search query changes
-  const resetSearch = useCallback(() => {
-    setProducts([]);
-    setPage(1);
-    setTotalProducts(0);
-  }, []);
+  // Enhanced search with better UX
+  const performSearch = useCallback(
+    async (
+      query: string,
+      pageNum: number = 1,
+      isNewSearch: boolean = false
+    ) => {
+      if (!query.trim()) {
+        setSearchResults([]);
+        return;
+      }
 
-  // Debounced search function
-  const debouncedFetchProducts = useCallback(
-    async (page: number, searchQuery: string, isNewSearch: boolean = false) => {
       try {
-        setLoading(true);
-        setError(null);
-        const data = await getProductsAPI(page, 4, searchQuery);
-        // console.log("Fetched products:", data.data);
+        if (isNewSearch) {
+          setIsSearching(true);
+        }
+
+        const data = await getProductsAPI(pageNum, 6, query); // Using limit=1 for testing
+
         if (data.success) {
-          setProducts((prev) => {
-            // If it's a new search or first page, replace products
-            if (isNewSearch || page === 1) {
-              return data.data;
-            }
-            // Otherwise, append new products (for load more)
-            return [
-              ...prev,
-              ...data.data.filter(
-                (newItem: ShopNowProduct) =>
-                  !prev.some((existingItem) => existingItem.id === newItem.id)
-              ),
-            ];
-          });
+          setSearchResults((prev) =>
+            isNewSearch
+              ? data.data
+              : [
+                  ...prev,
+                  ...data.data.filter(
+                    (newItem: ShopNowProduct) =>
+                      !prev.some(
+                        (existingItem) => existingItem.id === newItem.id
+                      )
+                  ),
+                ]
+          );
           setTotalProducts(data.pagination?.totalRecords || data.data.length);
-        } else {
-          throw new Error("Failed to fetch products");
         }
       } catch (err) {
-        setError("Failed to load products. Please try again later.");
+        console.error("Search error:", err);
+        Toast.show({
+          type: "error",
+          text1: "Search Error",
+          text2: "Failed to search products. Please try again.",
+        });
+      } finally {
+        setIsSearching(false);
+      }
+    },
+    [searchResults]
+  );
+
+  // Debounced search handler
+  const handleSearchChange = useCallback(
+    (text: string) => {
+      setSearchQuery(text);
+
+      // Clear previous timeout
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+
+      if (!text.trim()) {
+        setSearchResults([]);
+        setIsSearching(false);
+        // Fetch initial products when search is cleared
+        setPage(1);
+        setProducts([]);
+        fetchInitialProducts(1, true);
+        return;
+      }
+
+      // Show searching state immediately
+      setIsSearching(true);
+
+      // Debounce search
+      searchTimeoutRef.current = setTimeout(() => {
+        setPage(1);
+        setProducts([]);
+        performSearch(text, 1, true);
+      }, 800);
+    },
+    [performSearch]
+  );
+
+  // Initial data fetch
+  const fetchInitialProducts = useCallback(
+    async (pageNum: number, isNewFetch: boolean = false) => {
+      try {
+        if (isNewFetch) setLoading(true);
+        setError(null);
+
+        const data = await getProductsAPI(pageNum, 6, "");
+
+        if (data.success) {
+          setProducts((prev) =>
+            isNewFetch
+              ? data.data
+              : [
+                  ...prev,
+                  ...data.data.filter(
+                    (newItem: ShopNowProduct) =>
+                      !prev.some(
+                        (existingItem) => existingItem.id === newItem.id
+                      )
+                  ),
+                ]
+          );
+          setTotalProducts(data.pagination?.totalRecords || data.data.length);
+        }
+      } catch (err) {
+        setError("Failed to load products. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -100,53 +176,34 @@ export default function ShopNowScreen() {
     []
   );
 
-  // Handle search query changes with debouncing
+  // Initial load
   useEffect(() => {
-    const timer = setTimeout(() => {
-      // Reset products when search query changes
-      if (page === 1) {
-        debouncedFetchProducts(1, searchQuery, true);
-      }
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [searchQuery, debouncedFetchProducts]);
+    fetchInitialProducts(1, true);
+  }, [fetchInitialProducts]);
 
   // Handle page changes (for load more)
   useEffect(() => {
     if (page > 1) {
-      debouncedFetchProducts(page, searchQuery, false);
+      if (searchQuery.trim()) {
+        performSearch(searchQuery, page, false);
+      } else {
+        fetchInitialProducts(page, false);
+      }
     }
-  }, [page, debouncedFetchProducts, searchQuery]);
+  }, [page, fetchInitialProducts, performSearch, searchQuery]);
 
-  // Reset to first page when search query changes
-  useEffect(() => {
-    setPage(1);
-    setProducts([]);
-  }, [searchQuery]);
-
-  const filteredProducts = useMemo(() => {
-    let result = [...products];
-
-    // Apply category filter on frontend (only for non-search results)
-    if (selectedCategory !== "All" && !searchQuery) {
-      result = result.filter(
-        (product) => product.categorySlug === selectedCategory
-      );
+  // Get display products based on search state
+  const displayProducts = useMemo(() => {
+    if (searchQuery.trim() && searchResults.length > 0) {
+      return searchResults;
     }
 
-    // Apply sorting
-    if (sortOption === "Low to High") {
-      result.sort((a, b) => a.variants[0].price - b.variants[0].price);
-    } else if (sortOption === "High to Low") {
-      result.sort((a, b) => b.variants[0].price - a.variants[0].price);
+    if (searchQuery.trim() && !isSearching) {
+      return []; // Show no results when search is done but no results
     }
 
-    return result;
-  }, [products, selectedCategory, sortOption, searchQuery]);
-
-  interface QuantityMap {
-    [productId: string]: number;
-  }
+    return [...products];
+  }, [products, searchResults, searchQuery, isSearching]);
 
   const handleQuantityChange = (item: ShopNowProduct, delta: number) => {
     setQuantities((prev: QuantityMap) => {
@@ -197,18 +254,16 @@ export default function ShopNowScreen() {
     }
   };
 
-  const isFilterActive =
-    selectedCategory !== "All" || sortOption !== "None" || searchQuery !== "";
+  const isFilterActive = searchQuery !== "";
 
   const handleClearFilters = () => {
-    setSelectedCategory("All");
-    setSortOption("None");
     setSearchQuery("");
+    setSearchResults([]);
     setPage(1);
     setProducts([]);
     // Trigger fresh fetch without search
     setTimeout(() => {
-      debouncedFetchProducts(1, "", true);
+      fetchInitialProducts(1, true);
     }, 100);
   };
 
@@ -228,7 +283,7 @@ export default function ShopNowScreen() {
             setPage(1);
             setProducts([]);
             setLoading(true);
-            debouncedFetchProducts(1, searchQuery, true);
+            fetchInitialProducts(1, true);
           }}
         >
           <Text style={styles.retryText}>Retry</Text>
@@ -239,35 +294,41 @@ export default function ShopNowScreen() {
 
   return (
     <View style={styles.container}>
-      <View
-        style={[
-          styles.searchContainer,
-          { backgroundColor: Colors.light.background },
-        ]}
-      >
-        <Feather
-          name="search"
-          size={20}
-          color={Colors.light.text}
-          style={styles.searchIcon}
-        />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search products..."
-          placeholderTextColor="#1a1a1a"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
+      <View style={styles.searchContainer}>
+        <View style={styles.searchInputContainer}>
+          <Feather
+            name="search"
+            size={20}
+            color={deepGreenColor}
+            style={styles.searchIcon}
+          />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search for fresh products..."
+            placeholderTextColor="#999"
+            value={searchQuery}
+            onChangeText={handleSearchChange}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity
+              onPress={handleClearFilters}
+              style={styles.clearSearchButton}
+            >
+              <Ionicons name="close-circle" size={20} color="#999" />
+            </TouchableOpacity>
+          )}
+        </View>
+        {isSearching && (
+          <View style={styles.searchLoadingContainer}>
+            <ActivityIndicator size="small" color={deepGreenColor} />
+            <Text style={styles.searchingText}>Searching...</Text>
+          </View>
+        )}
       </View>
 
       <View style={styles.headerRow}>
-        <TouchableOpacity
-          onPress={() => setShowFilterDrawer(!showFilterDrawer)}
-        >
-          <Ionicons name="filter" size={26} color={deepGreenColor} />
-        </TouchableOpacity>
         <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-          {isFilterActive && `${filteredProducts.length} Results`}
+          {isFilterActive && `${displayProducts.length} Results`}
         </Text>
         {isFilterActive && (
           <TouchableOpacity
@@ -279,51 +340,8 @@ export default function ShopNowScreen() {
         )}
       </View>
 
-      {showFilterDrawer && (
-        <View style={styles.filterDrawer}>
-          <Text style={styles.modalLabel}>Category</Text>
-          <Picker
-            selectedValue={selectedCategory}
-            onValueChange={(itemValue) => {
-              setShowFilterDrawer(!showFilterDrawer);
-              setSelectedCategory(itemValue);
-              setPage(1);
-            }}
-            style={{ color: "#1a1a1a" }}
-            dropdownIconColor="#1a1a1a"
-          >
-            <Picker.Item label="All" value="All" />
-            {categories.map((category) => (
-              <Picker.Item
-                key={category.id}
-                label={
-                  category.name.charAt(0).toUpperCase() + category.name.slice(1)
-                }
-                value={category.slug}
-              />
-            ))}
-          </Picker>
-
-          <Text style={styles.modalLabel}>Sort By Price</Text>
-          <Picker
-            selectedValue={sortOption}
-            onValueChange={(itemValue) => {
-              setSortOption(itemValue);
-              setShowFilterDrawer(!showFilterDrawer);
-              setPage(1);
-            }}
-            style={{ color: "#1a1a1a" }}
-            dropdownIconColor="#1a1a1a"
-          >
-            <Picker.Item label="None" value="None" />
-            <Picker.Item label="Low to High" value="Low to High" />
-            <Picker.Item label="High to Low" value="High to Low" />
-          </Picker>
-        </View>
-      )}
-
       <FlatList
-        data={filteredProducts}
+        data={displayProducts}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <ShopNowProductCard
@@ -341,12 +359,30 @@ export default function ShopNowScreen() {
         maxToRenderPerBatch={4}
         windowSize={5}
         showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>No products available.</Text>
-        }
+        ListEmptyComponent={() => (
+          <View style={styles.emptyContainer}>
+            {searchQuery.trim() && !isSearching ? (
+              <>
+                <Feather name="search" size={64} color="#ccc" />
+                <Text style={styles.emptyTitle}>No products found</Text>
+                <Text style={styles.emptyText}>
+                  Try adjusting your search terms or filters
+                </Text>
+              </>
+            ) : (
+              <>
+                <MaterialIcons name="inventory-2" size={64} color="#ccc" />
+                <Text style={styles.emptyTitle}>No products available</Text>
+                <Text style={styles.emptyText}>
+                  Check back later for new products
+                </Text>
+              </>
+            )}
+          </View>
+        )}
       />
 
-      {products.length < totalProducts && !searchQuery && (
+      {displayProducts.length < totalProducts && (
         <TouchableOpacity
           style={styles.loadMoreButton}
           onPress={() => setPage((prev) => prev + 1)}
@@ -367,6 +403,48 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: "#f9f9f9",
   },
+  searchContainer: {
+    backgroundColor: "#fff",
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    borderRadius: 12,
+    marginBottom: 12,
+    overflow: "hidden",
+  },
+  searchInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  searchIcon: {
+    marginRight: 12,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: "#333",
+  },
+  clearSearchButton: {
+    marginLeft: 8,
+    padding: 4,
+  },
+  searchLoadingContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 8,
+    backgroundColor: "#f0f0f0",
+  },
+  searchingText: {
+    marginLeft: 8,
+    color: deepGreenColor,
+    fontSize: 14,
+  },
   headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -383,38 +461,27 @@ const styles = StyleSheet.create({
     color: "#333",
     fontWeight: "600",
   },
-  searchContainer: {
-    flexDirection: "row",
+  columnWrapper: {
+    justifyContent: "space-between",
+    paddingHorizontal: 4,
+  },
+  emptyContainer: {
     alignItems: "center",
-    borderRadius: 12,
-    marginHorizontal: 8,
-    marginVertical: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    justifyContent: "center",
+    paddingVertical: 60,
   },
-  searchIcon: {
-    marginRight: 8,
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#666",
+    marginTop: 16,
+    marginBottom: 8,
   },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-  },
-  filterDrawer: {
-    backgroundColor: "#fff",
-    padding: 10,
-    borderRadius: 10,
-    marginBottom: 10,
-    elevation: 2,
-  },
-  modalLabel: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginVertical: 5,
+  emptyText: {
+    fontSize: 14,
+    color: "#999",
+    textAlign: "center",
+    paddingHorizontal: 32,
   },
   loadMoreButton: {
     backgroundColor: deepGreenColor,
@@ -427,21 +494,6 @@ const styles = StyleSheet.create({
     color: yellowColor,
     fontSize: 16,
     fontWeight: "bold",
-  },
-  columnWrapper: {
-    justifyContent: "space-between",
-    paddingHorizontal: 4,
-  },
-  loaderContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f9f9f9",
-  },
-  loaderText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: Colors.light.text,
   },
   errorContainer: {
     flex: 1,
@@ -463,11 +515,5 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 14,
     fontWeight: "bold",
-  },
-  emptyText: {
-    textAlign: "center",
-    fontSize: 16,
-    color: "#666",
-    padding: 20,
   },
 });
