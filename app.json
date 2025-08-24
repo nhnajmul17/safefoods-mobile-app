@@ -20,7 +20,8 @@
     "android": {
       "package": "safefoods.com.bd",
       "versionCode": 1,
-      "permissions": [],
+      "permissions": ["android.permission.INTERNET"],
+      "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo-safefood.png",
         "backgroundColor": "#ffffff"

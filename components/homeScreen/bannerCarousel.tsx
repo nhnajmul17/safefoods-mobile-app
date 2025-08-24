@@ -31,17 +31,17 @@ const staticBanners: BannerItem[] = [
   {
     id: "1",
     imageUrl:
-      "https://safefoods.com.bd/_next/image?url=http%3A%2F%2Fres.cloudinary.com%2Fdymnymsph%2Fimage%2Fupload%2Fv1725527240%2Fsafefoods%2Fxf1g1pttbbebfcewremd.png&w=640&q=75",
+      "https://res.cloudinary.com/dymnymsph/image/upload/v1752568782/safefoods/xfefedgstnnaq4tobunx.png",
   },
   {
     id: "2",
     imageUrl:
-      "https://safefoods.com.bd/_next/image?url=http%3A%2F%2Fres.cloudinary.com%2Fdymnymsph%2Fimage%2Fupload%2Fv1697759639%2Fsafefoods%2Fyhfifyae10ohhi61vtxv.png&w=640&q=75",
+      "https://res.cloudinary.com/dymnymsph/image/upload/v1752568679/safefoods/gmpio2pnmi6cwyatxjy1.png",
   },
   {
     id: "3",
     imageUrl:
-      "https://safefoods.com.bd/_next/image?url=http%3A%2F%2Fres.cloudinary.com%2Fdymnymsph%2Fimage%2Fupload%2Fv1698918817%2Fsafefoods%2Fkl5ytr2ttjy9w61jrhym.jpg&w=640&q=75",
+      "https://res.cloudinary.com/dymnymsph/image/upload/v1752568607/safefoods/slkwfg82txztkdjhd4sm.png",
   },
 ];
 
@@ -76,33 +76,44 @@ const BannerCarousel = () => {
   const [apiBanners, setApiBanners] = useState<BannerItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Determine which banners to use (API or static)
-  const banners = apiBanners.length > 0 ? apiBanners : staticBanners;
-  // Create infinite banners for scrolling
-  const infiniteBanners = [...banners, ...banners, ...banners];
+  // Function to ensure HTTPS
+  const ensureHttps = (url: string): string => {
+    if (url.startsWith("http://")) {
+      return url.replace("http://", "https://");
+    }
+    return url;
+  };
 
-  // Function to get image dimensions
+  // Function to get image dimensions with better error handling
   const getImageAspectRatio = (url: string): Promise<number> => {
+    const secureUrl = ensureHttps(url);
+
     return new Promise((resolve) => {
       Image.getSize(
-        url,
+        secureUrl,
         (width, height) => {
           resolve(width / height);
         },
-        () => {
-          // If there's an error, use a default aspect ratio
-          resolve(16 / 9);
+        (error) => {
+          console.log("Error getting image size:", error);
+          resolve(16 / 9); // Default aspect ratio
         }
       );
     });
   };
 
-  // Fetch API data and calculate aspect ratios
+  // Determine which banners to use (API or static)
+  const banners = apiBanners.length > 0 ? apiBanners : staticBanners;
+  // Create infinite banners for scrolling
+  const infiniteBanners = [...banners, ...banners, ...banners];
+
+  // Fetch API data
   useEffect(() => {
     const fetchSliders = async () => {
       try {
         const response = await fetch(`${API_URL}/v1/sliders`);
         const result = await response.json();
+
         if (result.success && result.data && result.data.length > 0) {
           // Map API response to BannerItem format
           const mappedBanners: BannerItem[] = await Promise.all(
@@ -110,27 +121,35 @@ const BannerCarousel = () => {
               const aspectRatio = await getImageAspectRatio(slider.url);
               return {
                 id: slider.id,
-                imageUrl: slider.url,
+                imageUrl: ensureHttps(slider.url),
                 aspectRatio,
               };
             })
           );
           setApiBanners(mappedBanners);
+        } else {
+          // Use static banners with HTTPS and calculated aspect ratios
+          const staticBannersWithRatios = await Promise.all(
+            staticBanners.map(async (banner) => {
+              const aspectRatio = await getImageAspectRatio(banner.imageUrl);
+              return {
+                ...banner,
+                imageUrl: ensureHttps(banner.imageUrl),
+                aspectRatio,
+              };
+            })
+          );
+          setApiBanners(staticBannersWithRatios);
         }
       } catch (error) {
         console.error("Error fetching sliders:", error);
-        // Fall back to static banners in case of error
-        // Also calculate aspect ratios for static banners
-        const staticBannersWithRatios = await Promise.all(
-          staticBanners.map(async (banner) => {
-            const aspectRatio = await getImageAspectRatio(banner.imageUrl);
-            return {
-              ...banner,
-              aspectRatio,
-            };
-          })
-        );
-        setApiBanners(staticBannersWithRatios);
+        // Use static banners as fallback with HTTPS
+        const staticBannersWithHttps = staticBanners.map((banner) => ({
+          ...banner,
+          imageUrl: ensureHttps(banner.imageUrl),
+          aspectRatio: 16 / 9, // Default aspect ratio
+        }));
+        setApiBanners(staticBannersWithHttps);
       } finally {
         setIsLoading(false);
       }
@@ -189,7 +208,7 @@ const BannerCarousel = () => {
   };
 
   useEffect(() => {
-    if (!isLoading) {
+    if (!isLoading && banners.length > 0) {
       // Initial scroll to middle section
       requestAnimationFrame(() => {
         scrollToIndex(banners.length, false);
@@ -275,12 +294,13 @@ const BannerCarousel = () => {
             source={{ uri: item.imageUrl }}
             style={[styles.bannerImage, { height: imageHeight }]}
             resizeMode="cover"
-            onError={(e) =>
+            onError={(e) => {
               console.log(
                 `Banner image load error (${item.id}):`,
                 e.nativeEvent.error
-              )
-            }
+              );
+              // You could set a fallback image here
+            }}
           />
         </View>
       </Animated.View>
@@ -337,12 +357,12 @@ const BannerCarousel = () => {
   if (isLoading) {
     return (
       <View style={styles.container}>
-        <View style={styles.imageContainer}>
+        <View style={[styles.imageContainer, { height: 200 }]}>
           <Image
             source={{
               uri: "https://via.placeholder.com/640x200?text=Loading...",
             }}
-            style={styles.bannerImage}
+            style={[styles.bannerImage, { height: 200 }]}
             resizeMode="cover"
           />
         </View>
@@ -389,7 +409,7 @@ const styles = StyleSheet.create({
   container: {
     marginVertical: 15,
     position: "relative",
-    minHeight: 100, // Set a minimum height
+    minHeight: 150, // Set a minimum height
   },
   contentContainer: {
     paddingHorizontal: 20,
