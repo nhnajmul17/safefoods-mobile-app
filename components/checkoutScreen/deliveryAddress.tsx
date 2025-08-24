@@ -39,6 +39,7 @@ export const DeliveryAddressSection = ({
           selectedValue={selectedAddressId}
           onValueChange={(itemValue) => onAddressSelect(itemValue as string)}
           style={styles.picker}
+          dropdownIconColor="#333"
         >
           {addresses.map((address) => (
             <Picker.Item
@@ -72,6 +73,7 @@ const styles = StyleSheet.create({
   picker: {
     height: 50,
     width: "100%",
+    color: "#333",
   },
   deliveryChargeText: {
     fontSize: 16,

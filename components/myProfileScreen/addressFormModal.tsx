@@ -154,18 +154,21 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
           <TextInput
             style={styles.formInput}
             placeholder="Flat No *"
+            placeholderTextColor="#999"
             value={formData.flatNo}
             onChangeText={(text) => setFormData({ ...formData, flatNo: text })}
           />
           <TextInput
             style={styles.formInput}
             placeholder="Floor No *"
+            placeholderTextColor="#999"
             value={formData.floorNo}
             onChangeText={(text) => setFormData({ ...formData, floorNo: text })}
           />
           <TextInput
             style={styles.formInput}
             placeholder="Address Line *"
+            placeholderTextColor="#999"
             value={formData.addressLine}
             onChangeText={(text) =>
               setFormData({ ...formData, addressLine: text })
@@ -174,12 +177,14 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
           <TextInput
             style={styles.formInput}
             placeholder="Name *"
+            placeholderTextColor="#999"
             value={formData.name}
             onChangeText={(text) => setFormData({ ...formData, name: text })}
           />
           <TextInput
             style={styles.formInput}
             placeholder="Phone No *"
+            placeholderTextColor="#999"
             value={formData.phoneNo}
             onChangeText={(text) => setFormData({ ...formData, phoneNo: text })}
             keyboardType="phone-pad"
@@ -187,6 +192,7 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
           <TextInput
             style={styles.formInput}
             placeholder="Delivery Notes *"
+            placeholderTextColor="#999"
             value={formData.deliveryNotes}
             onChangeText={(text) =>
               setFormData({ ...formData, deliveryNotes: text })
@@ -195,24 +201,28 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
           <TextInput
             style={styles.formInput}
             placeholder="City *"
+            placeholderTextColor="#999"
             value={formData.city}
             onChangeText={(text) => setFormData({ ...formData, city: text })}
           />
           <TextInput
             style={styles.formInput}
             placeholder="State *"
+            placeholderTextColor="#999"
             value={formData.state}
             onChangeText={(text) => setFormData({ ...formData, state: text })}
           />
           <TextInput
             style={styles.formInput}
             placeholder="Country *"
+            placeholderTextColor="#999"
             value={formData.country}
             onChangeText={(text) => setFormData({ ...formData, country: text })}
           />
           <TextInput
             style={styles.formInput}
             placeholder="Postal Code *"
+            placeholderTextColor="#999"
             value={formData.postalCode}
             onChangeText={(text) =>
               setFormData({ ...formData, postalCode: text })

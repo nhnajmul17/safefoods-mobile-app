@@ -24,6 +24,7 @@ export const DeliveryZoneSection = ({
           selectedValue={selectedZoneId}
           onValueChange={(itemValue) => onZoneSelection(itemValue as string)}
           style={styles.picker}
+          dropdownIconColor="#333"
         >
           {deliveryZones.map((zone) => (
             <Picker.Item
@@ -57,6 +58,7 @@ const styles = StyleSheet.create({
   picker: {
     height: 50,
     width: "100%",
+    color: "#333",
   },
   deliveryChargeText: {
     fontSize: 16,

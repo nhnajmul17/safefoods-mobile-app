@@ -277,11 +277,14 @@ export default function CheckoutScreen() {
       case "deliveryAddress":
         return (
           <View>
-            <DeliveryAddressSection
-              addresses={addresses}
-              selectedAddressId={selectedAddressId}
-              onAddressSelect={setSelectedAddressId}
-            />
+            {addresses.length > 0 && (
+              <DeliveryAddressSection
+                addresses={addresses}
+                selectedAddressId={selectedAddressId}
+                onAddressSelect={setSelectedAddressId}
+              />
+            )}
+
             <TouchableOpacity
               style={styles.addAddressButton}
               onPress={() => setShowAddressModal(true)}
