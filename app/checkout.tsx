@@ -17,7 +17,10 @@ import { CouponSection } from "@/components/checkoutScreen/couponSection";
 import { OrderSummarySection } from "@/components/checkoutScreen/orderSummary";
 import { PaymentMethodSection } from "@/components/checkoutScreen/paymentMethods";
 import { PlaceOrderButton } from "@/components/checkoutScreen/placeOrderButton";
-import { API_URL } from "@/constants/variables";
+import {
+  API_URL,
+  PAYMENT_METHOD_CASH_ON_DELIVERY,
+} from "@/constants/variables";
 import { DeliveryAddressSection } from "@/components/checkoutScreen/deliveryAddress";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import TransactionDetailsSection from "@/components/checkoutScreen/transactionDetails";
@@ -318,8 +321,9 @@ export default function CheckoutScreen() {
         );
       case "transaction":
         const isCashOnDelivery =
-          paymentMethods.find((method) => method.id === selectedPaymentMethodId)
-            ?.title !== "Cash On Delivery";
+          paymentMethods
+            .find((method) => method.id === selectedPaymentMethodId)
+            ?.title.toLocaleLowerCase() !== PAYMENT_METHOD_CASH_ON_DELIVERY;
         return isCashOnDelivery ? (
           <TransactionDetailsSection
             transactionNo={transactionNo}
@@ -339,6 +343,7 @@ export default function CheckoutScreen() {
             appliedDiscount={appliedDiscount}
             discountType={discountType}
             preferredDeliveryDateTime={preferredDeliveryDateTime}
+            paymentMethods={paymentMethods}
             paymentMethodId={selectedPaymentMethodId}
             addressId={selectedAddressId}
             productOrders={mapCartToProductOrders()}

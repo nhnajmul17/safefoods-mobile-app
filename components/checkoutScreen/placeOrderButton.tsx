@@ -7,8 +7,10 @@ import {
   API_URL,
   DISCOUNT_TYPE_FIXED,
   DISCOUNT_TYPE_PERCENTAGE,
+  PAYMENT_METHOD_BKASH,
 } from "@/constants/variables";
 import { deepGreenColor, yellowColor } from "@/constants/Colors";
+import { PaymentMethod } from "./paymentMethods";
 
 interface PlaceOrderButtonProps {
   selectedZoneId: string | null;
@@ -17,6 +19,7 @@ interface PlaceOrderButtonProps {
   appliedDiscount: number;
   discountType: string;
   preferredDeliveryDateTime: Date | null;
+  paymentMethods: PaymentMethod[];
   paymentMethodId: string | null;
   addressId: string | null;
   productOrders: {
@@ -39,6 +42,7 @@ export const PlaceOrderButton = ({
   appliedDiscount,
   discountType,
   preferredDeliveryDateTime,
+  paymentMethods,
   paymentMethodId,
   addressId,
   productOrders,
@@ -68,6 +72,26 @@ export const PlaceOrderButton = ({
         text2Style: { fontSize: 14, fontWeight: "bold" },
       });
       return;
+    }
+
+    // Check if payment method is Bkash and require transactionNo and transactionPhoneNo
+    const selectedPaymentMethod = paymentMethods.find(
+      (method) => method.id === paymentMethodId
+    );
+    if (
+      selectedPaymentMethod &&
+      selectedPaymentMethod.title?.toLowerCase() === PAYMENT_METHOD_BKASH
+    ) {
+      if (!transactionNo || !transactionPhoneNo) {
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: "Bkash payment requires Transaction No and Phone No.",
+          text1Style: { fontSize: 16, fontWeight: "bold" },
+          text2Style: { fontSize: 14, fontWeight: "bold" },
+        });
+        return;
+      }
     }
 
     const subtotal = getTotalPrice();

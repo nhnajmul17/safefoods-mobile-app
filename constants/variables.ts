@@ -22,3 +22,9 @@ export const DISCOUNT_TYPE_FIXED = "fixed";
 export const ORDER_STATUS_PENDING = "pending";
 export const ORDER_STATUS_PROCESSING = "processing";
 export const ORDER_STATUS_DELIVERED = "delivered";
+
+//payment methods
+export const PAYMENT_METHOD_CASH_ON_DELIVERY = "cash on delivery";
+export const PAYMENT_METHOD_BKASH = "bkash";
+export const PAYMENT_METHOD_NAGAD = "nagad";
+export const PAYMENT_METHOD_CARD = "card";

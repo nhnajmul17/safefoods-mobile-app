@@ -36,14 +36,14 @@ export default function TransactionDetailsSection({
       <Text style={styles.title}>Transaction Details</Text>
       <TextInput
         style={styles.input}
-        placeholder="Transaction No"
+        placeholder="Transaction No *"
         placeholderTextColor="#666"
         value={transactionNo}
         onChangeText={onTransactionNoChange}
       />
       <TextInput
         style={styles.input}
-        placeholder="Transaction Phone No"
+        placeholder="Transaction Phone No *"
         placeholderTextColor="#666"
         value={transactionPhoneNo}
         onChangeText={onTransactionPhoneNoChange}
