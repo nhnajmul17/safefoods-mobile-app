@@ -15,6 +15,7 @@ import Animated, {
   Extrapolate,
 } from "react-native-reanimated";
 import { FlatList as GestureHandlerFlatList } from "react-native-gesture-handler";
+import { API_URL } from "@/constants/variables";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const AUTO_SCROLL_INTERVAL = 4000;
@@ -24,9 +25,9 @@ const ITEM_SPACING = 20;
 interface BannerItem {
   id: string;
   imageUrl: string;
+  aspectRatio?: number; // Add aspect ratio to store image dimensions
 }
-
-const banners: BannerItem[] = [
+const staticBanners: BannerItem[] = [
   {
     id: "1",
     imageUrl:
@@ -44,19 +45,99 @@ const banners: BannerItem[] = [
   },
 ];
 
-// Create a duplicated list for infinite scrolling
-const infiniteBanners = [...banners, ...banners, ...banners];
+interface ApiSlider {
+  id: string;
+  title: string;
+  url: string;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
-const AnimatedFlatList = Animated.createAnimatedComponent<
+const AnimatedFlatList = React.forwardRef<
+  Animated.FlatList<BannerItem>,
   FlatListProps<BannerItem>
->(GestureHandlerFlatList);
+>((props, ref) => (
+  <Animated.FlatList
+    // @ts-ignore
+    ref={ref}
+    {...props}
+    // @ts-ignore
+    as={GestureHandlerFlatList}
+  />
+));
 
 const BannerCarousel = () => {
   const scrollX = useSharedValue(0);
   const flatListRef = useRef<Animated.FlatList<BannerItem>>(null);
-  const autoScrollTimer = useRef<NodeJS.Timeout | null>(null);
+  const autoScrollTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const isManualScroll = useRef(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [apiBanners, setApiBanners] = useState<BannerItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Determine which banners to use (API or static)
+  const banners = apiBanners.length > 0 ? apiBanners : staticBanners;
+  // Create infinite banners for scrolling
+  const infiniteBanners = [...banners, ...banners, ...banners];
+
+  // Function to get image dimensions
+  const getImageAspectRatio = (url: string): Promise<number> => {
+    return new Promise((resolve) => {
+      Image.getSize(
+        url,
+        (width, height) => {
+          resolve(width / height);
+        },
+        () => {
+          // If there's an error, use a default aspect ratio
+          resolve(16 / 9);
+        }
+      );
+    });
+  };
+
+  // Fetch API data and calculate aspect ratios
+  useEffect(() => {
+    const fetchSliders = async () => {
+      try {
+        const response = await fetch(`${API_URL}/v1/sliders`);
+        const result = await response.json();
+        if (result.success && result.data && result.data.length > 0) {
+          // Map API response to BannerItem format
+          const mappedBanners: BannerItem[] = await Promise.all(
+            result.data.map(async (slider: ApiSlider) => {
+              const aspectRatio = await getImageAspectRatio(slider.url);
+              return {
+                id: slider.id,
+                imageUrl: slider.url,
+                aspectRatio,
+              };
+            })
+          );
+          setApiBanners(mappedBanners);
+        }
+      } catch (error) {
+        console.error("Error fetching sliders:", error);
+        // Fall back to static banners in case of error
+        // Also calculate aspect ratios for static banners
+        const staticBannersWithRatios = await Promise.all(
+          staticBanners.map(async (banner) => {
+            const aspectRatio = await getImageAspectRatio(banner.imageUrl);
+            return {
+              ...banner,
+              aspectRatio,
+            };
+          })
+        );
+        setApiBanners(staticBannersWithRatios);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSliders();
+  }, []);
 
   const getItemLayout = (
     _data: ArrayLike<BannerItem> | null | undefined,
@@ -108,15 +189,17 @@ const BannerCarousel = () => {
   };
 
   useEffect(() => {
-    // Initial scroll to middle section
-    requestAnimationFrame(() => {
-      scrollToIndex(banners.length, false);
-    });
+    if (!isLoading) {
+      // Initial scroll to middle section
+      requestAnimationFrame(() => {
+        scrollToIndex(banners.length, false);
+      });
 
-    startAutoScroll();
+      startAutoScroll();
+    }
 
     return stopAutoScroll;
-  }, []);
+  }, [isLoading, banners.length]);
 
   const handleSnapToItem = (index: number) => {
     const normalizedIndex = index % banners.length;
@@ -182,13 +265,22 @@ const BannerCarousel = () => {
       };
     });
 
+    // Calculate height based on aspect ratio
+    const imageHeight = item.aspectRatio ? ITEM_WIDTH / item.aspectRatio : 200; // Default height if aspect ratio is not available
+
     return (
       <Animated.View style={[styles.carouselItem, animatedStyle]}>
-        <View style={styles.imageContainer}>
+        <View style={[styles.imageContainer, { height: imageHeight }]}>
           <Image
             source={{ uri: item.imageUrl }}
-            style={styles.bannerImage}
+            style={[styles.bannerImage, { height: imageHeight }]}
             resizeMode="cover"
+            onError={(e) =>
+              console.log(
+                `Banner image load error (${item.id}):`,
+                e.nativeEvent.error
+              )
+            }
           />
         </View>
       </Animated.View>
@@ -241,6 +333,23 @@ const BannerCarousel = () => {
     );
   };
 
+  // Optionally, show a loading state while fetching
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.imageContainer}>
+          <Image
+            source={{
+              uri: "https://via.placeholder.com/640x200?text=Loading...",
+            }}
+            style={styles.bannerImage}
+            resizeMode="cover"
+          />
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <AnimatedFlatList
@@ -278,9 +387,9 @@ const BannerCarousel = () => {
 
 const styles = StyleSheet.create({
   container: {
-    height: 200,
     marginVertical: 15,
     position: "relative",
+    minHeight: 100, // Set a minimum height
   },
   contentContainer: {
     paddingHorizontal: 20,
@@ -291,7 +400,6 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: "100%",
-    height: 200,
     borderRadius: 10,
     overflow: "hidden",
     elevation: 8,
@@ -305,7 +413,6 @@ const styles = StyleSheet.create({
   },
   bannerImage: {
     width: "100%",
-    height: "100%",
   },
   pagination: {
     flexDirection: "row",
