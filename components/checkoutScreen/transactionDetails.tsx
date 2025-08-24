@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Platform,
 } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
@@ -88,6 +89,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#333",
     backgroundColor: "#f9f9f9",
+    paddingVertical: Platform.OS === "ios" ? 12 : 8, // Adjust padding for better visibility
   },
   datePickerButton: {
     paddingVertical: 12,

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   SafeAreaView,
   FlatList,
@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   Text,
   View,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import ProtectedRoute from "@/components/auth/protectedRoute";
 import { useCartStore } from "@/store/cartStore";
@@ -72,6 +74,7 @@ export interface Address {
 export default function CheckoutScreen() {
   const { cartItems, getTotalPrice } = useCartStore();
   const { userId } = useAuthStore();
+  const flatListRef = useRef<FlatList>(null); // Ref for FlatList
 
   const [deliveryZones, setDeliveryZones] = useState<DeliveryZone[]>([]);
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
@@ -284,7 +287,6 @@ export default function CheckoutScreen() {
                 onAddressSelect={setSelectedAddressId}
               />
             )}
-
             <TouchableOpacity
               style={styles.addAddressButton}
               onPress={() => setShowAddressModal(true)}
@@ -355,50 +357,57 @@ export default function CheckoutScreen() {
   return (
     <ProtectedRoute>
       <SafeAreaView style={styles.container}>
-        <DateTimePickerModal
-          isVisible={isDatePickerVisible}
-          mode="datetime"
-          onConfirm={handleConfirm}
-          onCancel={() => setDatePickerVisibility(false)}
-          minimumDate={new Date()}
-        />
-        <DateTimePickerModal
-          isVisible={isTransactionDatePickerVisible}
-          mode="datetime"
-          onConfirm={handleTransactionDateConfirm}
-          onCancel={() => setTransactionDatePickerVisibility(false)}
-          minimumDate={new Date()}
-        />
-
-        <FlatList
-          data={data}
-          renderItem={renderSection}
-          keyExtractor={(item) => item.key}
-          contentContainerStyle={styles.content}
-          ListHeaderComponent={
-            <View style={styles.datePickerHeader}>
-              <Text style={styles.datePickerTitle}>
-                Preferred Delivery Date & Time
-              </Text>
-              <TouchableOpacity
-                style={styles.datePickerButton}
-                onPress={() => setDatePickerVisibility(true)}
-              >
-                <Text style={styles.datePickerText}>
-                  {preferredDeliveryDateTime
-                    ? preferredDeliveryDateTime.toLocaleString()
-                    : "Select Delivery Date & Time"}
+        <KeyboardAvoidingView
+          style={styles.flex}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0} // Adjust offset as needed
+        >
+          <DateTimePickerModal
+            isVisible={isDatePickerVisible}
+            mode="datetime"
+            onConfirm={handleConfirm}
+            onCancel={() => setDatePickerVisibility(false)}
+            minimumDate={new Date()}
+          />
+          <DateTimePickerModal
+            isVisible={isTransactionDatePickerVisible}
+            mode="datetime"
+            onConfirm={handleTransactionDateConfirm}
+            onCancel={() => setTransactionDatePickerVisibility(false)}
+            minimumDate={new Date()}
+          />
+          <FlatList
+            ref={flatListRef}
+            data={data}
+            renderItem={renderSection}
+            keyExtractor={(item) => item.key}
+            contentContainerStyle={styles.content}
+            ListHeaderComponent={
+              <View style={styles.datePickerHeader}>
+                <Text style={styles.datePickerTitle}>
+                  Preferred Delivery Date & Time
                 </Text>
-              </TouchableOpacity>
-            </View>
-          }
-        />
-        <AddressFormModal
-          visible={showAddressModal}
-          onClose={() => setShowAddressModal(false)}
-          onSave={handleSaveAddress}
-          initialData={null}
-        />
+                <TouchableOpacity
+                  style={styles.datePickerButton}
+                  onPress={() => setDatePickerVisibility(true)}
+                >
+                  <Text style={styles.datePickerText}>
+                    {preferredDeliveryDateTime
+                      ? preferredDeliveryDateTime.toLocaleString()
+                      : "Select Delivery Date & Time"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            }
+            keyboardShouldPersistTaps="handled" // Ensures taps work when keyboard is open
+          />
+          <AddressFormModal
+            visible={showAddressModal}
+            onClose={() => setShowAddressModal(false)}
+            onSave={handleSaveAddress}
+            initialData={null}
+          />
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </ProtectedRoute>
   );
@@ -409,8 +418,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
+  flex: {
+    flex: 1,
+  },
   content: {
     padding: 16,
+    paddingBottom: 100, // Extra padding to ensure content is scrollable above keyboard
   },
   datePickerTitle: {
     fontSize: 16,
