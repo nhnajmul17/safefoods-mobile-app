@@ -73,7 +73,7 @@ export default function MyOrdersScreen() {
           timeline: order.orderHistory.map((history) => ({
             status: history.status,
             time: new Date(history.createdAt).toLocaleString(),
-            description: `Order status updated to ${history.status} by user.`,
+            description: `Order status updated to ${history.status}.`,
           })),
           items: order.productList.map((product) => ({
             name: product.productTitle,
@@ -81,9 +81,10 @@ export default function MyOrdersScreen() {
             price: parseFloat(product.price),
           })),
           shipping: {
-            name: "User",
-            address: "Address not available",
-            method: "Standard Shipping",
+            name: order.address.name,
+            address: `Flat No. ${order.address.flatNo}, Floor No. ${order.address.floorNo}, ${order.address.addressLine}, ${order.address.city}, ${order.address.state},  ${order.address.postalCode}, ${order.address.country},`,
+
+            phone: order.address.phoneNo,
           },
           payment: {
             method: order.paymentMethodId || "Unknown",
@@ -91,6 +92,7 @@ export default function MyOrdersScreen() {
             shipping: order.deliveryCharge,
             tax: order.discount,
             total: order.total,
+            paymentStatus: order.paymentStatus,
           },
         });
         setModalVisible(true); // Open the modal when an order is selected

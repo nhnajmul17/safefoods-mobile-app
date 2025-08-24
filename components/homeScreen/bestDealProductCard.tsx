@@ -32,7 +32,7 @@ interface BestSellingProductCardProps {
   setIsCategoryLoaded: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const BestSellingProductCard = ({
+const BestDealProductCard = ({
   item,
   quantity,
   selectedVariant,
@@ -174,7 +174,7 @@ const BestSellingProductCard = ({
   );
 };
 
-export default BestSellingProductCard;
+export default BestDealProductCard;
 
 const styles = StyleSheet.create({
   productCard: {

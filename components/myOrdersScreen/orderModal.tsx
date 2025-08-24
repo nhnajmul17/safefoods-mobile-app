@@ -62,13 +62,16 @@ export default function OrderModal({
               {selectedOrder.shipping.address}
             </Text>
             <Text style={styles.infoText}>
-              Method: {selectedOrder.shipping.method}
+              Phone: {selectedOrder.shipping.phone}
             </Text>
           </View>
           <View style={styles.infoColumn}>
             <Text style={styles.infoTitle}>Payment Information</Text>
             <Text style={styles.infoText}>
               Method: {selectedOrder.payment.method}
+            </Text>
+            <Text style={styles.infoText}>
+              Payment Status: {selectedOrder.payment.paymentStatus}
             </Text>
             <Text style={styles.infoText}>
               Subtotal: ৳{selectedOrder.payment.subtotal}

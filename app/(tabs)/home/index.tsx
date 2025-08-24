@@ -15,7 +15,7 @@ import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import HomeCategorySection from "@/components/homeScreen/categorySection";
-import HomeBestSelling from "@/components/homeScreen/bestSelling";
+import HomeBestDeal from "@/components/homeScreen/bestDeal";
 import WhySafeFoodsSection from "@/components/homeScreen/whySafefoods";
 import { Colors, deepGreenColor } from "@/constants/Colors";
 import { useAuthStore } from "@/store/authStore";
@@ -24,6 +24,7 @@ import { useCartStore } from "@/store/cartStore";
 import { API_URL } from "@/constants/variables";
 import { router } from "expo-router";
 import safefoodLogoPng from "@/assets/images/logo-safefood.png";
+import HomeOnSale from "@/components/homeScreen/onSale";
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
@@ -194,19 +195,36 @@ export default function HomeScreen() {
                 setIsCategoryLoaded={setIsCategoryLoaded}
               />
 
-              {/* Best Selling Section */}
+              {/* Best Deal Section */}
               <View style={styles.sectionHeader}>
                 <View style={styles.sectionTitleContainer}>
                   <Text
                     style={[styles.sectionTitle, { color: Colors.light.text }]}
                   >
-                    Best selling
+                    Best Deal
                   </Text>
                   <Text style={styles.emoji}>🔥</Text>
                 </View>
               </View>
 
-              <HomeBestSelling
+              <HomeBestDeal
+                isCategoryLoaded={isCategoryLoaded}
+                setIsCategoryLoaded={setIsCategoryLoaded}
+              />
+
+              {/* On Sale Section */}
+              <View style={styles.sectionHeader}>
+                <View style={styles.sectionTitleContainer}>
+                  <Text
+                    style={[styles.sectionTitle, { color: Colors.light.text }]}
+                  >
+                    On Sale
+                  </Text>
+                  <Text style={styles.emoji}>🔥</Text>
+                </View>
+              </View>
+
+              <HomeOnSale
                 isCategoryLoaded={isCategoryLoaded}
                 setIsCategoryLoaded={setIsCategoryLoaded}
               />
@@ -335,7 +353,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 16,
-    marginBottom: 16,
+    marginVertical: 16,
   },
   sectionTitleContainer: {
     flexDirection: "row",

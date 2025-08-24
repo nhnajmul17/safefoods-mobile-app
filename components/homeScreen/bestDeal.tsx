@@ -13,7 +13,7 @@ import {
   ProductVariant,
 } from "@/components/shopNowScreen/shopNowProductCard";
 
-import BestSellingProductCard from "./bestSellingProductCard";
+import BestDealProductCard from "./bestDealProductCard";
 import { API_URL } from "@/constants/variables";
 import { useAuthStore } from "@/store/authStore";
 
@@ -22,7 +22,7 @@ interface QuantityMap {
   [productId: string]: number;
 }
 
-export default function HomeBestSelling({
+export default function HomeBestDeal({
   isCategoryLoaded,
   setIsCategoryLoaded,
 }: {
@@ -137,7 +137,7 @@ export default function HomeBestSelling({
     return (
       <View style={styles.container}>
         <Text style={styles.noProducts}>
-          No best-selling products available at the moment.
+          No best-deal products available at the moment.
         </Text>
       </View>
     );
@@ -154,7 +154,7 @@ export default function HomeBestSelling({
       >
         {products.map((item) => (
           <Fragment key={item.id}>
-            <BestSellingProductCard
+            <BestDealProductCard
               item={item}
               quantity={quantities[item.id] || 0}
               selectedVariant={selectedVariants[item.id] || item.variants[0]}
@@ -180,7 +180,8 @@ const styles = StyleSheet.create({
   },
   productsContainer: {
     paddingLeft: 0,
-    marginBottom: 24,
+    marginTop: 16,
+    marginBottom: 16,
   },
   productsContent: {
     paddingRight: 16,

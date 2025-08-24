@@ -17,6 +17,23 @@ export type OrderHistory = {
   createdAt: string;
 };
 
+export type Address = {
+  id: string;
+  flatNo: string;
+  floorNo: string;
+  addressLine: string;
+  name: string;
+  phoneNo: string;
+  deliveryNotes: string;
+  city: string;
+  state: string;
+  country: string;
+  postalCode: string;
+  createdAt: string;
+  updatedAt: string;
+  isActive: boolean;
+};
+
 export type Order = {
   id: string;
   userId: string;
@@ -32,7 +49,7 @@ export type Order = {
   transactionNo: string | null;
   transactionPhoneNo: string | null;
   transactionDate: string | null;
-  addressId: string;
+  address: Address;
   paymentStatus: string;
   orderStatus: string;
   isDeleted: boolean;
@@ -66,12 +83,13 @@ export type OrderDetail = {
   date: string;
   timeline: { status: string; time: string; description: string }[];
   items: { name: string; quantity: number; price: number }[];
-  shipping: { name: string; address: string; method: string };
+  shipping: { name: string; address: string; phone: string };
   payment: {
     method: string;
     subtotal: number;
     shipping: number;
     tax: number;
     total: number;
+    paymentStatus: string;
   };
 };
