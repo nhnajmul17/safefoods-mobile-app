@@ -1,4 +1,11 @@
-import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+  Dimensions,
+} from "react-native";
 import { useEffect, useState } from "react";
 import Animated, {
   useSharedValue,
@@ -7,6 +14,11 @@ import Animated, {
 } from "react-native-reanimated";
 import { deepGreenColor, yellowColor } from "@/constants/Colors";
 import { Link } from "expo-router";
+import { useCartStore } from "@/store/cartStore";
+import { useAuthStore } from "@/store/authStore";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import { API_URL } from "@/constants/variables";
+import Toast from "react-native-toast-message";
 
 export interface ProductVariant {
   id: string;
@@ -28,30 +40,39 @@ export interface ShopNowProduct {
   id: string;
   title: string;
   categoryTitle: string;
-  categorySlug?: string; // Optional for compatibility with existing data
+  categorySlug?: string;
   variants: ProductVariant[];
 }
 
 type ProductCardProps = {
   item: ShopNowProduct;
-  quantity: number;
-  onIncrease: (item: ShopNowProduct) => void;
-  onDecrease: (item: ShopNowProduct) => void;
-  onAddToCart: (item: ShopNowProduct, selectedVariant: ProductVariant) => void;
+  onAddToCart: (
+    item: ShopNowProduct,
+    selectedVariant: ProductVariant,
+    quantity: number
+  ) => void;
 };
 
-const ShopNowProductCard = ({
-  item,
-  quantity,
-  onIncrease,
-  onDecrease,
-  onAddToCart,
-}: ProductCardProps) => {
+// Get screen width to calculate card width
+const screenWidth = Dimensions.get("window").width;
+const cardWidth = screenWidth - 20 - 90 - 10; // 20: padding, 90: category list width, 10: gap
+
+const ShopNowProductCard = ({ item, onAddToCart }: ProductCardProps) => {
+  const { cartItems } = useCartStore();
+  const { userId, accessToken } = useAuthStore();
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(
     item.variants[0]
   );
   const cardOpacity = useSharedValue(0);
   const cardScale = useSharedValue(0.95);
+
+  // Find if this product variant is already in cart
+  const cartItem = cartItems.find(
+    (cartItem) =>
+      cartItem.id === item.id && cartItem.variantId === selectedVariant.id
+  );
+
+  const quantity = cartItem ? cartItem.quantity : 0;
 
   useEffect(() => {
     cardOpacity.value = withTiming(1, { duration: 300 });
@@ -67,81 +88,113 @@ const ShopNowProductCard = ({
     setSelectedVariant(variant);
   };
 
+  const handleAddToCartDirect = () => {
+    onAddToCart(item, selectedVariant, 1);
+  };
+
+  const handleIncrease = () => {
+    onAddToCart(item, selectedVariant, quantity + 1);
+  };
+
+  const handleDecrease = () => {
+    if (quantity > 1) {
+      onAddToCart(item, selectedVariant, quantity - 1);
+    } else {
+      onAddToCart(item, selectedVariant, 0); // Remove from cart
+    }
+  };
+
   return (
-    <Animated.View style={[styles.productCard, cardStyle]}>
-      <Link href={`/(tabs)/shop-now/(product-details)/${item.id}`}>
-        <Image
-          source={{
-            uri:
-              selectedVariant.mediaItems?.[0]?.mediaUrl ||
-              "https://via.placeholder.com/50",
-          }}
-          style={styles.productImage}
-          resizeMode="cover"
-        />
-      </Link>
+    <Animated.View
+      style={[styles.productCard, cardStyle, { width: cardWidth }]}
+    >
+      <View style={styles.cardContent}>
+        {/* Product Image - Left side covering full height */}
+        <Link href={`/(tabs)/shop-now/(product-details)/${item.id}`} asChild>
+          <TouchableOpacity>
+            <Image
+              source={{
+                uri:
+                  selectedVariant.mediaItems?.[0]?.mediaUrl ||
+                  "https://cdn-icons-png.flaticon.com/512/2153/2153788.png",
+              }}
+              style={styles.productImage}
+              resizeMode="cover"
+            />
+          </TouchableOpacity>
+        </Link>
 
-      <View style={styles.contentContainer}>
-        <Text style={styles.productName}>{item.title}</Text>
-        <Text style={styles.productCategory}>{item.categoryTitle}</Text>
+        {/* Product Details - Right side */}
+        <View style={styles.productDetails}>
+          {/* Product Name - Top section */}
+          <Text style={styles.productName} numberOfLines={2}>
+            {item.title}
+          </Text>
 
-        <View style={styles.variantContainer}>
-          {item.variants.map((variant) => (
-            <TouchableOpacity
-              key={variant.id}
-              style={[
-                styles.variantBadge,
-                selectedVariant.id === variant.id &&
-                  styles.selectedVariantBadge,
-              ]}
-              onPress={() => handleVariantChange(variant)}
-            >
-              <Text
+          {/* Variants - Below product name */}
+          <View style={styles.variantContainer}>
+            {item.variants.map((variant) => (
+              <TouchableOpacity
+                key={variant.id}
                 style={[
-                  styles.variantText,
+                  styles.variantBadge,
                   selectedVariant.id === variant.id &&
-                    styles.selectedVariantText,
+                    styles.selectedVariantBadge,
                 ]}
+                onPress={() => handleVariantChange(variant)}
               >
-                {variant.unitTitle}
+                <Text
+                  style={[
+                    styles.variantText,
+                    selectedVariant.id === variant.id &&
+                      styles.selectedVariantText,
+                  ]}
+                  numberOfLines={1}
+                >
+                  {variant.unitTitle}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {/* Price - Below variants */}
+          <View style={styles.priceContainer}>
+            <Text style={styles.productPrice}>৳{selectedVariant.price}</Text>
+            {selectedVariant.originalPrice > selectedVariant.price && (
+              <Text style={styles.originalPrice}>
+                ৳{selectedVariant.originalPrice}
               </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+            )}
+          </View>
 
-        <View style={styles.priceContainer}>
-          <Text style={styles.productPrice}>৳{selectedVariant.price}</Text>
-          {selectedVariant.originalPrice > selectedVariant.price && (
-            <Text style={styles.originalPrice}>
-              ৳{selectedVariant.originalPrice}
-            </Text>
-          )}
+          {/* Add to Cart / Quantity Controls - Bottom section */}
+          <View style={styles.cartSection}>
+            {quantity === 0 ? (
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={handleAddToCartDirect}
+              >
+                <Text style={styles.addButtonText}>ADD</Text>
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.quantityContainer}>
+                <TouchableOpacity
+                  onPress={handleDecrease}
+                  style={styles.quantityButton}
+                >
+                  <Icon style={styles.quantityButtonText} name="remove" />
+                </TouchableOpacity>
+                <Text style={styles.quantityText}>{quantity}</Text>
+                <TouchableOpacity
+                  onPress={handleIncrease}
+                  style={styles.quantityButton}
+                >
+                  <Icon style={styles.quantityButtonText} name="add" />
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
         </View>
-
-        <View style={styles.quantityContainer}>
-          <TouchableOpacity
-            onPress={() => onDecrease(item)}
-            style={styles.quantityButton}
-          >
-            <Text style={styles.quantityButtonText}>-</Text>
-          </TouchableOpacity>
-          <Text style={styles.quantityText}>{quantity}</Text>
-          <TouchableOpacity
-            onPress={() => onIncrease(item)}
-            style={styles.quantityButton}
-          >
-            <Text style={styles.quantityButtonText}>+</Text>
-          </TouchableOpacity>
-        </View>
-
-        {quantity > 0 && (
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => onAddToCart(item, selectedVariant)}
-          >
-            <Text style={styles.addButtonText}>Add to Cart</Text>
-          </TouchableOpacity>
-        )}
       </View>
     </Animated.View>
   );
@@ -151,8 +204,7 @@ export default ShopNowProductCard;
 
 const styles = StyleSheet.create({
   productCard: {
-    width: "48%",
-    marginBottom: 12,
+    marginBottom: 16,
     borderRadius: 12,
     overflow: "hidden",
     elevation: 4,
@@ -162,49 +214,44 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     backgroundColor: "#fff",
   },
-  productImage: {
-    width: "100%",
-    height: 120,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
+  cardContent: {
+    flexDirection: "row",
+    padding: 12,
   },
-  contentContainer: {
-    padding: 8,
-    backgroundColor: "rgba(255, 255, 255, 0.95)",
-    borderBottomLeftRadius: 12,
-    borderBottomRightRadius: 12,
+  productImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+    marginRight: 12,
+  },
+  productDetails: {
+    flex: 1,
+    justifyContent: "space-between",
   },
   productName: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "700",
     color: "#333",
-    marginBottom: 4,
-    textAlign: "center",
-  },
-  productCategory: {
-    fontSize: 12,
-    color: "#666",
-    marginBottom: 4,
-    textAlign: "center",
+    marginBottom: 8,
   },
   variantContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "center",
-    marginBottom: 4,
+    marginBottom: 8,
   },
   variantBadge: {
     backgroundColor: "#eee",
-    borderRadius: 10,
+    borderRadius: 6,
     paddingVertical: 4,
     paddingHorizontal: 8,
-    margin: 2,
+    marginRight: 4,
+    marginBottom: 4,
   },
   selectedVariantBadge: {
     backgroundColor: deepGreenColor,
   },
   variantText: {
-    fontSize: 12,
+    fontSize: 11,
     color: "#333",
   },
   selectedVariantText: {
@@ -213,59 +260,55 @@ const styles = StyleSheet.create({
   },
   priceContainer: {
     flexDirection: "row",
-    justifyContent: "center",
     alignItems: "center",
-    marginBottom: 4,
+    marginBottom: 8,
   },
   productPrice: {
-    fontSize: 14,
+    fontSize: 18,
     color: deepGreenColor,
     fontWeight: "600",
   },
   originalPrice: {
-    fontSize: 12,
+    fontSize: 14,
     color: "#999",
     textDecorationLine: "line-through",
-    marginLeft: 4,
+    marginLeft: 6,
   },
-  quantityContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 4,
-  },
-  quantityButton: {
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    width: 24,
-    height: 24,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: deepGreenColor,
-    marginHorizontal: 4,
-  },
-  quantityButtonText: {
-    fontSize: 16,
-    color: deepGreenColor,
-    fontWeight: "bold",
-  },
-  quantityText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#333",
-    marginHorizontal: 4,
+  cartSection: {
+    alignSelf: "flex-start",
   },
   addButton: {
     backgroundColor: deepGreenColor,
     paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingHorizontal: 20,
     borderRadius: 6,
     alignItems: "center",
   },
   addButtonText: {
     color: yellowColor,
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "600",
+  },
+  quantityContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: deepGreenColor,
+    borderRadius: 6,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+  },
+  quantityButton: {
+    paddingHorizontal: 6,
+  },
+  quantityButtonText: {
+    fontSize: 20,
+    color: yellowColor,
+    fontWeight: "bold",
+  },
+  quantityText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: yellowColor,
+    marginHorizontal: 8,
   },
 });
