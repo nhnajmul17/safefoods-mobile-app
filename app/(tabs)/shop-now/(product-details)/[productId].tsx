@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   SafeAreaView,
+  ScrollView,
 } from "react-native";
 import { useState, useEffect } from "react";
 import Animated, {
@@ -202,79 +203,91 @@ export default function ProductDetailsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <Animated.View style={[styles.imageContainer, imageStyle]}>
-          <Image
-            source={{
-              uri:
-                selectedVariant.mediaItems?.[0]?.mediaUrl ||
-                "https://via.placeholder.com/200",
-            }}
-            style={styles.productImage}
-            onError={(e) =>
-              console.log(
-                `Product image load error (${product.title}):`,
-                e.nativeEvent.error
-              )
-            }
-          />
-        </Animated.View>
-        <Animated.View style={[styles.detailsContainer, detailsStyle]}>
-          <View style={styles.header}>
-            <Text style={styles.name}>{product.title}</Text>
-            <View style={styles.quantityContainer}>
-              <Animated.View style={decrementStyle}>
-                <TouchableOpacity
-                  onPress={handleDecrement}
-                  style={styles.quantityButton}
-                >
-                  <Text style={styles.quantityText}>-</Text>
-                </TouchableOpacity>
-              </Animated.View>
-              <Text style={styles.quantity}>{quantity}</Text>
-              <Animated.View style={incrementStyle}>
-                <TouchableOpacity
-                  onPress={handleIncrement}
-                  style={styles.quantityButton}
-                >
-                  <Text style={styles.quantityText}>+</Text>
-                </TouchableOpacity>
-              </Animated.View>
-            </View>
+      {/* Fixed Header Section */}
+      <Animated.View style={[styles.imageContainer, imageStyle]}>
+        <Image
+          source={{
+            uri:
+              selectedVariant.mediaItems?.[0]?.mediaUrl ||
+              "https://via.placeholder.com/200",
+          }}
+          style={styles.productImage}
+          onError={(e) =>
+            console.log(
+              `Product image load error (${product.title}):`,
+              e.nativeEvent.error
+            )
+          }
+        />
+      </Animated.View>
+
+      <Animated.View style={[styles.detailsContainer, detailsStyle]}>
+        {/* Fixed Product Info */}
+        <View style={styles.header}>
+          <Text style={styles.name}>{product.title}</Text>
+          <View style={styles.quantityContainer}>
+            <Animated.View style={decrementStyle}>
+              <TouchableOpacity
+                onPress={handleDecrement}
+                style={styles.quantityButton}
+              >
+                <Text style={styles.quantityText}>-</Text>
+              </TouchableOpacity>
+            </Animated.View>
+            <Text style={styles.quantity}>{quantity}</Text>
+            <Animated.View style={incrementStyle}>
+              <TouchableOpacity
+                onPress={handleIncrement}
+                style={styles.quantityButton}
+              >
+                <Text style={styles.quantityText}>+</Text>
+              </TouchableOpacity>
+            </Animated.View>
           </View>
-          <View style={styles.variantContainer}>
-            {product.variants.map((variant) => (
-              <Animated.View key={variant.id} style={variantStyle}>
-                <TouchableOpacity
-                  style={[
-                    styles.variantBadge,
-                    selectedVariant.id === variant.id &&
+        </View>
+
+        <View style={styles.variantContainer}>
+          {product.variants.map((variant) => (
+            <Animated.View key={variant.id} style={variantStyle}>
+              <TouchableOpacity
+                style={[
+                  styles.variantBadge,
+                  selectedVariant.id === variant.id &&
                     styles.selectedVariantBadge,
-                  ]}
-                  onPress={() => handleVariantChange(variant)}
-                >
-                  <Text
-                    style={[
-                      styles.variantText,
-                      selectedVariant.id === variant.id &&
+                ]}
+                onPress={() => handleVariantChange(variant)}
+              >
+                <Text
+                  style={[
+                    styles.variantText,
+                    selectedVariant.id === variant.id &&
                       styles.selectedVariantText,
-                    ]}
-                  >
-                    {variant.unitTitle}
-                  </Text>
-                </TouchableOpacity>
-              </Animated.View>
-            ))}
-          </View>
-          <View style={styles.priceContainer}>
-            <Text style={styles.weightPrice}>৳{selectedVariant.price}</Text>
-            {selectedVariant.originalPrice > selectedVariant.price && (
-              <Text style={styles.originalPrice}>
-                ৳{selectedVariant.originalPrice}
-              </Text>
-            )}
-          </View>
+                  ]}
+                >
+                  {variant.unitTitle}
+                </Text>
+              </TouchableOpacity>
+            </Animated.View>
+          ))}
+        </View>
+
+        <View style={styles.priceContainer}>
+          <Text style={styles.weightPrice}>৳{selectedVariant.price}</Text>
+          {selectedVariant.originalPrice > selectedVariant.price && (
+            <Text style={styles.originalPrice}>
+              ৳{selectedVariant.originalPrice}
+            </Text>
+          )}
+        </View>
+
+        {/* Scrollable Description Section */}
+        <ScrollView
+          style={styles.scrollContainer}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
           <Text style={styles.description}>{selectedVariant.description}</Text>
+
           <View style={styles.infoGrid}>
             <View style={styles.infoItem}>
               <Image
@@ -313,9 +326,11 @@ export default function ProductDetailsScreen() {
               <Text style={styles.infoText}>Varies by product</Text>
             </View>
           </View>
-        </Animated.View>
-      </View>
-      <Animated.View style={addToCartStyle}>
+        </ScrollView>
+      </Animated.View>
+
+      {/* Fixed Add to Cart Button */}
+      <Animated.View style={[styles.addToCartContainer, addToCartStyle]}>
         <TouchableOpacity
           style={styles.addToCartButton}
           onPress={handleAddToCart}
@@ -358,7 +373,7 @@ const styles = StyleSheet.create({
   detailsContainer: {
     flex: 1,
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingTop: 8,
   },
   header: {
     flexDirection: "row",
@@ -370,6 +385,8 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "bold",
     color: "#333",
+    flex: 1,
+    marginRight: 16,
   },
   quantityContainer: {
     flexDirection: "row",
@@ -433,6 +450,13 @@ const styles = StyleSheet.create({
     textDecorationLine: "line-through",
     marginLeft: 8,
   },
+  scrollContainer: {
+    flex: 1,
+    marginBottom: 80, // Space for the fixed add to cart button
+  },
+  scrollContent: {
+    paddingBottom: 20,
+  },
   description: {
     fontSize: 16,
     color: "#666",
@@ -470,17 +494,23 @@ const styles = StyleSheet.create({
     color: "#666",
     textAlign: "center",
   },
-  addToCartButton: {
+  addToCartContainer: {
     position: "absolute",
-    bottom: 20,
+    bottom: 0,
     left: 0,
     right: 0,
+    backgroundColor: "#fff",
+    padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: "#eee",
+  },
+  addToCartButton: {
     backgroundColor: deepGreenColor,
     paddingVertical: 18,
     borderRadius: 25,
     alignItems: "center",
     marginHorizontal: 16,
-    marginBottom: 16,
+    marginBottom: 10,
   },
   addToCartText: {
     fontSize: 18,

@@ -15,10 +15,7 @@ import Animated, {
 import { deepGreenColor, yellowColor } from "@/constants/Colors";
 import { Link } from "expo-router";
 import { useCartStore } from "@/store/cartStore";
-import { useAuthStore } from "@/store/authStore";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import { API_URL } from "@/constants/variables";
-import Toast from "react-native-toast-message";
 
 export interface ProductVariant {
   id: string;
@@ -59,7 +56,6 @@ const cardWidth = screenWidth - 16 - 80 - 8; // 16: padding, 80: category list w
 
 const ShopNowProductCard = ({ item, onAddToCart }: ProductCardProps) => {
   const { cartItems } = useCartStore();
-  const { userId, accessToken } = useAuthStore();
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(
     item.variants[0]
   );

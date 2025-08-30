@@ -10,6 +10,10 @@ import {
   StyleSheet,
   Alert,
   ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
 
 interface AddressFormModalProps {
@@ -39,25 +43,25 @@ const validateAddress = (
     data.addressLine.length < 1 ||
     data.addressLine.length > 500
   ) {
-    return "Address line is required and must be between 1 and 500 characters";
+    return "Address line is required";
   }
-  if (data.flatNo && (data.flatNo.length < 1 || data.flatNo.length > 100)) {
-    return "Flat number must be between 1 and 100 characters";
+  if (!data.flatNo && (data.flatNo.length < 1 || data.flatNo.length > 100)) {
+    return "Flat number is required";
   }
-  if (data.floorNo && (data.floorNo.length < 1 || data.floorNo.length > 100)) {
-    return "Floor number must be between 1 and 100 characters";
+  if (!data.floorNo && (data.floorNo.length < 1 || data.floorNo.length > 100)) {
+    return "Floor number is required";
   }
   if (!data.name || data.name.length < 1 || data.name.length > 100) {
-    return "Name is required and must be between 1 and 100 characters";
+    return "Name is required";
   }
   if (!data.phoneNo || data.phoneNo.length < 11) {
-    return "Phone number is required and must be at least 11 characters long";
+    return "Phone number is required";
   }
   if (data.deliveryNotes && data.deliveryNotes.length > 500) {
     return "Delivery notes must not exceed 500 characters";
   }
   if (!data.city || data.city.length < 1 || data.city.length > 100) {
-    return "City is required and must be between 1 and 100 characters";
+    return "City is required ";
   }
   if (data.state && data.state.length > 100) {
     return "State must not exceed 100 characters";
@@ -66,10 +70,10 @@ const validateAddress = (
     return "Country must not exceed 100 characters";
   }
   if (
-    data.postalCode &&
+    !data.postalCode &&
     (data.postalCode.length < 1 || data.postalCode.length > 20)
   ) {
-    return "Postal code must be between 1 and 20 characters";
+    return "Postal code is required";
   }
   return null; // No errors
 };
@@ -132,11 +136,16 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
 
   const handleSave = () => {
     const error = validateAddress(formData);
+    console.log("error----------------------", error);
     if (error) {
       Alert.alert("Validation Error", error);
       return;
     }
     onSave(formData);
+  };
+
+  const dismissKeyboard = () => {
+    Keyboard.dismiss();
   };
 
   return (
@@ -146,101 +155,145 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
       animationType="slide"
       onRequestClose={onClose}
     >
-      <View style={styles.modalOverlay}>
-        <ScrollView style={styles.modalContent}>
-          <Text style={styles.modalTitle}>
-            {initialData ? "Edit Address" : "Add New Address"}
-          </Text>
-          <TextInput
-            style={styles.formInput}
-            placeholder="Flat No *"
-            placeholderTextColor="#999"
-            value={formData.flatNo}
-            onChangeText={(text) => setFormData({ ...formData, flatNo: text })}
-          />
-          <TextInput
-            style={styles.formInput}
-            placeholder="Floor No *"
-            placeholderTextColor="#999"
-            value={formData.floorNo}
-            onChangeText={(text) => setFormData({ ...formData, floorNo: text })}
-          />
-          <TextInput
-            style={styles.formInput}
-            placeholder="Address Line *"
-            placeholderTextColor="#999"
-            value={formData.addressLine}
-            onChangeText={(text) =>
-              setFormData({ ...formData, addressLine: text })
-            }
-          />
-          <TextInput
-            style={styles.formInput}
-            placeholder="Name *"
-            placeholderTextColor="#999"
-            value={formData.name}
-            onChangeText={(text) => setFormData({ ...formData, name: text })}
-          />
-          <TextInput
-            style={styles.formInput}
-            placeholder="Phone No *"
-            placeholderTextColor="#999"
-            value={formData.phoneNo}
-            onChangeText={(text) => setFormData({ ...formData, phoneNo: text })}
-            keyboardType="phone-pad"
-          />
-          <TextInput
-            style={styles.formInput}
-            placeholder="Delivery Notes *"
-            placeholderTextColor="#999"
-            value={formData.deliveryNotes}
-            onChangeText={(text) =>
-              setFormData({ ...formData, deliveryNotes: text })
-            }
-          />
-          <TextInput
-            style={styles.formInput}
-            placeholder="City *"
-            placeholderTextColor="#999"
-            value={formData.city}
-            onChangeText={(text) => setFormData({ ...formData, city: text })}
-          />
-          <TextInput
-            style={styles.formInput}
-            placeholder="State *"
-            placeholderTextColor="#999"
-            value={formData.state}
-            onChangeText={(text) => setFormData({ ...formData, state: text })}
-          />
-          <TextInput
-            style={styles.formInput}
-            placeholder="Country *"
-            placeholderTextColor="#999"
-            value={formData.country}
-            onChangeText={(text) => setFormData({ ...formData, country: text })}
-          />
-          <TextInput
-            style={styles.formInput}
-            placeholder="Postal Code *"
-            placeholderTextColor="#999"
-            value={formData.postalCode}
-            onChangeText={(text) =>
-              setFormData({ ...formData, postalCode: text })
-            }
-            keyboardType="number-pad"
-          />
-          <View style={styles.modalButtonContainer}>
-            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-              <Text style={styles.buttonText}>
-                {initialData ? "Update" : "Save"}
+      <TouchableWithoutFeedback onPress={dismissKeyboard}>
+        <View style={styles.modalOverlay}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={styles.keyboardAvoidingView}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+          >
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>
+                {initialData ? "Edit Address" : "Add New Address"}
               </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-              <Text style={styles.buttonText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </View>
+
+              <ScrollView
+                style={styles.scrollView}
+                contentContainerStyle={styles.scrollViewContent}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+              >
+                <TextInput
+                  style={styles.formInput}
+                  placeholder="Flat No *"
+                  placeholderTextColor="#999"
+                  value={formData.flatNo}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, flatNo: text })
+                  }
+                  returnKeyType="next"
+                />
+                <TextInput
+                  style={styles.formInput}
+                  placeholder="Floor No *"
+                  placeholderTextColor="#999"
+                  value={formData.floorNo}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, floorNo: text })
+                  }
+                  returnKeyType="next"
+                />
+                <TextInput
+                  style={styles.formInput}
+                  placeholder="Address Line *"
+                  placeholderTextColor="#999"
+                  value={formData.addressLine}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, addressLine: text })
+                  }
+                  returnKeyType="next"
+                />
+                <TextInput
+                  style={styles.formInput}
+                  placeholder="Name *"
+                  placeholderTextColor="#999"
+                  value={formData.name}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, name: text })
+                  }
+                  returnKeyType="next"
+                />
+                <TextInput
+                  style={styles.formInput}
+                  placeholder="Phone No *"
+                  placeholderTextColor="#999"
+                  value={formData.phoneNo}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, phoneNo: text })
+                  }
+                  keyboardType="phone-pad"
+                  returnKeyType="next"
+                />
+                <TextInput
+                  style={styles.formInput}
+                  placeholder="Delivery Notes"
+                  placeholderTextColor="#999"
+                  value={formData.deliveryNotes}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, deliveryNotes: text })
+                  }
+                  returnKeyType="next"
+                />
+                <TextInput
+                  style={styles.formInput}
+                  placeholder="City *"
+                  placeholderTextColor="#999"
+                  value={formData.city}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, city: text })
+                  }
+                  returnKeyType="next"
+                />
+                <TextInput
+                  style={styles.formInput}
+                  placeholder="State"
+                  placeholderTextColor="#999"
+                  value={formData.state}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, state: text })
+                  }
+                  returnKeyType="next"
+                />
+                <TextInput
+                  style={styles.formInput}
+                  placeholder="Country *"
+                  placeholderTextColor="#999"
+                  value={formData.country}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, country: text })
+                  }
+                  returnKeyType="next"
+                />
+                <TextInput
+                  style={styles.formInput}
+                  placeholder="Postal Code *"
+                  placeholderTextColor="#999"
+                  value={formData.postalCode}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, postalCode: text })
+                  }
+                  keyboardType="number-pad"
+                  returnKeyType="done"
+                />
+              </ScrollView>
+
+              <View style={styles.modalButtonContainer}>
+                <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.saveButton}
+                  onPress={handleSave}
+                >
+                  <Text style={styles.saveButtonText}>
+                    {initialData ? "Update" : "Save"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </KeyboardAvoidingView>
+        </View>
+      </TouchableWithoutFeedback>
     </Modal>
   );
 };
@@ -252,51 +305,77 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  keyboardAvoidingView: {
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   modalContent: {
     backgroundColor: "#fff",
-    padding: 20,
-    borderRadius: 10,
+    borderRadius: 12,
     width: "90%",
-    maxHeight: "80%",
+    maxHeight: "85%",
+    overflow: "hidden",
+  },
+  scrollView: {
+    maxHeight: "75%",
+  },
+  scrollViewContent: {
+    padding: 16,
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
     color: "#333",
-    marginBottom: 15,
+    marginBottom: 16,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    textAlign: "center",
   },
   formInput: {
     borderWidth: 1,
     borderColor: "#ddd",
-    borderRadius: 4,
-    padding: 10,
-    marginBottom: 10,
-    fontSize: 16,
+    borderRadius: 6,
+    padding: 12,
+    marginBottom: 12,
+    fontSize: 14,
+    backgroundColor: "#f9f9f9",
   },
   modalButtonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 15,
+    padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: "#eee",
+    backgroundColor: "#fff",
   },
   saveButton: {
     backgroundColor: deepGreenColor,
     padding: 12,
-    borderRadius: 8,
+    borderRadius: 6,
     alignItems: "center",
     flex: 1,
-    marginRight: 10,
+    marginLeft: 8,
   },
   cancelButton: {
-    backgroundColor: "#dc3545",
+    backgroundColor: "#f1f1f1",
     padding: 12,
-    borderRadius: 8,
+    borderRadius: 6,
     alignItems: "center",
     flex: 1,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: "#ddd",
   },
-  buttonText: {
+  saveButtonText: {
     color: yellowColor,
-    fontSize: 16,
-    fontWeight: "bold",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  cancelButtonText: {
+    color: "#666",
+    fontSize: 14,
+    fontWeight: "600",
   },
 });
 
