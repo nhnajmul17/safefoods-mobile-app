@@ -92,39 +92,39 @@ const CategoryList: React.FC<CategoryListProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: 90, // Reduced from 100
+    width: 80, // Reduced from 90
     backgroundColor: "#f5f5f5",
-    marginRight: 10,
-    borderRadius: 12,
-    padding: 6, // Reduced from 8
+    marginRight: 8, // Reduced from 10
+    borderRadius: 10, // Reduced from 12
+    padding: 5, // Reduced from 6
   },
   listContent: {
-    paddingVertical: 6, // Reduced from 8
+    paddingVertical: 5, // Reduced from 6
   },
   categoryItem: {
-    padding: 6, // Reduced from 8
-    marginBottom: 6, // Reduced from 8
-    borderRadius: 8,
+    padding: 5, // Reduced from 6
+    marginBottom: 5, // Reduced from 6
+    borderRadius: 6, // Reduced from 8
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#fff",
-    elevation: 2,
+    elevation: 1, // Reduced from 2
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08, // Reduced from 0.1
     shadowRadius: 2,
   },
   selectedCategoryItem: {
     backgroundColor: deepGreenColor,
   },
   categoryImage: {
-    width: 50, // Reduced from 60
-    height: 50, // Reduced from 60
-    borderRadius: 25, // Reduced from 30
-    marginBottom: 4, // Reduced from 6
+    width: 45, // Reduced from 50
+    height: 45, // Reduced from 50
+    borderRadius: 22, // Reduced from 25
+    marginBottom: 3, // Reduced from 4
   },
   categoryText: {
-    fontSize: 11, // Reduced from 12
+    fontSize: 10, // Reduced from 11
     fontWeight: "500",
     color: "#555",
     textAlign: "center",

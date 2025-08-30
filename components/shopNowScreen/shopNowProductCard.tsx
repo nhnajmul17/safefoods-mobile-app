@@ -55,7 +55,7 @@ type ProductCardProps = {
 
 // Get screen width to calculate card width
 const screenWidth = Dimensions.get("window").width;
-const cardWidth = screenWidth - 20 - 90 - 10; // 20: padding, 90: category list width, 10: gap
+const cardWidth = screenWidth - 16 - 80 - 8; // 16: padding, 80: category list width, 8: gap
 
 const ShopNowProductCard = ({ item, onAddToCart }: ProductCardProps) => {
   const { cartItems } = useCartStore();
@@ -204,54 +204,54 @@ export default ShopNowProductCard;
 
 const styles = StyleSheet.create({
   productCard: {
-    marginBottom: 16,
-    borderRadius: 12,
+    marginBottom: 12, // Reduced from 16
+    borderRadius: 10, // Reduced from 12
     overflow: "hidden",
-    elevation: 4,
+    elevation: 3, // Reduced from 4
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 1 }, // Reduced from 2
     shadowOpacity: 0.1,
-    shadowRadius: 6,
+    shadowRadius: 4, // Reduced from 6
     backgroundColor: "#fff",
   },
   cardContent: {
     flexDirection: "row",
-    padding: 12,
+    padding: 10, // Reduced from 12
   },
   productImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 8,
-    marginRight: 12,
+    width: 85, // Reduced from 100
+    height: 85, // Reduced from 100
+    borderRadius: 6, // Reduced from 8
+    marginRight: 10, // Reduced from 12
   },
   productDetails: {
     flex: 1,
     justifyContent: "space-between",
   },
   productName: {
-    fontSize: 16,
+    fontSize: 14, // Reduced from 16
     fontWeight: "700",
     color: "#333",
-    marginBottom: 8,
+    marginBottom: 6, // Reduced from 8
   },
   variantContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    marginBottom: 8,
+    marginBottom: 6, // Reduced from 8
   },
   variantBadge: {
     backgroundColor: "#eee",
-    borderRadius: 6,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    marginRight: 4,
-    marginBottom: 4,
+    borderRadius: 4, // Reduced from 6
+    paddingVertical: 3, // Reduced from 4
+    paddingHorizontal: 6, // Reduced from 8
+    marginRight: 3, // Reduced from 4
+    marginBottom: 3, // Reduced from 4
   },
   selectedVariantBadge: {
     backgroundColor: deepGreenColor,
   },
   variantText: {
-    fontSize: 11,
+    fontSize: 10, // Reduced from 11
     color: "#333",
   },
   selectedVariantText: {
@@ -261,54 +261,54 @@ const styles = StyleSheet.create({
   priceContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: 6, // Reduced from 8
   },
   productPrice: {
-    fontSize: 18,
+    fontSize: 16, // Reduced from 18
     color: deepGreenColor,
     fontWeight: "600",
   },
   originalPrice: {
-    fontSize: 14,
+    fontSize: 12, // Reduced from 14
     color: "#999",
     textDecorationLine: "line-through",
-    marginLeft: 6,
+    marginLeft: 4, // Reduced from 6
   },
   cartSection: {
     alignSelf: "flex-start",
   },
   addButton: {
     backgroundColor: deepGreenColor,
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    borderRadius: 6,
+    paddingVertical: 6, // Reduced from 8
+    paddingHorizontal: 16, // Reduced from 20
+    borderRadius: 5, // Reduced from 6
     alignItems: "center",
   },
   addButtonText: {
     color: yellowColor,
-    fontSize: 14,
+    fontSize: 12, // Reduced from 14
     fontWeight: "600",
   },
   quantityContainer: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: deepGreenColor,
-    borderRadius: 6,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
+    borderRadius: 5, // Reduced from 6
+    paddingVertical: 3, // Reduced from 4
+    paddingHorizontal: 6, // Reduced from 8
   },
   quantityButton: {
-    paddingHorizontal: 6,
+    paddingHorizontal: 4, // Reduced from 6
   },
   quantityButtonText: {
-    fontSize: 20,
+    fontSize: 18, // Reduced from 20
     color: yellowColor,
     fontWeight: "bold",
   },
   quantityText: {
-    fontSize: 14,
+    fontSize: 13, // Reduced from 14
     fontWeight: "600",
     color: yellowColor,
-    marginHorizontal: 8,
+    marginHorizontal: 6, // Reduced from 8
   },
 });

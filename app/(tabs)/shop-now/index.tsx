@@ -548,7 +548,7 @@ export default function ShopNowScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 8, // Increased from 5
+    padding: 6,
     backgroundColor: "#f9f9f9",
   },
   searchContainer: {
