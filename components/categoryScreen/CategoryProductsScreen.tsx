@@ -119,7 +119,7 @@ export default function CategoryProductsScreen({
     );
   }
 
-  const isSingleItem = products.length === 1;
+  const isSingleItem = products?.length === 1;
 
   return (
     <View style={styles.container}>

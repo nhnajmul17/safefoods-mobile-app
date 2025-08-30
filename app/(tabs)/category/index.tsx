@@ -1,4 +1,4 @@
-import { Colors, lightGreenColor } from "@/constants/Colors";
+import { Colors } from "@/constants/Colors";
 import { Link } from "expo-router";
 import {
   View,
@@ -12,55 +12,159 @@ import {
 } from "react-native";
 import React, { useRef, useState, useEffect } from "react";
 import { useFocusEffect } from "@react-navigation/native";
-import { categories } from "@/components/categoryScreen/lib/categoryDataAndTypes";
 import { CustomLoader } from "@/components/common/loader";
+import { API_URL } from "@/constants/variables";
+import { TouchableOpacity } from "react-native";
+
+// Define the API response type
+interface Category {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  mediaId: string | null;
+  mediaUrl: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  levelId: string;
+  levelTitle: string;
+  levelSlug: string;
+  parentId: string | null;
+  parentTitle: string | null;
+  parentSlug: string | null;
+}
+
+interface CategoriesResponse {
+  success: boolean;
+  data: Category[];
+  pagination: {
+    offset: number;
+    limit: number;
+    total: number;
+    currentCount: number;
+  };
+  _links: {
+    self: {
+      href: string;
+    };
+    next: null | {
+      href: string;
+    };
+    previous: null | {
+      href: string;
+    };
+    collection: {
+      href: string;
+    };
+  };
+  message: string;
+}
+
+// Fallback icons for categories
+const fallbackIcons: Record<string, string> = {
+  proteins: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png",
+  chicken: "https://cdn-icons-png.flaticon.com/512/1046/1046751.png",
+  meat: "https://cdn-icons-png.flaticon.com/512/3143/3143643.png",
+  dairy: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png",
+  fruits: "https://cdn-icons-png.flaticon.com/512/415/415682.png",
+  vegetables: "https://cdn-icons-png.flaticon.com/512/2153/2153788.png",
+  fish: "https://cdn-icons-png.flaticon.com/512/10507/10507711.png",
+  egg: "https://cdn-icons-png.flaticon.com/512/837/837560.png",
+  // https://cdn-icons-png.flaticon.com/512/2713/2713474.png
+  snacks: "https://cdn-icons-png.flaticon.com/512/3075/3075977.png",
+  // Add more fallback icons as needed
+  default: "https://cdn-icons-png.flaticon.com/512/2553/2553691.png",
+};
 
 export default function CategoryScreen() {
   const colorScheme = useColorScheme();
   const opacity = useRef(new Animated.Value(0)).current;
   const [loading, setLoading] = useState(true);
-  const scaleValue = useRef(new Animated.Value(1)).current;
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-  // Simulate initial load or data fetch
-  useEffect(() => {
-    // Start scale animation (handled by CustomLoader now)
-    const timer = setTimeout(() => {
+  // Fetch categories from API
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(`${API_URL}/v1/categories/flat`);
+      const data: CategoriesResponse = await response.json();
+
+      if (data.success) {
+        setCategories(data.data);
+      } else {
+        setError("Failed to load categories");
+      }
+    } catch (err) {
+      console.error("Error fetching categories:", err);
+      setError("Failed to load categories. Please try again.");
+    } finally {
       setLoading(false);
-    }, 1000); // Adjust delay as needed
+    }
+  };
 
-    return () => {
-      clearTimeout(timer); // Cleanup timer on unmount
-    };
+  useEffect(() => {
+    fetchCategories();
   }, []);
 
   // Trigger fade-in animation when loading ends
   useEffect(() => {
-    if (!loading) {
+    if (!loading && !error) {
       Animated.timing(opacity, {
         toValue: 1,
-        duration: 1000, // Adjust duration for smooth fade-in
+        duration: 1000,
         useNativeDriver: true,
       }).start();
     }
-  }, [loading, opacity]);
+  }, [loading, error, opacity]);
 
   useFocusEffect(
     React.useCallback(() => {
       // Reset opacity when screen is focused to ensure animation restarts
       opacity.setValue(0);
-      if (!loading) {
+      if (!loading && !error) {
         Animated.timing(opacity, {
           toValue: 1,
           duration: 1000,
           useNativeDriver: true,
         }).start();
       }
-    }, [loading, opacity])
+    }, [loading, error, opacity])
   );
+
+  // Get icon URL for category
+  const getCategoryIcon = (category: Category) => {
+    // Use mediaUrl from API if available
+    if (category.mediaUrl) {
+      return category.mediaUrl;
+    }
+
+    // Use fallback icon based on slug
+    return fallbackIcons[category.slug] || fallbackIcons.default;
+  };
 
   if (loading) {
     return (
       <CustomLoader isLoading={loading} loadingText="Loading categories..." />
+    );
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={fetchCategories}
+          >
+            <Text style={styles.retryText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
     );
   }
 
@@ -84,24 +188,20 @@ export default function CategoryScreen() {
           contentContainerStyle={styles.grid}
           columnWrapperStyle={styles.columnWrapper}
           renderItem={({ item }) => (
-            <Link href={item.href} style={styles.card}>
+            <Link href={`/(tabs)/category/${item.slug}`} style={styles.card}>
               <Animated.View style={[styles.cardContent, { opacity }]}>
                 <Image
-                  source={
-                    typeof item.icon === "string"
-                      ? { uri: item.icon }
-                      : item.icon // local image (require/import)
-                  }
+                  source={{ uri: getCategoryIcon(item) }}
                   style={styles.icon}
                   onError={(e) =>
                     console.log(
-                      `Category icon load error (${item.name}):`,
+                      `Category icon load error (${item.title}):`,
                       e.nativeEvent.error
                     )
                   }
                 />
                 <Text style={[styles.cardText, { color: Colors.light.text }]}>
-                  {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
+                  {item.title}
                 </Text>
               </Animated.View>
             </Link>
@@ -124,7 +224,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   card: {
-    width: "23%", // Approximately 1/4 of the row width with margins
+    width: "23%",
     margin: 4,
     borderRadius: 12,
     borderWidth: 1,
@@ -151,5 +251,28 @@ const styles = StyleSheet.create({
   cardText: {
     fontSize: 14,
     textAlign: "center",
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  errorText: {
+    fontSize: 16,
+    color: "#ff4444",
+    textAlign: "center",
+    marginBottom: 16,
+  },
+  retryButton: {
+    backgroundColor: Colors.light.tint,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  retryText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });

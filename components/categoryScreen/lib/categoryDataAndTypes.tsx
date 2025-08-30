@@ -26,7 +26,7 @@ export type CategoryType = {
     | "/(tabs)/category/vegetables"
     | "/(tabs)/category/dairy"
     | "/(tabs)/category/meat"
-    | "/(tabs)/category/protein"
+    | "/(tabs)/category/proteins"
     | "/(tabs)/category/egg"
     | "/(tabs)/category/chicken"
     | "/(tabs)/category/fish"
@@ -41,7 +41,7 @@ export const categories: CategoryType[] = [
     id: "1",
     name: PROTEINS,
     slug: PROTEINS,
-    href: "/(tabs)/category/protein",
+    href: "/(tabs)/category/proteins",
     icon: proteinPng,
   },
   {
