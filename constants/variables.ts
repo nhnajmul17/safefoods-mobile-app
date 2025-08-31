@@ -28,3 +28,5 @@ export const PAYMENT_METHOD_CASH_ON_DELIVERY = "cash on delivery";
 export const PAYMENT_METHOD_BKASH = "bkash";
 export const PAYMENT_METHOD_NAGAD = "nagad";
 export const PAYMENT_METHOD_CARD = "card";
+
+export const WHATSAPP_PHONE_NUMBER = "+8801332945561";
