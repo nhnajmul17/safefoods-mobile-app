@@ -113,10 +113,10 @@ export default function HomeCategorySection({
 
   const handleCategoryPress = (slug: string) => {
     // Navigate to main category page first, then to specific category
-    if (!isCategoryLoaded) {
-      navigation.push("/(tabs)/category");
-      setIsCategoryLoaded(true);
-    }
+    navigation.push("/(tabs)/category");
+    // if (!isCategoryLoaded) {
+    //   setIsCategoryLoaded(true);
+    // }
     // Small delay to ensure category page is mounted
     setTimeout(() => {
       navigation.push(`/(tabs)/category/${slug}` as any);

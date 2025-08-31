@@ -22,13 +22,7 @@ interface QuantityMap {
   [productId: string]: number;
 }
 
-export default function HomeBestDeal({
-  isCategoryLoaded,
-  setIsCategoryLoaded,
-}: {
-  isCategoryLoaded: boolean;
-  setIsCategoryLoaded: React.Dispatch<React.SetStateAction<boolean>>;
-}) {
+export default function HomeBestDeal() {
   const { addItem } = useCartStore();
   const { userId, accessToken } = useAuthStore();
   const [products, setProducts] = useState<ShopNowProduct[]>([]);
@@ -66,12 +60,11 @@ export default function HomeBestDeal({
         setError("Failed to load best-selling products. Please try again.");
       } finally {
         setLoading(false);
-        setIsCategoryLoaded(true);
       }
     };
 
     fetchBestSellingProducts();
-  }, [setIsCategoryLoaded]);
+  }, []);
 
   const handleAddToCart = (
     item: ShopNowProduct,
@@ -161,8 +154,6 @@ export default function HomeBestDeal({
               setSelectedVariants={setSelectedVariants}
               setQuantities={setQuantities}
               handleAddToCart={handleAddToCart}
-              isCategoryLoaded={isCategoryLoaded}
-              setIsCategoryLoaded={setIsCategoryLoaded}
             />
           </Fragment>
         ))}

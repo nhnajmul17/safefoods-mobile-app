@@ -28,8 +28,6 @@ interface BestSellingProductCardProps {
     item: ShopNowProduct,
     selectedVariant: ProductVariant
   ) => void;
-  isCategoryLoaded: boolean;
-  setIsCategoryLoaded: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const BestDealProductCard = ({
@@ -39,29 +37,13 @@ const BestDealProductCard = ({
   setSelectedVariants,
   setQuantities,
   handleAddToCart,
-  isCategoryLoaded,
-  setIsCategoryLoaded,
 }: BestSellingProductCardProps) => {
   const cardOpacity = useSharedValue(0);
   const cardScale = useSharedValue(0.95);
   const navigation = useRouter();
 
   const handleProductCardPress = (href: string) => {
-    // Navigate to main category page first, then to specific category
-    if (!isCategoryLoaded) {
-      navigation.push("/(tabs)/category");
-      setIsCategoryLoaded(true);
-      setTimeout(() => {
-        navigation.push(href as any);
-      });
-    } else {
-      navigation.push(href as any);
-    }
-
-    // Small delay to ensure category page is mounted
-    // setTimeout(() => {
-    //   navigation.push(href as any);
-    // });
+    navigation.push(href as any);
   };
 
   useEffect(() => {

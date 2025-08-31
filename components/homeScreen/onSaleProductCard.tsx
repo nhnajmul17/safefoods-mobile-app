@@ -28,8 +28,6 @@ interface onSaleProductCardProps {
     item: ShopNowProduct,
     selectedVariant: ProductVariant
   ) => void;
-  isCategoryLoaded: boolean;
-  setIsCategoryLoaded: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const OnSaleProductCard = ({
@@ -39,23 +37,13 @@ const OnSaleProductCard = ({
   setSelectedVariants,
   setQuantities,
   handleAddToCart,
-  isCategoryLoaded,
-  setIsCategoryLoaded,
 }: onSaleProductCardProps) => {
   const cardOpacity = useSharedValue(0);
   const cardScale = useSharedValue(0.95);
   const navigation = useRouter();
 
   const handleProductCardPress = (href: string) => {
-    if (!isCategoryLoaded) {
-      navigation.push("/(tabs)/category");
-      setIsCategoryLoaded(true);
-      setTimeout(() => {
-        navigation.push(href as any);
-      });
-    } else {
-      navigation.push(href as any);
-    }
+    navigation.push(href as any);
   };
 
   useEffect(() => {

@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
   Platform,
 } from "react-native";
-import { useColorScheme } from "react-native";
+
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import HomeCategorySection from "@/components/homeScreen/categorySection";
@@ -27,7 +27,6 @@ import safefoodLogoPng from "@/assets/images/logo-safefood.png";
 import HomeOnSale from "@/components/homeScreen/onSale";
 
 export default function HomeScreen() {
-  const colorScheme = useColorScheme();
   const { userId, accessToken, userName } = useAuthStore();
   const { addItem, isCartFetchedFromApi } = useCartStore();
 
@@ -207,10 +206,7 @@ export default function HomeScreen() {
                 </View>
               </View>
 
-              <HomeBestDeal
-                isCategoryLoaded={isCategoryLoaded}
-                setIsCategoryLoaded={setIsCategoryLoaded}
-              />
+              <HomeBestDeal />
 
               {/* On Sale Section */}
               <View style={styles.sectionHeader}>
@@ -224,10 +220,7 @@ export default function HomeScreen() {
                 </View>
               </View>
 
-              <HomeOnSale
-                isCategoryLoaded={isCategoryLoaded}
-                setIsCategoryLoaded={setIsCategoryLoaded}
-              />
+              <HomeOnSale />
 
               <WhySafeFoodsSection />
             </ScrollView>
