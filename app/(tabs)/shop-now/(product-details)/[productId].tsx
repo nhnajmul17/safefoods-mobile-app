@@ -27,6 +27,7 @@ import {
 import { API_URL } from "@/constants/variables";
 import { useAuthStore } from "@/store/authStore";
 import { CustomLoader } from "@/components/common/loader";
+import RelatedProducts from "./relatedProducts";
 
 export default function ProductDetailsScreen() {
   const { productId } = useLocalSearchParams();
@@ -34,18 +35,23 @@ export default function ProductDetailsScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     null
   );
-  const { addItem } = useCartStore();
+  const { cartItems, addItem, updateQuantity, removeItem } = useCartStore();
   const { userId, accessToken } = useAuthStore();
+
+  // Find if this product variant is already in cart
+  const cartItem = cartItems.find(
+    (cartItem) =>
+      cartItem.id === product?.id && cartItem.variantId === selectedVariant?.id
+  );
+
+  const quantity = cartItem ? cartItem.quantity : 0;
 
   // Animation values
   const imageOpacity = useSharedValue(0);
   const detailsTranslateY = useSharedValue(100);
-  const decrementScale = useSharedValue(1);
-  const incrementScale = useSharedValue(1);
   const addToCartScale = useSharedValue(1);
   const variantScale = useSharedValue(1);
 
@@ -81,18 +87,22 @@ export default function ProductDetailsScreen() {
     }
   }, [product, selectedVariant]);
 
-  const handleIncrement = () => {
-    setQuantity(quantity + 1);
-    incrementScale.value = withSpring(0.9, {}, () => {
-      incrementScale.value = withSpring(1);
-    });
+  const handleIncrease = () => {
+    if (!product || !selectedVariant) return;
+
+    const newQuantity = quantity + 1;
+    handleAddToCart(newQuantity);
   };
 
-  const handleDecrement = () => {
-    setQuantity(quantity > 0 ? quantity - 1 : 0);
-    decrementScale.value = withSpring(0.9, {}, () => {
-      decrementScale.value = withSpring(1);
-    });
+  const handleDecrease = () => {
+    if (!product || !selectedVariant) return;
+
+    if (quantity > 1) {
+      const newQuantity = quantity - 1;
+      handleAddToCart(newQuantity);
+    } else {
+      handleAddToCart(0); // Remove from cart
+    }
   };
 
   const handleVariantChange = (variant: ProductVariant) => {
@@ -102,22 +112,60 @@ export default function ProductDetailsScreen() {
     });
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (newQuantity: number) => {
     if (!product || !selectedVariant) return;
 
-    if (quantity > 0) {
-      const cartItem = {
-        id: product.id,
-        variantId: selectedVariant.id,
-        name: product.title,
-        image:
-          selectedVariant.mediaItems?.[0]?.mediaUrl ||
-          "https://via.placeholder.com/50",
-        price: selectedVariant.price,
-        unit: selectedVariant.unitTitle,
-        quantity,
-      };
-      addItem(cartItem);
+    // Find the current quantity in cart
+    const currentQuantity = quantity;
+
+    if (newQuantity > 0) {
+      if (currentQuantity === 0) {
+        // Add new item to cart
+        addItem({
+          id: product.id,
+          variantId: selectedVariant.id,
+          name: product.title,
+          image:
+            selectedVariant.mediaItems?.[0]?.mediaUrl ||
+            "https://via.placeholder.com/50",
+          price: selectedVariant.price,
+          unit: selectedVariant.unitTitle,
+          quantity: newQuantity,
+        });
+      } else {
+        // Update existing item quantity
+        updateQuantity(product.id, selectedVariant.id, newQuantity);
+      }
+
+      // Update API if user is logged in
+      if (userId && accessToken) {
+        const quantityChange = newQuantity - currentQuantity;
+        fetch(`${API_URL}/v1/cart`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            userId: userId,
+            variantProductId: selectedVariant.id,
+            quantity: quantityChange,
+          }),
+        })
+          .then((response) => response.json())
+          .catch((error) => console.error("Cart API Error:", error));
+      }
+
+      Toast.show({
+        type: "success",
+        text1: currentQuantity === 0 ? "Added to Cart" : "Cart Updated",
+        text2: `${product.title} (${selectedVariant.unitTitle}) x${newQuantity} in cart.`,
+      });
+    } else {
+      // Remove item from cart
+      removeItem(product.id, selectedVariant.id);
+
+      // Update API if user is logged in
       if (userId && accessToken) {
         fetch(`${API_URL}/v1/cart`, {
           method: "POST",
@@ -128,28 +176,17 @@ export default function ProductDetailsScreen() {
           body: JSON.stringify({
             userId: userId,
             variantProductId: selectedVariant.id,
-            quantity,
+            quantity: -currentQuantity,
           }),
         })
           .then((response) => response.json())
           .catch((error) => console.error("Cart API Error:", error));
       }
-      Toast.show({
-        type: "success",
-        text1: "Added to Cart",
-        text2: `${quantity} ${product.title} (${selectedVariant.unitTitle}) added to your cart.`,
-        text1Style: { fontSize: 16, fontWeight: "bold" },
-        text2Style: { fontSize: 14, fontWeight: "bold" },
-      });
 
-      setQuantity(1);
-    } else {
       Toast.show({
-        type: "error",
-        text1: "Invalid Quantity",
-        text2: "Please select a quantity greater than 0.",
-        text1Style: { fontSize: 16, fontWeight: "bold" },
-        text2Style: { fontSize: 14, fontWeight: "bold" },
+        type: "info",
+        text1: "Removed from Cart",
+        text2: `${product.title} (${selectedVariant.unitTitle}) removed from cart.`,
       });
     }
 
@@ -164,14 +201,6 @@ export default function ProductDetailsScreen() {
 
   const detailsStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: detailsTranslateY.value }],
-  }));
-
-  const decrementStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: decrementScale.value }],
-  }));
-
-  const incrementStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: incrementScale.value }],
   }));
 
   const addToCartStyle = useAnimatedStyle(() => ({
@@ -225,25 +254,32 @@ export default function ProductDetailsScreen() {
         {/* Fixed Product Info */}
         <View style={styles.header}>
           <Text style={styles.name}>{product.title}</Text>
-          <View style={styles.quantityContainer}>
-            <Animated.View style={decrementStyle}>
+          <Animated.View style={addToCartStyle}>
+            {quantity === 0 ? (
               <TouchableOpacity
-                onPress={handleDecrement}
-                style={styles.quantityButton}
+                style={styles.addToCartButton}
+                onPress={() => handleAddToCart(1)}
               >
-                <Text style={styles.quantityText}>-</Text>
+                <Text style={styles.addToCartText}>Add to cart</Text>
               </TouchableOpacity>
-            </Animated.View>
-            <Text style={styles.quantity}>{quantity}</Text>
-            <Animated.View style={incrementStyle}>
-              <TouchableOpacity
-                onPress={handleIncrement}
-                style={styles.quantityButton}
-              >
-                <Text style={styles.quantityText}>+</Text>
-              </TouchableOpacity>
-            </Animated.View>
-          </View>
+            ) : (
+              <View style={styles.cartQuantityContainer}>
+                <TouchableOpacity
+                  onPress={handleDecrease}
+                  style={styles.cartQuantityButton}
+                >
+                  <Text style={styles.cartQuantityText}>-</Text>
+                </TouchableOpacity>
+                <Text style={styles.cartQuantity}>{quantity}</Text>
+                <TouchableOpacity
+                  onPress={handleIncrease}
+                  style={styles.cartQuantityButton}
+                >
+                  <Text style={styles.cartQuantityText}>+</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </Animated.View>
         </View>
 
         <View style={styles.variantContainer}>
@@ -287,7 +323,6 @@ export default function ProductDetailsScreen() {
           showsVerticalScrollIndicator={false}
         >
           <Text style={styles.description}>{selectedVariant.description}</Text>
-
           <View style={styles.infoGrid}>
             <View style={styles.infoItem}>
               <Image
@@ -326,18 +361,12 @@ export default function ProductDetailsScreen() {
               <Text style={styles.infoText}>Varies by product</Text>
             </View>
           </View>
+
+          {/* Related Products Section */}
+          <RelatedProducts productSlug={product.slug} />
         </ScrollView>
       </Animated.View>
 
-      {/* Fixed Add to Cart Button */}
-      <Animated.View style={[styles.addToCartContainer, addToCartStyle]}>
-        <TouchableOpacity
-          style={styles.addToCartButton}
-          onPress={handleAddToCart}
-        >
-          <Text style={styles.addToCartText}>Add to cart</Text>
-        </TouchableOpacity>
-      </Animated.View>
       <Toast />
     </SafeAreaView>
   );
@@ -379,41 +408,57 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 4,
+    marginBottom: 16,
   },
   name: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "bold",
     color: "#333",
     flex: 1,
     marginRight: 16,
   },
-  quantityContainer: {
+  addToCartButton: {
+    backgroundColor: deepGreenColor,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    alignItems: "center",
+    minWidth: 100,
+  },
+  addToCartText: {
+    fontSize: 14,
+    color: yellowColor,
+    fontWeight: "bold",
+  },
+  cartQuantityContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f0f0f0",
-    borderRadius: 25,
-    paddingHorizontal: 10,
+    justifyContent: "center",
+    backgroundColor: deepGreenColor,
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    minWidth: 100,
   },
-  quantityButton: {
-    padding: 6,
+  cartQuantityButton: {
+    paddingHorizontal: 8,
   },
-  quantityText: {
-    fontSize: 24,
+  cartQuantityText: {
+    fontSize: 20,
+    color: yellowColor,
     fontWeight: "bold",
-    color: deepGreenColor,
   },
-  quantity: {
-    fontSize: 24,
+  cartQuantity: {
+    fontSize: 20,
     fontWeight: "bold",
-    marginHorizontal: 16,
-    color: "#333",
+    color: yellowColor,
+    marginHorizontal: 12,
   },
   variantContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "flex-start",
-    marginBottom: 8,
+    marginBottom: 16,
   },
   variantBadge: {
     backgroundColor: "#eee",
@@ -437,7 +482,7 @@ const styles = StyleSheet.create({
   priceContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: 16,
   },
   weightPrice: {
     fontSize: 20,
@@ -452,15 +497,14 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flex: 1,
-    marginBottom: 80, // Space for the fixed add to cart button
   },
   scrollContent: {
-    paddingBottom: 20,
+    paddingBottom: 30,
   },
   description: {
     fontSize: 16,
     color: "#666",
-    marginBottom: 8,
+    marginBottom: 16,
     lineHeight: 24,
   },
   infoGrid: {
@@ -468,12 +512,13 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "space-between",
     padding: 8,
+    marginBottom: 24,
   },
   infoItem: {
     width: "48%",
     backgroundColor: "#f9f9f9",
     borderRadius: 12,
-    padding: 20,
+    padding: 16,
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 12,
@@ -489,32 +534,9 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   infoText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "500",
     color: "#666",
     textAlign: "center",
-  },
-  addToCartContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "#fff",
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: "#eee",
-  },
-  addToCartButton: {
-    backgroundColor: deepGreenColor,
-    paddingVertical: 18,
-    borderRadius: 25,
-    alignItems: "center",
-    marginHorizontal: 16,
-    marginBottom: 10,
-  },
-  addToCartText: {
-    fontSize: 18,
-    color: yellowColor,
-    fontWeight: "bold",
   },
 });

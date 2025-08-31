@@ -36,6 +36,7 @@ export interface ProductVariant {
 export interface ShopNowProduct {
   id: string;
   title: string;
+  slug: string;
   categoryTitle: string;
   categorySlug?: string;
   variants: ProductVariant[];

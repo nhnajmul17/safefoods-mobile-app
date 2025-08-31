@@ -27,6 +27,7 @@ import {
 import { API_URL } from "@/constants/variables";
 import { useAuthStore } from "@/store/authStore";
 import { CustomLoader } from "@/components/common/loader";
+import RelatedProducts from "./relatedProducts";
 
 export default function ProductDetailsScreen() {
   const { productId } = useLocalSearchParams();
@@ -253,6 +254,32 @@ export default function ProductDetailsScreen() {
         {/* Fixed Product Info */}
         <View style={styles.header}>
           <Text style={styles.name}>{product.title}</Text>
+          <Animated.View style={addToCartStyle}>
+            {quantity === 0 ? (
+              <TouchableOpacity
+                style={styles.addToCartButton}
+                onPress={() => handleAddToCart(1)}
+              >
+                <Text style={styles.addToCartText}>Add to cart</Text>
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.cartQuantityContainer}>
+                <TouchableOpacity
+                  onPress={handleDecrease}
+                  style={styles.cartQuantityButton}
+                >
+                  <Text style={styles.cartQuantityText}>-</Text>
+                </TouchableOpacity>
+                <Text style={styles.cartQuantity}>{quantity}</Text>
+                <TouchableOpacity
+                  onPress={handleIncrease}
+                  style={styles.cartQuantityButton}
+                >
+                  <Text style={styles.cartQuantityText}>+</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </Animated.View>
         </View>
 
         <View style={styles.variantContainer}>
@@ -334,35 +361,10 @@ export default function ProductDetailsScreen() {
               <Text style={styles.infoText}>Varies by product</Text>
             </View>
           </View>
-        </ScrollView>
-      </Animated.View>
 
-      {/* Fixed Add to Cart Button - Show quantity controls if already in cart */}
-      <Animated.View style={[styles.addToCartContainer, addToCartStyle]}>
-        {quantity === 0 ? (
-          <TouchableOpacity
-            style={styles.addToCartButton}
-            onPress={() => handleAddToCart(1)}
-          >
-            <Text style={styles.addToCartText}>Add to cart</Text>
-          </TouchableOpacity>
-        ) : (
-          <View style={styles.cartQuantityContainer}>
-            <TouchableOpacity
-              onPress={handleDecrease}
-              style={styles.cartQuantityButton}
-            >
-              <Text style={styles.cartQuantityText}>-</Text>
-            </TouchableOpacity>
-            <Text style={styles.cartQuantity}>{quantity}</Text>
-            <TouchableOpacity
-              onPress={handleIncrease}
-              style={styles.cartQuantityButton}
-            >
-              <Text style={styles.cartQuantityText}>+</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+          {/* Related Products Section */}
+          <RelatedProducts productSlug={product.slug} />
+        </ScrollView>
       </Animated.View>
 
       <Toast />
@@ -406,20 +408,57 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 4,
+    marginBottom: 16,
   },
   name: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "bold",
     color: "#333",
     flex: 1,
     marginRight: 16,
   },
+  addToCartButton: {
+    backgroundColor: deepGreenColor,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    alignItems: "center",
+    minWidth: 100,
+  },
+  addToCartText: {
+    fontSize: 14,
+    color: yellowColor,
+    fontWeight: "bold",
+  },
+  cartQuantityContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: deepGreenColor,
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    minWidth: 100,
+  },
+  cartQuantityButton: {
+    paddingHorizontal: 8,
+  },
+  cartQuantityText: {
+    fontSize: 20,
+    color: yellowColor,
+    fontWeight: "bold",
+  },
+  cartQuantity: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: yellowColor,
+    marginHorizontal: 12,
+  },
   variantContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "flex-start",
-    marginBottom: 8,
+    marginBottom: 16,
   },
   variantBadge: {
     backgroundColor: "#eee",
@@ -443,7 +482,7 @@ const styles = StyleSheet.create({
   priceContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: 16,
   },
   weightPrice: {
     fontSize: 20,
@@ -458,15 +497,14 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flex: 1,
-    marginBottom: 80,
   },
   scrollContent: {
-    paddingBottom: 20,
+    paddingBottom: 30,
   },
   description: {
     fontSize: 16,
     color: "#666",
-    marginBottom: 8,
+    marginBottom: 16,
     lineHeight: 24,
   },
   infoGrid: {
@@ -474,12 +512,13 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "space-between",
     padding: 8,
+    marginBottom: 24,
   },
   infoItem: {
     width: "48%",
     backgroundColor: "#f9f9f9",
     borderRadius: 12,
-    padding: 20,
+    padding: 16,
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 12,
@@ -495,56 +534,9 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   infoText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "500",
     color: "#666",
     textAlign: "center",
-  },
-  addToCartContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "#fff",
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: "#eee",
-  },
-  addToCartButton: {
-    backgroundColor: deepGreenColor,
-    paddingVertical: 18,
-    borderRadius: 25,
-    alignItems: "center",
-    marginHorizontal: 16,
-    marginBottom: 10,
-  },
-  addToCartText: {
-    fontSize: 18,
-    color: yellowColor,
-    fontWeight: "bold",
-  },
-  cartQuantityContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: deepGreenColor,
-    borderRadius: 25,
-    paddingVertical: 12,
-    marginHorizontal: 16,
-    marginBottom: 10,
-  },
-  cartQuantityButton: {
-    paddingHorizontal: 16,
-  },
-  cartQuantityText: {
-    fontSize: 20,
-    color: yellowColor,
-    fontWeight: "bold",
-  },
-  cartQuantity: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: yellowColor,
-    marginHorizontal: 16,
   },
 });
