@@ -101,14 +101,31 @@ const ShopNowProductCard = ({ item, onAddToCart }: ProductCardProps) => {
     }
   };
 
+  // Check if product has discount
+  const hasDiscount = selectedVariant.originalPrice > selectedVariant.price;
+
   return (
     <Animated.View
       style={[styles.productCard, cardStyle, { width: cardWidth }]}
     >
+      {/* Discount badge */}
+      {hasDiscount && (
+        <View style={styles.discountBadge}>
+          <Text style={styles.discountText}>
+            {Math.round(
+              ((selectedVariant.originalPrice - selectedVariant.price) /
+                selectedVariant.originalPrice) *
+                100
+            )}
+            % OFF
+          </Text>
+        </View>
+      )}
+
       <View style={styles.cardContent}>
-        {/* Product Image - Left side covering full height */}
+        {/* Product Image */}
         <Link href={`/(tabs)/shop-now/(product-details)/${item.id}`} asChild>
-          <TouchableOpacity>
+          <TouchableOpacity style={styles.imageContainer}>
             <Image
               source={{
                 uri:
@@ -121,14 +138,14 @@ const ShopNowProductCard = ({ item, onAddToCart }: ProductCardProps) => {
           </TouchableOpacity>
         </Link>
 
-        {/* Product Details - Right side */}
+        {/* Product Details */}
         <View style={styles.productDetails}>
-          {/* Product Name - Top section */}
+          {/* Product Name */}
           <Text style={styles.productName} numberOfLines={2}>
             {item.title}
           </Text>
 
-          {/* Variants - Below product name */}
+          {/* Variants */}
           <View style={styles.variantContainer}>
             {item.variants.map((variant) => (
               <TouchableOpacity
@@ -154,17 +171,17 @@ const ShopNowProductCard = ({ item, onAddToCart }: ProductCardProps) => {
             ))}
           </View>
 
-          {/* Price - Below variants */}
+          {/* Price */}
           <View style={styles.priceContainer}>
             <Text style={styles.productPrice}>৳{selectedVariant.price}</Text>
-            {selectedVariant.originalPrice > selectedVariant.price && (
+            {hasDiscount && (
               <Text style={styles.originalPrice}>
                 ৳{selectedVariant.originalPrice}
               </Text>
             )}
           </View>
 
-          {/* Add to Cart / Quantity Controls - Bottom section */}
+          {/* Add to Cart / Quantity Controls */}
           <View style={styles.cartSection}>
             {quantity === 0 ? (
               <TouchableOpacity
@@ -179,14 +196,14 @@ const ShopNowProductCard = ({ item, onAddToCart }: ProductCardProps) => {
                   onPress={handleDecrease}
                   style={styles.quantityButton}
                 >
-                  <Icon style={styles.quantityButtonText} name="remove" />
+                  <Icon name="remove" size={20} color={yellowColor} />
                 </TouchableOpacity>
                 <Text style={styles.quantityText}>{quantity}</Text>
                 <TouchableOpacity
                   onPress={handleIncrease}
                   style={styles.quantityButton}
                 >
-                  <Icon style={styles.quantityButtonText} name="add" />
+                  <Icon name="add" size={20} color={yellowColor} />
                 </TouchableOpacity>
               </View>
             )}
@@ -201,55 +218,78 @@ export default ShopNowProductCard;
 
 const styles = StyleSheet.create({
   productCard: {
-    marginBottom: 12, // Reduced from 16
-    borderRadius: 10, // Reduced from 12
+    marginBottom: 12,
+    borderRadius: 10,
     overflow: "hidden",
-    elevation: 3, // Reduced from 4
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 }, // Reduced from 2
-    shadowOpacity: 0.1,
-    shadowRadius: 4, // Reduced from 6
     backgroundColor: "#fff",
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    position: "relative",
+  },
+  discountBadge: {
+    position: "absolute",
+    top: 8,
+    left: 8,
+    backgroundColor: "#FF4757",
+    borderRadius: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    zIndex: 1,
+  },
+  discountText: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "bold",
   },
   cardContent: {
     flexDirection: "row",
-    padding: 10, // Reduced from 12
+    padding: 10,
+  },
+  imageContainer: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   productImage: {
-    width: 85, // Reduced from 100
-    height: 85, // Reduced from 100
-    borderRadius: 6, // Reduced from 8
-    marginRight: 10, // Reduced from 12
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    marginRight: 10,
   },
   productDetails: {
     flex: 1,
     justifyContent: "space-between",
   },
   productName: {
-    fontSize: 14, // Reduced from 16
-    fontWeight: "700",
+    fontSize: 14,
+    fontWeight: "600",
     color: "#333",
-    marginBottom: 6, // Reduced from 8
+    marginBottom: 6,
+    lineHeight: 18,
   },
   variantContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    marginBottom: 6, // Reduced from 8
+    marginBottom: 6,
   },
   variantBadge: {
-    backgroundColor: "#eee",
-    borderRadius: 4, // Reduced from 6
-    paddingVertical: 3, // Reduced from 4
-    paddingHorizontal: 6, // Reduced from 8
-    marginRight: 3, // Reduced from 4
-    marginBottom: 3, // Reduced from 4
+    backgroundColor: "#f1f3f4",
+    borderRadius: 4,
+    paddingVertical: 3,
+    paddingHorizontal: 6,
+    marginRight: 4,
+    marginBottom: 4,
   },
   selectedVariantBadge: {
     backgroundColor: deepGreenColor,
   },
   variantText: {
-    fontSize: 10, // Reduced from 11
-    color: "#333",
+    fontSize: 10,
+    color: "#555",
   },
   selectedVariantText: {
     color: yellowColor,
@@ -258,54 +298,49 @@ const styles = StyleSheet.create({
   priceContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 6, // Reduced from 8
+    marginBottom: 6,
   },
   productPrice: {
-    fontSize: 16, // Reduced from 18
+    fontSize: 15,
     color: deepGreenColor,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   originalPrice: {
-    fontSize: 12, // Reduced from 14
+    fontSize: 12,
     color: "#999",
     textDecorationLine: "line-through",
-    marginLeft: 4, // Reduced from 6
+    marginLeft: 4,
   },
   cartSection: {
     alignSelf: "flex-start",
   },
   addButton: {
     backgroundColor: deepGreenColor,
-    paddingVertical: 6, // Reduced from 8
-    paddingHorizontal: 16, // Reduced from 20
-    borderRadius: 5, // Reduced from 6
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    borderRadius: 5,
     alignItems: "center",
   },
   addButtonText: {
     color: yellowColor,
-    fontSize: 12, // Reduced from 14
+    fontSize: 12,
     fontWeight: "600",
   },
   quantityContainer: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: deepGreenColor,
-    borderRadius: 5, // Reduced from 6
-    paddingVertical: 3, // Reduced from 4
-    paddingHorizontal: 6, // Reduced from 8
+    borderRadius: 5,
+    paddingVertical: 3,
+    paddingHorizontal: 6,
   },
   quantityButton: {
-    paddingHorizontal: 4, // Reduced from 6
-  },
-  quantityButtonText: {
-    fontSize: 18, // Reduced from 20
-    color: yellowColor,
-    fontWeight: "bold",
+    paddingHorizontal: 4,
   },
   quantityText: {
-    fontSize: 13, // Reduced from 14
+    fontSize: 20,
     fontWeight: "600",
     color: yellowColor,
-    marginHorizontal: 6, // Reduced from 8
+    marginHorizontal: 6,
   },
 });
