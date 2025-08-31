@@ -34,18 +34,23 @@ export default function ProductDetailsScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     null
   );
-  const { addItem } = useCartStore();
+  const { cartItems, addItem, updateQuantity, removeItem } = useCartStore();
   const { userId, accessToken } = useAuthStore();
+
+  // Find if this product variant is already in cart
+  const cartItem = cartItems.find(
+    (cartItem) =>
+      cartItem.id === product?.id && cartItem.variantId === selectedVariant?.id
+  );
+
+  const quantity = cartItem ? cartItem.quantity : 0;
 
   // Animation values
   const imageOpacity = useSharedValue(0);
   const detailsTranslateY = useSharedValue(100);
-  const decrementScale = useSharedValue(1);
-  const incrementScale = useSharedValue(1);
   const addToCartScale = useSharedValue(1);
   const variantScale = useSharedValue(1);
 
@@ -81,18 +86,22 @@ export default function ProductDetailsScreen() {
     }
   }, [product, selectedVariant]);
 
-  const handleIncrement = () => {
-    setQuantity(quantity + 1);
-    incrementScale.value = withSpring(0.9, {}, () => {
-      incrementScale.value = withSpring(1);
-    });
+  const handleIncrease = () => {
+    if (!product || !selectedVariant) return;
+
+    const newQuantity = quantity + 1;
+    handleAddToCart(newQuantity);
   };
 
-  const handleDecrement = () => {
-    setQuantity(quantity > 0 ? quantity - 1 : 0);
-    decrementScale.value = withSpring(0.9, {}, () => {
-      decrementScale.value = withSpring(1);
-    });
+  const handleDecrease = () => {
+    if (!product || !selectedVariant) return;
+
+    if (quantity > 1) {
+      const newQuantity = quantity - 1;
+      handleAddToCart(newQuantity);
+    } else {
+      handleAddToCart(0); // Remove from cart
+    }
   };
 
   const handleVariantChange = (variant: ProductVariant) => {
@@ -102,22 +111,60 @@ export default function ProductDetailsScreen() {
     });
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (newQuantity: number) => {
     if (!product || !selectedVariant) return;
 
-    if (quantity > 0) {
-      const cartItem = {
-        id: product.id,
-        variantId: selectedVariant.id,
-        name: product.title,
-        image:
-          selectedVariant.mediaItems?.[0]?.mediaUrl ||
-          "https://via.placeholder.com/50",
-        price: selectedVariant.price,
-        unit: selectedVariant.unitTitle,
-        quantity,
-      };
-      addItem(cartItem);
+    // Find the current quantity in cart
+    const currentQuantity = quantity;
+
+    if (newQuantity > 0) {
+      if (currentQuantity === 0) {
+        // Add new item to cart
+        addItem({
+          id: product.id,
+          variantId: selectedVariant.id,
+          name: product.title,
+          image:
+            selectedVariant.mediaItems?.[0]?.mediaUrl ||
+            "https://via.placeholder.com/50",
+          price: selectedVariant.price,
+          unit: selectedVariant.unitTitle,
+          quantity: newQuantity,
+        });
+      } else {
+        // Update existing item quantity
+        updateQuantity(product.id, selectedVariant.id, newQuantity);
+      }
+
+      // Update API if user is logged in
+      if (userId && accessToken) {
+        const quantityChange = newQuantity - currentQuantity;
+        fetch(`${API_URL}/v1/cart`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            userId: userId,
+            variantProductId: selectedVariant.id,
+            quantity: quantityChange,
+          }),
+        })
+          .then((response) => response.json())
+          .catch((error) => console.error("Cart API Error:", error));
+      }
+
+      Toast.show({
+        type: "success",
+        text1: currentQuantity === 0 ? "Added to Cart" : "Cart Updated",
+        text2: `${product.title} (${selectedVariant.unitTitle}) x${newQuantity} in cart.`,
+      });
+    } else {
+      // Remove item from cart
+      removeItem(product.id, selectedVariant.id);
+
+      // Update API if user is logged in
       if (userId && accessToken) {
         fetch(`${API_URL}/v1/cart`, {
           method: "POST",
@@ -128,28 +175,17 @@ export default function ProductDetailsScreen() {
           body: JSON.stringify({
             userId: userId,
             variantProductId: selectedVariant.id,
-            quantity,
+            quantity: -currentQuantity,
           }),
         })
           .then((response) => response.json())
           .catch((error) => console.error("Cart API Error:", error));
       }
-      Toast.show({
-        type: "success",
-        text1: "Added to Cart",
-        text2: `${quantity} ${product.title} (${selectedVariant.unitTitle}) added to your cart.`,
-        text1Style: { fontSize: 16, fontWeight: "bold" },
-        text2Style: { fontSize: 14, fontWeight: "bold" },
-      });
 
-      setQuantity(1);
-    } else {
       Toast.show({
-        type: "error",
-        text1: "Invalid Quantity",
-        text2: "Please select a quantity greater than 0.",
-        text1Style: { fontSize: 16, fontWeight: "bold" },
-        text2Style: { fontSize: 14, fontWeight: "bold" },
+        type: "info",
+        text1: "Removed from Cart",
+        text2: `${product.title} (${selectedVariant.unitTitle}) removed from cart.`,
       });
     }
 
@@ -164,14 +200,6 @@ export default function ProductDetailsScreen() {
 
   const detailsStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: detailsTranslateY.value }],
-  }));
-
-  const decrementStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: decrementScale.value }],
-  }));
-
-  const incrementStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: incrementScale.value }],
   }));
 
   const addToCartStyle = useAnimatedStyle(() => ({
@@ -225,25 +253,6 @@ export default function ProductDetailsScreen() {
         {/* Fixed Product Info */}
         <View style={styles.header}>
           <Text style={styles.name}>{product.title}</Text>
-          <View style={styles.quantityContainer}>
-            <Animated.View style={decrementStyle}>
-              <TouchableOpacity
-                onPress={handleDecrement}
-                style={styles.quantityButton}
-              >
-                <Text style={styles.quantityText}>-</Text>
-              </TouchableOpacity>
-            </Animated.View>
-            <Text style={styles.quantity}>{quantity}</Text>
-            <Animated.View style={incrementStyle}>
-              <TouchableOpacity
-                onPress={handleIncrement}
-                style={styles.quantityButton}
-              >
-                <Text style={styles.quantityText}>+</Text>
-              </TouchableOpacity>
-            </Animated.View>
-          </View>
         </View>
 
         <View style={styles.variantContainer}>
@@ -328,14 +337,32 @@ export default function ProductDetailsScreen() {
         </ScrollView>
       </Animated.View>
 
-      {/* Fixed Add to Cart Button */}
+      {/* Fixed Add to Cart Button - Show quantity controls if already in cart */}
       <Animated.View style={[styles.addToCartContainer, addToCartStyle]}>
-        <TouchableOpacity
-          style={styles.addToCartButton}
-          onPress={handleAddToCart}
-        >
-          <Text style={styles.addToCartText}>Add to cart</Text>
-        </TouchableOpacity>
+        {quantity === 0 ? (
+          <TouchableOpacity
+            style={styles.addToCartButton}
+            onPress={() => handleAddToCart(1)}
+          >
+            <Text style={styles.addToCartText}>Add to cart</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.cartQuantityContainer}>
+            <TouchableOpacity
+              onPress={handleDecrease}
+              style={styles.cartQuantityButton}
+            >
+              <Text style={styles.cartQuantityText}>-</Text>
+            </TouchableOpacity>
+            <Text style={styles.cartQuantity}>{quantity}</Text>
+            <TouchableOpacity
+              onPress={handleIncrease}
+              style={styles.cartQuantityButton}
+            >
+              <Text style={styles.cartQuantityText}>+</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </Animated.View>
 
       <Toast />
@@ -388,27 +415,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 16,
   },
-  quantityContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#f0f0f0",
-    borderRadius: 25,
-    paddingHorizontal: 10,
-  },
-  quantityButton: {
-    padding: 6,
-  },
-  quantityText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: deepGreenColor,
-  },
-  quantity: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginHorizontal: 16,
-    color: "#333",
-  },
   variantContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -452,7 +458,7 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flex: 1,
-    marginBottom: 80, // Space for the fixed add to cart button
+    marginBottom: 80,
   },
   scrollContent: {
     paddingBottom: 20,
@@ -516,5 +522,29 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: yellowColor,
     fontWeight: "bold",
+  },
+  cartQuantityContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: deepGreenColor,
+    borderRadius: 25,
+    paddingVertical: 12,
+    marginHorizontal: 16,
+    marginBottom: 10,
+  },
+  cartQuantityButton: {
+    paddingHorizontal: 16,
+  },
+  cartQuantityText: {
+    fontSize: 20,
+    color: yellowColor,
+    fontWeight: "bold",
+  },
+  cartQuantity: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: yellowColor,
+    marginHorizontal: 16,
   },
 });
