@@ -171,42 +171,51 @@ const ShopNowProductCard = ({ item, onAddToCart }: ProductCardProps) => {
             ))}
           </View>
 
-          {/* Price */}
-          <View style={styles.priceContainer}>
-            <Text style={styles.productPrice}>৳{selectedVariant.price}</Text>
-            {hasDiscount && (
-              <Text style={styles.originalPrice}>
-                ৳{selectedVariant.originalPrice}
-              </Text>
-            )}
-          </View>
+          {/* Price and Add to Cart / Quantity Controls in a row */}
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            {/* Price */}
+            <View style={styles.priceContainer}>
+              <Text style={styles.productPrice}>৳{selectedVariant.price}</Text>
+              {hasDiscount && (
+                <Text style={styles.originalPrice}>
+                  ৳{selectedVariant.originalPrice}
+                </Text>
+              )}
+            </View>
 
-          {/* Add to Cart / Quantity Controls */}
-          <View style={styles.cartSection}>
-            {quantity === 0 ? (
-              <TouchableOpacity
-                style={styles.addButton}
-                onPress={handleAddToCartDirect}
-              >
-                <Text style={styles.addButtonText}>ADD</Text>
-              </TouchableOpacity>
-            ) : (
-              <View style={styles.quantityContainer}>
+            {/* Add to Cart / Quantity Controls */}
+            <View style={styles.cartSection}>
+              {quantity === 0 ? (
                 <TouchableOpacity
-                  onPress={handleDecrease}
-                  style={styles.quantityButton}
+                  style={styles.addButton}
+                  onPress={handleAddToCartDirect}
                 >
-                  <Icon name="remove" size={20} color={yellowColor} />
+                  <Text style={styles.addButtonText}>ADD</Text>
                 </TouchableOpacity>
-                <Text style={styles.quantityText}>{quantity}</Text>
-                <TouchableOpacity
-                  onPress={handleIncrease}
-                  style={styles.quantityButton}
-                >
-                  <Icon name="add" size={20} color={yellowColor} />
-                </TouchableOpacity>
-              </View>
-            )}
+              ) : (
+                <View style={styles.quantityContainer}>
+                  <TouchableOpacity
+                    onPress={handleDecrease}
+                    style={styles.quantityButton}
+                  >
+                    <Icon name="remove" size={15} color={yellowColor} />
+                  </TouchableOpacity>
+                  <Text style={styles.quantityText}>{quantity}</Text>
+                  <TouchableOpacity
+                    onPress={handleIncrease}
+                    style={styles.quantityButton}
+                  >
+                    <Icon name="add" size={15} color={yellowColor} />
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
           </View>
         </View>
       </View>
@@ -288,7 +297,7 @@ const styles = StyleSheet.create({
     backgroundColor: deepGreenColor,
   },
   variantText: {
-    fontSize: 10,
+    fontSize: 16,
     color: "#555",
   },
   selectedVariantText: {
@@ -301,12 +310,12 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   productPrice: {
-    fontSize: 15,
+    fontSize: 18,
     color: deepGreenColor,
     fontWeight: "700",
   },
   originalPrice: {
-    fontSize: 12,
+    fontSize: 16,
     color: "#999",
     textDecorationLine: "line-through",
     marginLeft: 4,
@@ -323,7 +332,7 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     color: yellowColor,
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "600",
   },
   quantityContainer: {

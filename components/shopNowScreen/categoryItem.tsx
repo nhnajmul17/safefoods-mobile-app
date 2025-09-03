@@ -117,8 +117,8 @@ const styles = StyleSheet.create({
     // keeps background but selection is highlighted by circle color
   },
   imageCircle: {
-    width: 70,
-    height: 70,
+    width: 50,
+    height: 50,
     borderRadius: 35,
     backgroundColor: "#fff",
     alignItems: "center",

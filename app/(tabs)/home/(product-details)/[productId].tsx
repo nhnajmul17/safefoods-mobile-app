@@ -281,39 +281,46 @@ export default function ProductDetailsScreen() {
             )}
           </Animated.View>
         </View>
-
-        <View style={styles.variantContainer}>
-          {product.variants.map((variant) => (
-            <Animated.View key={variant.id} style={variantStyle}>
-              <TouchableOpacity
-                style={[
-                  styles.variantBadge,
-                  selectedVariant.id === variant.id &&
-                    styles.selectedVariantBadge,
-                ]}
-                onPress={() => handleVariantChange(variant)}
-              >
-                <Text
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <View style={styles.variantContainer}>
+            {product.variants.map((variant) => (
+              <Animated.View key={variant.id} style={variantStyle}>
+                <TouchableOpacity
                   style={[
-                    styles.variantText,
+                    styles.variantBadge,
                     selectedVariant.id === variant.id &&
-                      styles.selectedVariantText,
+                      styles.selectedVariantBadge,
                   ]}
+                  onPress={() => handleVariantChange(variant)}
                 >
-                  {variant.unitTitle}
-                </Text>
-              </TouchableOpacity>
-            </Animated.View>
-          ))}
-        </View>
+                  <Text
+                    style={[
+                      styles.variantText,
+                      selectedVariant.id === variant.id &&
+                        styles.selectedVariantText,
+                    ]}
+                  >
+                    {variant.unitTitle}
+                  </Text>
+                </TouchableOpacity>
+              </Animated.View>
+            ))}
+          </View>
 
-        <View style={styles.priceContainer}>
-          <Text style={styles.weightPrice}>৳{selectedVariant.price}</Text>
-          {selectedVariant.originalPrice > selectedVariant.price && (
-            <Text style={styles.originalPrice}>
-              ৳{selectedVariant.originalPrice}
-            </Text>
-          )}
+          <View style={styles.priceContainer}>
+            <Text style={styles.weightPrice}>৳{selectedVariant.price}</Text>
+            {selectedVariant.originalPrice > selectedVariant.price && (
+              <Text style={styles.originalPrice}>
+                ৳{selectedVariant.originalPrice}
+              </Text>
+            )}
+          </View>
         </View>
 
         {/* Scrollable Description Section */}
