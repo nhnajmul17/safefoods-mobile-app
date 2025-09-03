@@ -16,6 +16,7 @@ import {
 import BestDealProductCard from "./bestDealProductCard";
 import { API_URL } from "@/constants/variables";
 import { useAuthStore } from "@/store/authStore";
+import BestDealSkeleton from "./bestDealSkeleton";
 
 // Define QuantityMap interface
 interface QuantityMap {
@@ -111,11 +112,7 @@ export default function HomeBestDeal() {
   };
 
   if (loading) {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color="#888" />
-      </View>
-    );
+    return <BestDealSkeleton />;
   }
 
   if (error) {

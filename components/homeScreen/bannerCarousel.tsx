@@ -357,12 +357,12 @@ const BannerCarousel = () => {
   if (isLoading) {
     return (
       <View style={styles.container}>
-        <View style={[styles.imageContainer, { height: 200 }]}>
+        <View style={[styles.imageContainer, { height: 300 }]}>
           <Image
             source={{
               uri: "https://via.placeholder.com/640x200?text=Loading...",
             }}
-            style={[styles.bannerImage, { height: 200 }]}
+            style={[styles.bannerImage, { height: 300 }]}
             resizeMode="cover"
           />
         </View>

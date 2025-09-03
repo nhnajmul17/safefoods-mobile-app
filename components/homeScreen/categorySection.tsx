@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { API_URL } from "@/constants/variables";
+import CategorySkeleton from "./categorySkeleton";
 
 // Define the API response type
 interface Category {
@@ -140,12 +141,7 @@ export default function HomeCategorySection({
   };
 
   if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="small" color={deepGreenColor} />
-        <Text style={styles.loadingText}>Loading categories...</Text>
-      </View>
-    );
+    return <CategorySkeleton />;
   }
 
   if (error) {
