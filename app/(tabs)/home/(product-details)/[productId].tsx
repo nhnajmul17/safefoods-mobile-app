@@ -28,6 +28,7 @@ import { API_URL } from "@/constants/variables";
 import { useAuthStore } from "@/store/authStore";
 import { CustomLoader } from "@/components/common/loader";
 import RelatedProducts from "./relatedProducts";
+import RenderHTML from "react-native-render-html";
 
 export default function ProductDetailsScreen() {
   const { productId } = useLocalSearchParams();
@@ -54,6 +55,14 @@ export default function ProductDetailsScreen() {
   const detailsTranslateY = useSharedValue(100);
   const addToCartScale = useSharedValue(1);
   const variantScale = useSharedValue(1);
+
+  // Function to ensure HTTPS
+  const ensureHttps = (url: string): string => {
+    if (url.startsWith("http://")) {
+      return url.replace("http://", "https://");
+    }
+    return url;
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -236,9 +245,9 @@ export default function ProductDetailsScreen() {
       <Animated.View style={[styles.imageContainer, imageStyle]}>
         <Image
           source={{
-            uri:
-              selectedVariant.mediaItems?.[0]?.mediaUrl ||
-              "https://via.placeholder.com/200",
+            uri: selectedVariant.mediaItems?.[0]?.mediaUrl
+              ? ensureHttps(selectedVariant.mediaItems[0].mediaUrl)
+              : "https://via.placeholder.com/200",
           }}
           style={styles.productImage}
           onError={(e) =>
@@ -329,7 +338,12 @@ export default function ProductDetailsScreen() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.description}>{selectedVariant.description}</Text>
+          {/* <Text style={styles.description}>{selectedVariant.description}</Text> */}
+          <RenderHTML
+            contentWidth={300} // Adjust based on your layout
+            source={{ html: selectedVariant.description || "" }}
+            baseStyle={styles.htmlContent}
+          />
           <View style={styles.infoGrid}>
             <View style={styles.infoItem}>
               <Image
@@ -513,6 +527,12 @@ const styles = StyleSheet.create({
     color: "#666",
     marginBottom: 16,
     lineHeight: 24,
+  },
+  htmlContent: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: "#333",
+    marginBottom: 20,
   },
   infoGrid: {
     flexDirection: "row",
