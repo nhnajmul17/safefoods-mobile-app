@@ -22,6 +22,14 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({ productSlug }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Function to ensure HTTPS
+  const ensureHttps = (url: string): string => {
+    if (url.startsWith("http://")) {
+      return url.replace("http://", "https://");
+    }
+    return url;
+  };
+
   useEffect(() => {
     const fetchRelatedProducts = async () => {
       try {
@@ -78,9 +86,9 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({ productSlug }) => {
       >
         {relatedProducts.map((product) => {
           const firstVariant = product.variants[0];
-          const imageUrl =
-            firstVariant?.mediaItems?.[0]?.mediaUrl ||
-            "https://via.placeholder.com/100";
+          const imageUrl = firstVariant?.mediaItems?.[0]?.mediaUrl
+            ? ensureHttps(firstVariant.mediaItems[0].mediaUrl)
+            : "https://via.placeholder.com/100";
 
           return (
             <TouchableOpacity
