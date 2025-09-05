@@ -24,7 +24,7 @@ interface QuantityMap {
 }
 
 export default function HomeBestDeal() {
-  const { addItem } = useCartStore();
+  const { cartItems, addItem, removeItem, updateQuantity } = useCartStore();
   const { userId, accessToken } = useAuthStore();
   const [products, setProducts] = useState<ShopNowProduct[]>([]);
   const [loading, setLoading] = useState(false);
@@ -69,23 +69,71 @@ export default function HomeBestDeal() {
 
   const handleAddToCart = (
     item: ShopNowProduct,
-    selectedVariant: ProductVariant
+    selectedVariant: ProductVariant,
+    newQuantity: number
   ) => {
-    const quantity = quantities[item.id] || 0;
-    if (quantity > 0) {
-      addItem({
-        id: item.id,
-        variantId: selectedVariant.id,
-        name: item.title,
-        image: selectedVariant.mediaItems?.[0]?.mediaUrl
-          ? selectedVariant.mediaItems[0].mediaUrl.startsWith("http://")
-            ? selectedVariant.mediaItems[0].mediaUrl.replace("http://", "https://")
-            : selectedVariant.mediaItems[0].mediaUrl
-          : "https://via.placeholder.com/50",
-        price: selectedVariant.price,
-        unit: selectedVariant.unitTitle,
-        quantity,
+    // Find the current quantity in cart
+    const cartItem = cartItems.find(
+      (cartItem) =>
+        cartItem.id === item.id && cartItem.variantId === selectedVariant.id
+    );
+    const currentQuantity = cartItem ? cartItem.quantity : 0;
+
+    if (newQuantity > 0) {
+      if (currentQuantity === 0) {
+        // Add new item to cart
+        addItem({
+          id: item.id,
+          variantId: selectedVariant.id,
+          name: item.title,
+          image: selectedVariant.mediaItems?.[0]?.mediaUrl
+            ? selectedVariant.mediaItems[0].mediaUrl.startsWith("http://")
+              ? selectedVariant.mediaItems[0].mediaUrl.replace(
+                  "http://",
+                  "https://"
+                )
+              : selectedVariant.mediaItems[0].mediaUrl
+            : "https://via.placeholder.com/50",
+          price: selectedVariant.price,
+          unit: selectedVariant.unitTitle,
+          quantity: newQuantity,
+        });
+      } else {
+        // Update existing item quantity
+        updateQuantity(item.id, selectedVariant.id, newQuantity);
+      }
+
+      // Update API if user is logged in
+      if (userId && accessToken) {
+        const quantityChange = newQuantity - currentQuantity;
+        fetch(`${API_URL}/v1/cart`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            userId: userId,
+            variantProductId: selectedVariant.id,
+            quantity: quantityChange,
+          }),
+        })
+          .then((response) => response.json())
+          .catch((error) => console.error("Cart API Error:", error));
+      }
+
+      Toast.show({
+        type: "success",
+        text1: currentQuantity === 0 ? "Added to Cart" : "Cart Updated",
+        text2: `${item.title} (${selectedVariant.unitTitle}) x${newQuantity} in cart.`,
+        text1Style: { fontSize: 16, fontWeight: "bold" },
+        text2Style: { fontSize: 14, fontWeight: "bold" },
       });
+    } else {
+      // Remove item from cart
+      removeItem(item.id, selectedVariant.id);
+
+      // Update API if user is logged in
       if (userId && accessToken) {
         fetch(`${API_URL}/v1/cart`, {
           method: "POST",
@@ -96,20 +144,20 @@ export default function HomeBestDeal() {
           body: JSON.stringify({
             userId: userId,
             variantProductId: selectedVariant.id,
-            quantity,
+            quantity: -currentQuantity,
           }),
         })
           .then((response) => response.json())
           .catch((error) => console.error("Cart API Error:", error));
       }
+
       Toast.show({
-        type: "success",
-        text1: "Added to Cart",
-        text2: `${item.title} (${selectedVariant.unitTitle}) x${quantity} added to cart.`,
+        type: "info",
+        text1: "Removed from Cart",
+        text2: `${item.title} (${selectedVariant.unitTitle}) removed from cart.`,
         text1Style: { fontSize: 16, fontWeight: "bold" },
         text2Style: { fontSize: 14, fontWeight: "bold" },
       });
-      setQuantities((prev) => ({ ...prev, [item.id]: 0 }));
     }
   };
 

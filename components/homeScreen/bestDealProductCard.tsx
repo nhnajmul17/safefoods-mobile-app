@@ -11,6 +11,8 @@ import {
 } from "../shopNowScreen/shopNowProductCard";
 import { Colors, deepGreenColor, yellowColor } from "@/constants/Colors";
 import { useRouter } from "expo-router";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import { useCartStore } from "@/store/cartStore";
 
 interface QuantityMap {
   [productId: string]: number;
@@ -26,7 +28,8 @@ interface BestSellingProductCardProps {
   setQuantities: React.Dispatch<React.SetStateAction<QuantityMap>>;
   handleAddToCart: (
     item: ShopNowProduct,
-    selectedVariant: ProductVariant
+    selectedVariant: ProductVariant,
+    newQuantity: number
   ) => void;
 }
 
@@ -38,6 +41,7 @@ const BestDealProductCard = ({
   setQuantities,
   handleAddToCart,
 }: BestSellingProductCardProps) => {
+  const { cartItems } = useCartStore();
   const cardOpacity = useSharedValue(0);
   const cardScale = useSharedValue(0.95);
   const navigation = useRouter();
@@ -50,9 +54,12 @@ const BestDealProductCard = ({
     return url;
   };
 
-  const handleProductCardPress = (href: string) => {
-    navigation.push(href as any);
-  };
+  // Find if this product variant is already in cart
+  const cartItem = cartItems.find(
+    (cartItem) =>
+      cartItem.id === item.id && cartItem.variantId === selectedVariant.id
+  );
+  const currentQuantity = cartItem ? cartItem.quantity : 0;
 
   useEffect(() => {
     cardOpacity.value = withTiming(1, { duration: 300 });
@@ -68,18 +75,27 @@ const BestDealProductCard = ({
     setSelectedVariants((prev) => ({ ...prev, [item.id]: variant }));
   };
 
-  const handleQuantityChange = (delta: number) => {
-    setQuantities((prev: QuantityMap) => {
-      const newQty = Math.max((prev[item.id] || 0) + delta, 0);
-      return { ...prev, [item.id]: newQty };
-    });
+  const handleAddToCartDirect = () => {
+    handleAddToCart(item, selectedVariant, 1);
+  };
+
+  const handleIncrease = () => {
+    handleAddToCart(item, selectedVariant, currentQuantity + 1);
+  };
+
+  const handleDecrease = () => {
+    if (currentQuantity > 1) {
+      handleAddToCart(item, selectedVariant, currentQuantity - 1);
+    } else {
+      handleAddToCart(item, selectedVariant, 0); // Remove from cart
+    }
   };
 
   return (
     <Animated.View style={[styles.productCard, cardStyle]}>
       <TouchableOpacity
         onPress={() =>
-          handleProductCardPress(`/(tabs)/home/(product-details)/${item.slug}`)
+          navigation.push(`/(tabs)/home/(product-details)/${item.slug}`)
         }
       >
         <Image
@@ -135,30 +151,33 @@ const BestDealProductCard = ({
           )}
         </View>
 
-        <View style={styles.quantityContainer}>
-          <TouchableOpacity
-            onPress={() => handleQuantityChange(-1)}
-            style={styles.quantityButton}
-          >
-            <Text style={styles.quantityButtonText}>-</Text>
-          </TouchableOpacity>
-          <Text style={styles.quantityText}>{quantity}</Text>
-          <TouchableOpacity
-            onPress={() => handleQuantityChange(1)}
-            style={styles.quantityButton}
-          >
-            <Text style={styles.quantityButtonText}>+</Text>
-          </TouchableOpacity>
+        {/* Cart Section */}
+        <View style={styles.cartSection}>
+          {currentQuantity === 0 ? (
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={handleAddToCartDirect}
+            >
+              <Text style={styles.addButtonText}>ADD</Text>
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.quantityContainer}>
+              <TouchableOpacity
+                onPress={handleDecrease}
+                style={styles.quantityButton}
+              >
+                <Icon name="remove" size={15} color={yellowColor} />
+              </TouchableOpacity>
+              <Text style={styles.quantityText}>{currentQuantity}</Text>
+              <TouchableOpacity
+                onPress={handleIncrease}
+                style={styles.quantityButton}
+              >
+                <Icon name="add" size={15} color={yellowColor} />
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
-
-        {quantity > 0 && (
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => handleAddToCart(item, selectedVariant)}
-          >
-            <Text style={styles.addButtonText}>Add to Cart</Text>
-          </TouchableOpacity>
-        )}
       </View>
     </Animated.View>
   );
@@ -168,9 +187,9 @@ export default BestDealProductCard;
 
 const styles = StyleSheet.create({
   productCard: {
-    width: 150, // Changed from "48%" to a fixed width for horizontal scrolling
-    marginRight: 16, // Added margin to space out cards
-    marginBottom: 12,
+    width: 150,
+    marginRight: 16,
+    marginBottom: 8, // Reduced from 12 to 8 to decrease space between cards
     borderRadius: 12,
     overflow: "hidden",
     elevation: 4,
@@ -187,7 +206,8 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 12,
   },
   contentContainer: {
-    padding: 8,
+    padding: 6, // Reduced from 8 to 6 to decrease overall padding
+    paddingBottom: 4, // Explicitly set to minimize space below cart section
     backgroundColor: "rgba(255, 255, 255, 0.95)",
     borderBottomLeftRadius: 12,
     borderBottomRightRadius: 12,
@@ -246,44 +266,36 @@ const styles = StyleSheet.create({
     textDecorationLine: "line-through",
     marginLeft: 4,
   },
-  quantityContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 4,
-  },
-  quantityButton: {
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    width: 24,
-    height: 24,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: deepGreenColor,
-    marginHorizontal: 4,
-  },
-  quantityButtonText: {
-    fontSize: 16,
-    color: deepGreenColor,
-    fontWeight: "bold",
-  },
-  quantityText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#333",
-    marginHorizontal: 4,
+  cartSection: {
+    alignSelf: "center",
   },
   addButton: {
     backgroundColor: deepGreenColor,
-    paddingVertical: 8,
+    paddingVertical: 5,
     paddingHorizontal: 12,
-    borderRadius: 6,
+    borderRadius: 5,
     alignItems: "center",
   },
   addButtonText: {
     color: yellowColor,
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "600",
+  },
+  quantityContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: deepGreenColor,
+    borderRadius: 5,
+    paddingVertical: 3,
+    paddingHorizontal: 6,
+  },
+  quantityButton: {
+    paddingHorizontal: 4,
+  },
+  quantityText: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: yellowColor,
+    marginHorizontal: 6,
   },
 });
