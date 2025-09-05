@@ -52,6 +52,14 @@ const CategoryProductCard = ({
   const cardOpacity = useSharedValue(0);
   const cardScale = useSharedValue(0.95);
 
+  // Function to ensure HTTPS
+  const ensureHttps = (url: string): string => {
+    if (url.startsWith("http://")) {
+      return url.replace("http://", "https://");
+    }
+    return url;
+  };
+
   useEffect(() => {
     cardOpacity.value = withTiming(1, { duration: 300 });
     cardScale.value = withTiming(1, { duration: 300 });
@@ -84,9 +92,9 @@ const CategoryProductCard = ({
       <Link href={`/(tabs)/category/(product-details)/${item.id}`}>
         <Image
           source={{
-            uri:
-              selectedVariant.mediaItems?.[0]?.mediaUrl ||
-              "https://via.placeholder.com/50",
+            uri: selectedVariant.mediaItems?.[0]?.mediaUrl
+              ? ensureHttps(selectedVariant.mediaItems[0].mediaUrl)
+              : "https://via.placeholder.com/50",
           }}
           style={styles.productImage}
           resizeMode="cover"

@@ -63,6 +63,14 @@ const ShopNowProductCard = ({ item, onAddToCart }: ProductCardProps) => {
   const cardOpacity = useSharedValue(0);
   const cardScale = useSharedValue(0.95);
 
+  // Function to ensure HTTPS
+  const ensureHttps = (url: string): string => {
+    if (url.startsWith("http://")) {
+      return url.replace("http://", "https://");
+    }
+    return url;
+  };
+
   // Find if this product variant is already in cart
   const cartItem = cartItems.find(
     (cartItem) =>
@@ -128,9 +136,9 @@ const ShopNowProductCard = ({ item, onAddToCart }: ProductCardProps) => {
           <TouchableOpacity style={styles.imageContainer}>
             <Image
               source={{
-                uri:
-                  selectedVariant.mediaItems?.[0]?.mediaUrl ||
-                  "https://cdn-icons-png.flaticon.com/512/2153/2153788.png",
+                uri: selectedVariant.mediaItems?.[0]?.mediaUrl
+                  ? ensureHttps(selectedVariant.mediaItems[0].mediaUrl)
+                  : "https://cdn-icons-png.flaticon.com/512/2153/2153788.png",
               }}
               style={styles.productImage}
               resizeMode="cover"

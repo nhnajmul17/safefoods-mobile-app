@@ -77,9 +77,11 @@ export default function HomeBestDeal() {
         id: item.id,
         variantId: selectedVariant.id,
         name: item.title,
-        image:
-          selectedVariant.mediaItems?.[0]?.mediaUrl ||
-          "https://via.placeholder.com/50",
+        image: selectedVariant.mediaItems?.[0]?.mediaUrl
+          ? selectedVariant.mediaItems[0].mediaUrl.startsWith("http://")
+            ? selectedVariant.mediaItems[0].mediaUrl.replace("http://", "https://")
+            : selectedVariant.mediaItems[0].mediaUrl
+          : "https://via.placeholder.com/50",
         price: selectedVariant.price,
         unit: selectedVariant.unitTitle,
         quantity,

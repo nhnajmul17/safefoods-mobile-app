@@ -21,6 +21,13 @@ const CategoryList: React.FC<CategoryListProps> = ({
   selectedCategory,
   onSelectCategory,
 }) => {
+  // Function to ensure HTTPS
+  const ensureHttps = (url: string): string => {
+    if (url.startsWith("http://")) {
+      return url.replace("http://", "https://");
+    }
+    return url;
+  };
   const renderCategoryItem = ({ item }: { item: Category }) => {
     const isSelected = selectedCategory?.id === item.id;
 
@@ -32,9 +39,9 @@ const CategoryList: React.FC<CategoryListProps> = ({
         <View style={[styles.imageCircle, isSelected && styles.selectedCircle]}>
           <Image
             source={{
-              uri:
-                item.mediaUrl ||
-                "https://cdn-icons-png.flaticon.com/512/2153/2153788.png",
+              uri: item.mediaUrl
+                ? ensureHttps(item.mediaUrl)
+                : "https://cdn-icons-png.flaticon.com/512/2153/2153788.png",
             }}
             style={styles.categoryImage}
             resizeMode="contain"

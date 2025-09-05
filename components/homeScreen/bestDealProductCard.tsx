@@ -42,6 +42,14 @@ const BestDealProductCard = ({
   const cardScale = useSharedValue(0.95);
   const navigation = useRouter();
 
+  // Function to ensure HTTPS
+  const ensureHttps = (url: string): string => {
+    if (url.startsWith("http://")) {
+      return url.replace("http://", "https://");
+    }
+    return url;
+  };
+
   const handleProductCardPress = (href: string) => {
     navigation.push(href as any);
   };
@@ -76,9 +84,9 @@ const BestDealProductCard = ({
       >
         <Image
           source={{
-            uri:
-              selectedVariant.mediaItems?.[0]?.mediaUrl ||
-              "https://via.placeholder.com/50",
+            uri: selectedVariant.mediaItems?.[0]?.mediaUrl
+              ? ensureHttps(selectedVariant.mediaItems[0].mediaUrl)
+              : "https://via.placeholder.com/50",
           }}
           style={styles.productImage}
           resizeMode="cover"

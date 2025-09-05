@@ -129,15 +129,24 @@ export default function HomeCategorySection({
     navigation.push("/(tabs)/category");
   };
 
+  // Function to ensure HTTPS
+  const ensureHttps = (url: string): string => {
+    if (url.startsWith("http://")) {
+      return url.replace("http://", "https://");
+    }
+    return url;
+  };
+
   // Get icon URL for category
   const getCategoryIcon = (category: Category) => {
     // Use mediaUrl from API if available
     if (category.mediaUrl) {
-      return category.mediaUrl;
+      return ensureHttps(category.mediaUrl);
     }
 
     // Use fallback icon based on slug
-    return fallbackIcons[category.slug] || fallbackIcons.default;
+    const fallbackUrl = fallbackIcons[category.slug] || fallbackIcons.default;
+    return ensureHttps(fallbackUrl);
   };
 
   if (loading) {
