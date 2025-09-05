@@ -132,7 +132,7 @@ const ShopNowProductCard = ({ item, onAddToCart }: ProductCardProps) => {
 
       <View style={styles.cardContent}>
         {/* Product Image */}
-        <Link href={`/(tabs)/shop-now/(product-details)/${item.id}`} asChild>
+        <Link href={`/(tabs)/shop-now/(product-details)/${item.slug}`} asChild>
           <TouchableOpacity style={styles.imageContainer}>
             <Image
               source={{

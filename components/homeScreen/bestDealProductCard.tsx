@@ -79,7 +79,7 @@ const BestDealProductCard = ({
     <Animated.View style={[styles.productCard, cardStyle]}>
       <TouchableOpacity
         onPress={() =>
-          handleProductCardPress(`/(tabs)/home/(product-details)/${item.id}`)
+          handleProductCardPress(`/(tabs)/home/(product-details)/${item.slug}`)
         }
       >
         <Image

@@ -68,7 +68,7 @@ export default function ProductDetailsScreen() {
     setLoading(true);
     setError(null);
 
-    fetch(`${API_URL}/v1/products/${productId}`)
+    fetch(`${API_URL}/v1/products/slug/${productId}`)
       .then((res) => res.json())
       .then((data) => {
         setProduct(data.data);

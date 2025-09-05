@@ -83,7 +83,7 @@ const OnSaleProductCard = ({
       </View>
       <TouchableOpacity
         onPress={() =>
-          handleProductCardPress(`/(tabs)/home/(product-details)/${item.id}`)
+          handleProductCardPress(`/(tabs)/home/(product-details)/${item.slug}`)
         }
       >
         <Image

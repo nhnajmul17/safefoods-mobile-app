@@ -94,7 +94,7 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({ productSlug }) => {
             <TouchableOpacity
               key={product.id}
               style={styles.productCard}
-              onPress={() => handleProductPress(product.id)}
+              onPress={() => handleProductPress(product.slug)}
             >
               <Image
                 source={{ uri: imageUrl }}
