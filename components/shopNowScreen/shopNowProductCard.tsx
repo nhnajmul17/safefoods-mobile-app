@@ -123,7 +123,7 @@ const ShopNowProductCard = ({ item, onAddToCart }: ProductCardProps) => {
             {Math.round(
               ((selectedVariant.originalPrice - selectedVariant.price) /
                 selectedVariant.originalPrice) *
-                100
+              100
             )}
             % OFF
           </Text>
@@ -132,7 +132,13 @@ const ShopNowProductCard = ({ item, onAddToCart }: ProductCardProps) => {
 
       <View style={styles.cardContent}>
         {/* Product Image */}
-        <Link href={`/(tabs)/shop-now/(product-details)/${item.slug}`} asChild>
+        <Link href={{
+          pathname: '/(product)/product-details',
+          params: {
+            productId: item.slug,
+            source: 'shop-now'
+          }
+        }} asChild>
           <TouchableOpacity style={styles.imageContainer}>
             <Image
               source={{
@@ -161,7 +167,7 @@ const ShopNowProductCard = ({ item, onAddToCart }: ProductCardProps) => {
                 style={[
                   styles.variantBadge,
                   selectedVariant.id === variant.id &&
-                    styles.selectedVariantBadge,
+                  styles.selectedVariantBadge,
                 ]}
                 onPress={() => handleVariantChange(variant)}
               >
@@ -169,7 +175,7 @@ const ShopNowProductCard = ({ item, onAddToCart }: ProductCardProps) => {
                   style={[
                     styles.variantText,
                     selectedVariant.id === variant.id &&
-                      styles.selectedVariantText,
+                    styles.selectedVariantText,
                   ]}
                   numberOfLines={1}
                 >

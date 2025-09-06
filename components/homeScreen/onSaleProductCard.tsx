@@ -99,7 +99,13 @@ const OnSaleProductCard = ({
       </View>
       <TouchableOpacity
         onPress={() =>
-          navigation.push(`/(tabs)/home/(product-details)/${item.slug}`)
+          navigation.push({
+            pathname: '/(product)/product-details',
+            params: {
+              productId: item.slug,
+              source: 'home'
+            }
+          })
         }
       >
         <Image
@@ -129,7 +135,7 @@ const OnSaleProductCard = ({
               style={[
                 styles.variantBadge,
                 selectedVariant.id === variant.id &&
-                  styles.selectedVariantBadge,
+                styles.selectedVariantBadge,
               ]}
               onPress={() => handleVariantChange(variant)}
             >
@@ -137,7 +143,7 @@ const OnSaleProductCard = ({
                 style={[
                   styles.variantText,
                   selectedVariant.id === variant.id &&
-                    styles.selectedVariantText,
+                  styles.selectedVariantText,
                 ]}
               >
                 {variant.unitTitle}

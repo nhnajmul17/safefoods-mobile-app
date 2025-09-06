@@ -89,7 +89,13 @@ const CategoryProductCard = ({
     <Animated.View
       style={[styles.productCard, { width: cardWidth }, cardStyle]}
     >
-      <Link href={`/(tabs)/category/(product-details)/${item.slug}`}>
+      <Link href={{
+        pathname: '/(product)/product-details',
+        params: {
+          productId: item.slug,
+          source: 'category'
+        }
+      }}>
         <Image
           source={{
             uri: selectedVariant.mediaItems?.[0]?.mediaUrl
@@ -117,7 +123,7 @@ const CategoryProductCard = ({
               style={[
                 styles.variantBadge,
                 selectedVariant.id === variant.id &&
-                  styles.selectedVariantBadge,
+                styles.selectedVariantBadge,
               ]}
               onPress={() => handleVariantChange(variant)}
             >
@@ -125,7 +131,7 @@ const CategoryProductCard = ({
                 style={[
                   styles.variantText,
                   selectedVariant.id === variant.id &&
-                    styles.selectedVariantText,
+                  styles.selectedVariantText,
                 ]}
               >
                 {variant.unitTitle}
