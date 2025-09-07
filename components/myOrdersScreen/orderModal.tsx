@@ -1,6 +1,8 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import Modal from "react-native-modal";
 import { OrderDetail } from "./orderTypes";
+import { formatWithThousandSeparator } from "@/utils/helperFunctions";
+import { ensureHttps } from "@/utils/imageUtils";
 
 interface OrderModalProps {
   isVisible: boolean;
@@ -46,12 +48,18 @@ export default function OrderModal({
         </Text>
         {selectedOrder.items.map((item, index) => (
           <View key={index} style={styles.itemRow}>
-            <View style={styles.itemPlaceholder} />
-            <View>
+            <Image
+              source={{ uri: ensureHttps(item?.media?.url) }}
+              style={styles.itemPlaceholder}
+              resizeMode="cover"
+            />
+            <View style={{ flex: 1, alignItems: "flex-start" }}>
               <Text style={styles.itemName}>{item.name}</Text>
               <Text style={styles.itemQuantity}>Qty: {item.quantity}</Text>
             </View>
-            <Text style={styles.itemPrice}>৳{item.price}</Text>
+            <Text style={styles.itemPrice}>
+              ৳ {formatWithThousandSeparator(item.price)}
+            </Text>
           </View>
         ))}
         <View style={styles.infoRow}>
@@ -74,16 +82,18 @@ export default function OrderModal({
               Payment Status: {selectedOrder.payment.paymentStatus}
             </Text>
             <Text style={styles.infoText}>
-              Subtotal: ৳{selectedOrder.payment.subtotal}
+              Subtotal: ৳
+              {formatWithThousandSeparator(selectedOrder.payment.subtotal)}
             </Text>
             <Text style={styles.infoText}>
-              Shipping: ৳{selectedOrder.payment.shipping}
+              Shipping: ৳
+              {formatWithThousandSeparator(selectedOrder.payment.shipping)}
             </Text>
             <Text style={styles.infoText}>
-              Tax: ৳{selectedOrder.payment.tax}
+              Tax: ৳{formatWithThousandSeparator(selectedOrder.payment.tax)}
             </Text>
             <Text style={styles.infoTotal}>
-              Total: ৳{selectedOrder.payment.total}
+              Total: ৳{formatWithThousandSeparator(selectedOrder.payment.total)}
             </Text>
           </View>
         </View>
@@ -180,7 +190,7 @@ const styles = StyleSheet.create({
   itemPlaceholder: {
     width: 40,
     height: 40,
-    backgroundColor: "#eee",
+    // backgroundColor: "#eee",
     marginRight: 8,
   },
   itemName: {

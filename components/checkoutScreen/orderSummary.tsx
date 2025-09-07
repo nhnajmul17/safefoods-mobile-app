@@ -2,6 +2,7 @@ import {
   DISCOUNT_TYPE_FIXED,
   DISCOUNT_TYPE_PERCENTAGE,
 } from "@/constants/variables";
+import { formatWithThousandSeparator } from "@/utils/helperFunctions";
 import React from "react";
 import { View, Text, FlatList, StyleSheet } from "react-native";
 
@@ -52,7 +53,7 @@ export const OrderSummarySection = ({
         {item.name} ({item.unit}) x{item.quantity}
       </Text>
       <Text style={styles.orderItemPrice}>
-        ৳{(item.price * item.quantity).toFixed(2)}
+        ৳ {formatWithThousandSeparator(item.price * item.quantity)}
       </Text>
     </View>
   );
@@ -69,27 +70,27 @@ export const OrderSummarySection = ({
             <View style={styles.orderSummary}>
               <Text style={styles.summaryText}>Subtotal</Text>
               <Text style={styles.summaryPrice}>
-                ৳{getTotalPrice().toFixed(2)}
+                ৳ {formatWithThousandSeparator(getTotalPrice())}
               </Text>
             </View>
             <View style={styles.orderSummary}>
               <Text style={styles.summaryText}>Delivery Charge</Text>
               <Text style={styles.summaryPrice}>
-                ৳{deliveryCharge.toFixed(2)}
+                ৳ {formatWithThousandSeparator(deliveryCharge)}
               </Text>
             </View>
             {appliedDiscount > 0 && (
               <View style={styles.orderSummary}>
                 <Text style={styles.summaryText}>Discount</Text>
                 <Text style={styles.summaryPrice}>
-                  -৳ {discountAmount.toFixed(2)}
+                  -৳ {formatWithThousandSeparator(discountAmount)}
                 </Text>
               </View>
             )}
             <View style={styles.orderSummary}>
               <Text style={styles.totalText}>Total</Text>
               <Text style={styles.totalPrice}>
-                ৳{calculateDiscountedTotal().toFixed(2)}
+                ৳ {formatWithThousandSeparator(calculateDiscountedTotal())}
               </Text>
             </View>
           </>

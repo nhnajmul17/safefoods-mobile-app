@@ -79,6 +79,10 @@ export default function MyOrdersScreen() {
             name: product.productTitle,
             quantity: parseFloat(product.quantity),
             price: parseFloat(product.price),
+            media:
+              product.media && product.media.length > 0
+                ? product.media[0]
+                : { id: "", url: "" },
           })),
           shipping: {
             name: order.address.name,

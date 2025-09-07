@@ -82,7 +82,12 @@ export type ApiResponse = {
 export type OrderDetail = {
   date: string;
   timeline: { status: string; time: string; description: string }[];
-  items: { name: string; quantity: number; price: number }[];
+  items: {
+    name: string;
+    quantity: number;
+    price: number;
+    media: { id: string; url: string };
+  }[];
   shipping: { name: string; address: string; phone: string };
   payment: {
     method: string;
