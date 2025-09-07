@@ -13,6 +13,7 @@ import { useRouter } from "expo-router";
 import Toast from "react-native-toast-message";
 import { useAuthStore } from "@/store/authStore";
 import { API_URL } from "@/constants/variables";
+import { handleAddToCart, clearCartInDatabase } from "@/utils/cartUtils";
 import { deepGreenColor, yellowColor } from "@/constants/Colors";
 import { ensureHttps } from "@/utils/imageUtils";
 import { formatWithThousandSeparator } from "@/utils/helperFunctions";
@@ -20,64 +21,72 @@ import { formatWithThousandSeparator } from "@/utils/helperFunctions";
 export default function CartScreen() {
   const { cartItems, removeItem, updateQuantity, clearCart, getTotalPrice } =
     useCartStore();
-  const { userId, accessToken } = useAuthStore();
+  const { userId } = useAuthStore();
   const router = useRouter();
 
   const handleOrderNow = () => {
     router.push("/checkout");
   };
 
-  const handleAddToCart = (
-    cartItemId: string,
-    variantId: string,
-    quantity: number,
-    action: "add" | "remove"
+  const handleCartUpdate = async (
+    item: {
+      id: string;
+      variantId: string;
+      name: string;
+      image: string;
+      price: number;
+      unit: string;
+      quantity: number;
+    },
+    newQuantity: number
   ) => {
-    if (userId && accessToken && quantity > 0) {
-      fetch(`${API_URL}/v1/cart`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-          userId: userId,
-          variantProductId: variantId,
-          quantity: action === "add" ? 1 : -1,
-        }),
-      })
-        .then((response) => response.json())
-        .catch((error) => console.error("Cart API Error:", error));
-    } else if (userId && accessToken && quantity <= 0) {
-      fetch(`${API_URL}/v1/cart`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-          userId: userId,
-          variantProductId: variantId,
-          quantity: -1,
-        }),
-      })
-        .then((response) => response.json())
-        .then(() => {
-          return fetch(`${API_URL}/v1/cart`, {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${accessToken}`,
-            },
-            body: JSON.stringify({
-              id: cartItemId,
-              isDiscarded: true,
-            }),
-          });
-        })
-        .then((response) => response.json())
-        .catch((error) => console.error("Cart API Error:", error));
+    if (!userId) {
+      return;
     }
+
+    try {
+      await handleAddToCart({
+        productId: item.id,
+        variantId: item.variantId,
+        productTitle: item.name,
+        productImage: item.image,
+        productPrice: item.price,
+        unitTitle: item.unit,
+        newQuantity: newQuantity,
+        showToast: false, // We'll handle toast in the UI
+      });
+    } catch (error) {
+      console.error("Cart update failed:", error);
+    }
+  };
+
+  const handleClearCart = async () => {
+    // Clear database cart for logged-in users first
+    if (userId) {
+      const success = await clearCartInDatabase();
+      if (!success) {
+        console.warn("Failed to clear cart in database");
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: "Failed to clear cart in database. Please try again.",
+          text1Style: { fontSize: 16, fontWeight: "bold" },
+          text2Style: { fontSize: 14, fontWeight: "bold" },
+        });
+        return;
+      }
+    }
+
+    // Clear local cart after successful database operation
+    clearCart();
+
+    Toast.show({
+      type: "success",
+      text1: "Cart Cleared",
+      text2: "All items have been removed from your cart.",
+      text1Style: { fontSize: 16, fontWeight: "bold" },
+      text2Style: { fontSize: 14, fontWeight: "bold" },
+    });
   };
 
   const renderItem = ({
@@ -118,14 +127,22 @@ export default function CartScreen() {
       {/* Quantity Controls */}
       <View style={styles.quantityContainer}>
         <TouchableOpacity
-          onPress={() => {
-            updateQuantity(item.id, item.variantId, item.quantity - 1);
-            handleAddToCart(
-              item.id,
-              item.variantId,
-              item.quantity - 1,
-              "remove"
-            );
+          onPress={async () => {
+            const newQuantity = item.quantity - 1;
+            if (newQuantity > 0) {
+              // Let handleCartUpdate handle both database and local updates
+              await handleCartUpdate(item, newQuantity);
+            } else {
+              // Let handleCartUpdate handle both database and local updates
+              await handleCartUpdate(item, 0);
+              Toast.show({
+                type: "info",
+                text1: "Removed from Cart",
+                text2: `${item.name} (${item.unit}) removed from your cart.`,
+                text1Style: { fontSize: 16, fontWeight: "bold" },
+                text2Style: { fontSize: 14, fontWeight: "bold" },
+              });
+            }
           }}
           style={styles.quantityButton}
         >
@@ -133,9 +150,10 @@ export default function CartScreen() {
         </TouchableOpacity>
         <Text style={styles.quantityText}>{item.quantity}</Text>
         <TouchableOpacity
-          onPress={() => {
-            updateQuantity(item.id, item.variantId, item.quantity + 1);
-            handleAddToCart(item.id, item.variantId, item.quantity + 1, "add");
+          onPress={async () => {
+            const newQuantity = item.quantity + 1;
+            // Let handleCartUpdate handle both database and local updates
+            await handleCartUpdate(item, newQuantity);
           }}
           style={styles.quantityButton}
         >
@@ -144,8 +162,9 @@ export default function CartScreen() {
       </View>
       {/* Remove Button */}
       <TouchableOpacity
-        onPress={() => {
-          removeItem(item.id, item.variantId);
+        onPress={async () => {
+          // Let handleCartUpdate handle both database and local updates
+          await handleCartUpdate(item, 0);
           Toast.show({
             type: "error",
             text1: "Removed from Cart",
@@ -167,7 +186,10 @@ export default function CartScreen() {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Cart Items ({cartItems.length})</Text>
         {cartItems.length > 0 && (
-          <TouchableOpacity onPress={clearCart} style={styles.clearButton}>
+          <TouchableOpacity
+            onPress={handleClearCart}
+            style={styles.clearButton}
+          >
             <Text style={styles.clearButtonText}>Clear Cart</Text>
           </TouchableOpacity>
         )}

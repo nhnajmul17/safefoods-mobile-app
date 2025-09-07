@@ -6,6 +6,7 @@ export interface CartItem {
   price: number;
   unit: string;
   quantity: number;
+  cartItemId?: string; // Database cart item ID for logged-in users
 }
 
 export interface CartState {
@@ -17,6 +18,8 @@ export interface CartState {
   clearCart: () => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
+  setCartFetchedFromApi: (fetched: boolean) => void;
+  replaceCart: (items: CartItem[]) => void;
 }
 
 export type AuthState = {
