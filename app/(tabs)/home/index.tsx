@@ -256,8 +256,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   appLogo: {
-    width: 40,
-    height: 40,
+    width: 50,
+    height: 50,
     resizeMode: "contain",
   },
   appTitle: {

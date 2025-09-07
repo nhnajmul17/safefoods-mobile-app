@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Category } from "./types";
 import { deepGreenColor } from "@/constants/Colors";
+import { ensureHttps } from "@/utils/imageUtils";
 
 interface CategoryListProps {
   categories: Category[];
@@ -21,13 +22,6 @@ const CategoryList: React.FC<CategoryListProps> = ({
   selectedCategory,
   onSelectCategory,
 }) => {
-  // Function to ensure HTTPS
-  const ensureHttps = (url: string): string => {
-    if (url.startsWith("http://")) {
-      return url.replace("http://", "https://");
-    }
-    return url;
-  };
   const renderCategoryItem = ({ item }: { item: Category }) => {
     const isSelected = selectedCategory?.id === item.id;
 

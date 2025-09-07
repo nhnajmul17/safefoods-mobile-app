@@ -10,9 +10,10 @@ import {
   ShopNowProduct,
 } from "../shopNowScreen/shopNowProductCard";
 import { Colors, deepGreenColor, yellowColor } from "@/constants/Colors";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useCartStore } from "@/store/cartStore";
+import { ensureHttps } from "@/utils/imageUtils";
 
 interface QuantityMap {
   [productId: string]: number;
@@ -45,14 +46,6 @@ const OnSaleProductCard = ({
   const cardOpacity = useSharedValue(0);
   const cardScale = useSharedValue(0.95);
   const navigation = useRouter();
-
-  // Function to ensure HTTPS
-  const ensureHttps = (url: string): string => {
-    if (url.startsWith("http://")) {
-      return url.replace("http://", "https://");
-    }
-    return url;
-  };
 
   // Find if this product variant is already in cart
   const cartItem = cartItems.find(
@@ -99,7 +92,7 @@ const OnSaleProductCard = ({
       </View>
       <TouchableOpacity
         onPress={() =>
-          navigation.push(`/(tabs)/home/(product-details)/${item.slug}`)
+          navigation.push(`/(tabs)/home/(product-details)/${item.slug}` as any)
         }
       >
         <Image
@@ -119,7 +112,12 @@ const OnSaleProductCard = ({
         />
       </TouchableOpacity>
       <View style={styles.contentContainer}>
-        <Text style={styles.productName}>{item.title}</Text>
+        <Link
+          href={`/(tabs)/home/(product-details)/${item.slug}` as any}
+          asChild
+        >
+          <Text style={styles.productName}>{item.title}</Text>
+        </Link>
         <Text style={styles.productCategory}>{item.categoryTitle}</Text>
 
         <View style={styles.variantContainer}>

@@ -16,6 +16,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { FlatList as GestureHandlerFlatList } from "react-native-gesture-handler";
 import { API_URL } from "@/constants/variables";
+import { ensureHttps } from "@/utils/imageUtils";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const AUTO_SCROLL_INTERVAL = 4000;
@@ -75,14 +76,6 @@ const BannerCarousel = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [apiBanners, setApiBanners] = useState<BannerItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Function to ensure HTTPS
-  const ensureHttps = (url: string): string => {
-    if (url.startsWith("http://")) {
-      return url.replace("http://", "https://");
-    }
-    return url;
-  };
 
   // Function to get image dimensions with better error handling
   const getImageAspectRatio = (url: string): Promise<number> => {

@@ -11,6 +11,7 @@ import { useRouter } from "expo-router";
 import { deepGreenColor } from "@/constants/Colors";
 import { API_URL } from "@/constants/variables";
 import { ShopNowProduct } from "@/components/shopNowScreen/shopNowProductCard";
+import { ensureHttps } from "@/utils/imageUtils";
 
 interface RelatedProductsProps {
   productSlug: string;
@@ -21,14 +22,6 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({ productSlug }) => {
   const [relatedProducts, setRelatedProducts] = useState<ShopNowProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Function to ensure HTTPS
-  const ensureHttps = (url: string): string => {
-    if (url.startsWith("http://")) {
-      return url.replace("http://", "https://");
-    }
-    return url;
-  };
 
   useEffect(() => {
     const fetchRelatedProducts = async () => {

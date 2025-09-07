@@ -14,6 +14,8 @@ import Toast from "react-native-toast-message";
 import { useAuthStore } from "@/store/authStore";
 import { API_URL } from "@/constants/variables";
 import { deepGreenColor, yellowColor } from "@/constants/Colors";
+import { ensureHttps } from "@/utils/imageUtils";
+import { formatWithThousandSeparator } from "@/utils/helperFunctions";
 
 export default function CartScreen() {
   const { cartItems, removeItem, updateQuantity, clearCart, getTotalPrice } =
@@ -94,7 +96,7 @@ export default function CartScreen() {
     <View style={styles.cartItem}>
       {/* Product Image */}
       <Image
-        source={{ uri: item.image }}
+        source={{ uri: ensureHttps(item.image) }}
         style={styles.itemImage}
         resizeMode="cover"
         onError={(e) =>
@@ -110,7 +112,7 @@ export default function CartScreen() {
           {item.name} ({item.unit})
         </Text>
         <Text style={styles.itemPrice}>
-          ৳{(item.price * item.quantity).toFixed(2)}
+          ৳{formatWithThousandSeparator(item.price * item.quantity)}
         </Text>
       </View>
       {/* Quantity Controls */}
@@ -193,7 +195,7 @@ export default function CartScreen() {
           {/* Footer with Total and Order Now */}
           <View style={styles.footer}>
             <Text style={styles.totalText}>
-              Total: ৳{getTotalPrice().toFixed(2)}
+              Total: ৳{formatWithThousandSeparator(getTotalPrice())}
             </Text>
             <TouchableOpacity
               style={styles.orderButton}

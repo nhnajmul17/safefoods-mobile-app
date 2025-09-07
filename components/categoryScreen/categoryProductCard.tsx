@@ -18,6 +18,7 @@ import {
 } from "../shopNowScreen/shopNowProductCard";
 import { Colors, deepGreenColor, yellowColor } from "@/constants/Colors";
 import { Link } from "expo-router";
+import { ensureHttps } from "@/utils/imageUtils";
 
 interface QuantityMap {
   [productId: string]: number;
@@ -51,14 +52,6 @@ const CategoryProductCard = ({
 }: CategoryProductCardProps) => {
   const cardOpacity = useSharedValue(0);
   const cardScale = useSharedValue(0.95);
-
-  // Function to ensure HTTPS
-  const ensureHttps = (url: string): string => {
-    if (url.startsWith("http://")) {
-      return url.replace("http://", "https://");
-    }
-    return url;
-  };
 
   useEffect(() => {
     cardOpacity.value = withTiming(1, { duration: 300 });
@@ -107,7 +100,9 @@ const CategoryProductCard = ({
         />
       </Link>
       <View style={styles.contentContainer}>
-        <Text style={styles.productName}>{item.title}</Text>
+        <Link href={`/(tabs)/category/(product-details)/${item.slug}`}>
+          <Text style={styles.productName}>{item.title}</Text>
+        </Link>
         <Text style={styles.productCategory}>{item.categoryTitle}</Text>
 
         <View style={styles.variantContainer}>

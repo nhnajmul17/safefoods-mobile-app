@@ -29,6 +29,7 @@ import { useAuthStore } from "@/store/authStore";
 import { CustomLoader } from "@/components/common/loader";
 import RelatedProducts from "./relatedProducts";
 import RenderHTML from "react-native-render-html";
+import { ensureHttps } from "@/utils/imageUtils";
 
 export default function ProductDetailsScreen() {
   const { productId } = useLocalSearchParams();
@@ -55,14 +56,6 @@ export default function ProductDetailsScreen() {
   const detailsTranslateY = useSharedValue(100);
   const addToCartScale = useSharedValue(1);
   const variantScale = useSharedValue(1);
-
-  // Function to ensure HTTPS
-  const ensureHttps = (url: string): string => {
-    if (url.startsWith("http://")) {
-      return url.replace("http://", "https://");
-    }
-    return url;
-  };
 
   useEffect(() => {
     setLoading(true);

@@ -15,6 +15,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { CustomLoader } from "@/components/common/loader";
 import { API_URL } from "@/constants/variables";
 import { TouchableOpacity } from "react-native";
+import { ensureHttps } from "@/utils/imageUtils";
 
 // Define the API response type
 interface Category {
@@ -134,14 +135,6 @@ export default function CategoryScreen() {
       }
     }, [loading, error, opacity])
   );
-
-  // Function to ensure HTTPS
-  const ensureHttps = (url: string): string => {
-    if (url.startsWith("http://")) {
-      return url.replace("http://", "https://");
-    }
-    return url;
-  };
 
   // Get icon URL for category
   const getCategoryIcon = (category: Category) => {

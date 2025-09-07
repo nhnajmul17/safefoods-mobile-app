@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { API_URL } from "@/constants/variables";
 import CategorySkeleton from "./categorySkeleton";
+import { ensureHttps } from "@/utils/imageUtils";
 
 // Define the API response type
 interface Category {
@@ -127,14 +128,6 @@ export default function HomeCategorySection({
   const handleSeeAllPress = () => {
     // Navigate to main category page
     navigation.push("/(tabs)/category");
-  };
-
-  // Function to ensure HTTPS
-  const ensureHttps = (url: string): string => {
-    if (url.startsWith("http://")) {
-      return url.replace("http://", "https://");
-    }
-    return url;
   };
 
   // Get icon URL for category

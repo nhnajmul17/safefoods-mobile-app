@@ -109,9 +109,9 @@ export default function ProfileScreen() {
           />
           <View>
             <Text style={styles.name}>{userName || "John Abram"}</Text>
-            <Text style={styles.email}>
+            {/* <Text style={styles.email}>
               {userName ? `${userId}` : "johnabram@gmail.com"}
-            </Text>
+            </Text> */}
           </View>
         </View>
       )}

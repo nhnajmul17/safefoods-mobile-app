@@ -16,6 +16,7 @@ import { deepGreenColor, yellowColor } from "@/constants/Colors";
 import { Link } from "expo-router";
 import { useCartStore } from "@/store/cartStore";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import { ensureHttps } from "@/utils/imageUtils";
 
 export interface ProductVariant {
   id: string;
@@ -62,14 +63,6 @@ const ShopNowProductCard = ({ item, onAddToCart }: ProductCardProps) => {
   );
   const cardOpacity = useSharedValue(0);
   const cardScale = useSharedValue(0.95);
-
-  // Function to ensure HTTPS
-  const ensureHttps = (url: string): string => {
-    if (url.startsWith("http://")) {
-      return url.replace("http://", "https://");
-    }
-    return url;
-  };
 
   // Find if this product variant is already in cart
   const cartItem = cartItems.find(
@@ -132,7 +125,10 @@ const ShopNowProductCard = ({ item, onAddToCart }: ProductCardProps) => {
 
       <View style={styles.cardContent}>
         {/* Product Image */}
-        <Link href={`/(tabs)/shop-now/(product-details)/${item.slug}`} asChild>
+        <Link
+          href={`/(tabs)/shop-now/(product-details)/${item.slug}` as any}
+          asChild
+        >
           <TouchableOpacity style={styles.imageContainer}>
             <Image
               source={{
@@ -149,9 +145,14 @@ const ShopNowProductCard = ({ item, onAddToCart }: ProductCardProps) => {
         {/* Product Details */}
         <View style={styles.productDetails}>
           {/* Product Name */}
-          <Text style={styles.productName} numberOfLines={2}>
-            {item.title}
-          </Text>
+          <Link
+            href={`/(tabs)/shop-now/(product-details)/${item.slug}` as any}
+            asChild
+          >
+            <Text style={styles.productName} numberOfLines={2}>
+              {item.title}
+            </Text>
+          </Link>
 
           {/* Variants */}
           <View style={styles.variantContainer}>
