@@ -85,6 +85,7 @@ export default function ShopNowScreen() {
   const [products, setProducts] = useState<ShopNowProduct[]>([]);
   const [totalProducts, setTotalProducts] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
@@ -240,6 +241,7 @@ export default function ShopNowScreen() {
         setError("Failed to load products. Please try again.");
       } finally {
         setLoading(false);
+        setLoadingMore(false);
       }
     },
     []
@@ -283,28 +285,6 @@ export default function ShopNowScreen() {
     fetchInitialProducts(1, true);
   }, [fetchInitialProducts]);
 
-  // Handle page changes (for load more)
-  useEffect(() => {
-    if (page > 1) {
-      if (searchQuery.trim()) {
-        const categorySlug =
-          selectedSubcategory?.slug || selectedCategory?.slug;
-        performSearch(searchQuery, page, false, categorySlug);
-      } else {
-        const categorySlug =
-          selectedSubcategory?.slug || selectedCategory?.slug;
-        fetchInitialProducts(page, false, categorySlug);
-      }
-    }
-  }, [
-    page,
-    fetchInitialProducts,
-    performSearch,
-    searchQuery,
-    selectedCategory,
-    selectedSubcategory,
-  ]);
-
   // Get display products based on search state
   const displayProducts = useMemo(() => {
     if (searchQuery.trim()) {
@@ -312,6 +292,41 @@ export default function ShopNowScreen() {
     }
     return products;
   }, [products, searchResults, searchQuery]);
+
+  // Handle page changes (for infinite scroll)
+  const loadMoreProducts = useCallback(() => {
+    if (
+      !loadingMore &&
+      displayProducts.length < totalProducts &&
+      displayProducts.length > 0
+    ) {
+      setLoadingMore(true);
+      const nextPage = page + 1;
+      setPage(nextPage);
+
+      if (searchQuery.trim()) {
+        const categorySlug =
+          selectedSubcategory?.slug || selectedCategory?.slug;
+        performSearch(searchQuery, nextPage, false, categorySlug).finally(() =>
+          setLoadingMore(false)
+        );
+      } else {
+        const categorySlug =
+          selectedSubcategory?.slug || selectedCategory?.slug;
+        fetchInitialProducts(nextPage, false, categorySlug);
+      }
+    }
+  }, [
+    page,
+    loadingMore,
+    displayProducts.length,
+    totalProducts,
+    searchQuery,
+    selectedCategory,
+    selectedSubcategory,
+    performSearch,
+    fetchInitialProducts,
+  ]);
 
   const handleAddToCart = (
     item: ShopNowProduct,
@@ -489,7 +504,7 @@ export default function ShopNowScreen() {
             />
           )}
 
-          {/* Products Grid - Single column */}
+          {/* Products Grid - Single column with infinite scroll */}
           <FlatList
             data={displayProducts}
             keyExtractor={(item) => item.id}
@@ -499,11 +514,22 @@ export default function ShopNowScreen() {
               </View>
             )}
             numColumns={1}
-            // contentContainerStyle={styles.productsListContent}
             initialNumToRender={4}
             maxToRenderPerBatch={4}
             windowSize={5}
             showsVerticalScrollIndicator={false}
+            onEndReached={loadMoreProducts}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={() =>
+              loadingMore ? (
+                <View style={styles.loadingMoreContainer}>
+                  <ActivityIndicator size="small" color={deepGreenColor} />
+                  <Text style={styles.loadingMoreText}>
+                    Loading more products...
+                  </Text>
+                </View>
+              ) : null
+            }
             ListEmptyComponent={() => (
               <View style={styles.emptyContainer}>
                 {searchQuery.trim() && !isSearching ? (
@@ -526,19 +552,6 @@ export default function ShopNowScreen() {
               </View>
             )}
           />
-
-          {displayProducts.length > 0 &&
-            displayProducts.length < totalProducts && (
-              <TouchableOpacity
-                style={styles.loadMoreButton}
-                onPress={() => setPage((prev) => prev + 1)}
-                disabled={loading}
-              >
-                <Text style={styles.loadMoreText}>
-                  {loading ? "Loading..." : "Load More"}
-                </Text>
-              </TouchableOpacity>
-            )}
         </View>
       </View>
     </View>
@@ -616,17 +629,15 @@ const styles = StyleSheet.create({
     textAlign: "center",
     paddingHorizontal: 32,
   },
-  loadMoreButton: {
-    backgroundColor: deepGreenColor,
-    padding: 12,
-    borderRadius: 10,
+  loadingMoreContainer: {
+    padding: 16,
     alignItems: "center",
-    margin: 16,
+    justifyContent: "center",
+    flexDirection: "row",
   },
-  loadMoreText: {
-    color: yellowColor,
-    fontSize: 16,
-    fontWeight: "bold",
+  loadingMoreText: {
+    marginLeft: 8,
+    color: "#666",
   },
   errorContainer: {
     flex: 1,
