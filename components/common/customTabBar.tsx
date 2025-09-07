@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { deepGreenColor, yellowColor } from "@/constants/Colors";
 import { useCartStore } from "@/store/cartStore";
 import { WHATSAPP_PHONE_NUMBER } from "@/constants/variables";
+import { router } from "expo-router";
 
 interface CustomTabBarProps {
   state: any;
@@ -168,8 +169,9 @@ export default function CustomTabBar({ state, navigation }: CustomTabBarProps) {
                 canPreventDefault: true,
               });
 
-              if (!isFocused && !event.defaultPrevented) {
-                navigation.navigate(tab.name);
+              if (!event.defaultPrevented) {
+                // Always reset to root screen when tab is pressed
+                navigation.navigate(tab.name, { screen: 'index' });
               }
             }}
             style={{
