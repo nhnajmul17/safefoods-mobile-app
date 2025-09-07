@@ -173,6 +173,7 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
               >
+                <Text style={styles.inputLabel}>Flat No *</Text>
                 <TextInput
                   style={styles.formInput}
                   placeholder="Flat No *"
@@ -183,6 +184,7 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
                   }
                   returnKeyType="next"
                 />
+                <Text style={styles.inputLabel}>Floor No *</Text>
                 <TextInput
                   style={styles.formInput}
                   placeholder="Floor No *"
@@ -193,6 +195,7 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
                   }
                   returnKeyType="next"
                 />
+                <Text style={styles.inputLabel}>Address Line *</Text>
                 <TextInput
                   style={styles.formInput}
                   placeholder="Address Line *"
@@ -203,6 +206,7 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
                   }
                   returnKeyType="next"
                 />
+                <Text style={styles.inputLabel}>Name *</Text>
                 <TextInput
                   style={styles.formInput}
                   placeholder="Name *"
@@ -213,6 +217,7 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
                   }
                   returnKeyType="next"
                 />
+                <Text style={styles.inputLabel}>Phone No *</Text>
                 <TextInput
                   style={styles.formInput}
                   placeholder="Phone No *"
@@ -224,6 +229,7 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
                   keyboardType="phone-pad"
                   returnKeyType="next"
                 />
+                <Text style={styles.inputLabel}>Delivery Notes</Text>
                 <TextInput
                   style={styles.formInput}
                   placeholder="Delivery Notes"
@@ -234,6 +240,7 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
                   }
                   returnKeyType="next"
                 />
+                <Text style={styles.inputLabel}>City *</Text>
                 <TextInput
                   style={styles.formInput}
                   placeholder="City *"
@@ -244,6 +251,7 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
                   }
                   returnKeyType="next"
                 />
+                <Text style={styles.inputLabel}>State</Text>
                 <TextInput
                   style={styles.formInput}
                   placeholder="State"
@@ -254,6 +262,7 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
                   }
                   returnKeyType="next"
                 />
+                <Text style={styles.inputLabel}>Country *</Text>
                 <TextInput
                   style={styles.formInput}
                   placeholder="Country *"
@@ -264,6 +273,7 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
                   }
                   returnKeyType="next"
                 />
+                <Text style={styles.inputLabel}>Postal Code *</Text>
                 <TextInput
                   style={styles.formInput}
                   placeholder="Postal Code *"
@@ -299,6 +309,13 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
 };
 
 const styles = StyleSheet.create({
+  inputLabel: {
+    fontSize: 13,
+    color: "#333",
+    marginBottom: 4,
+    marginLeft: 2,
+    fontWeight: "500",
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
