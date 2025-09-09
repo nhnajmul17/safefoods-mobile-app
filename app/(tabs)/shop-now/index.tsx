@@ -19,6 +19,7 @@ import ShopNowProductCard, {
 import { API_URL } from "@/constants/variables";
 import { CustomLoader } from "@/components/common/loader";
 import { useAuthStore } from "@/store/authStore";
+import { handleAddToCart } from "@/utils/cartUtils";
 
 import { Category, CategoriesResponse } from "@/components/shopNowScreen/types";
 import CategoryList from "@/components/shopNowScreen/categoryItem";
@@ -328,89 +329,21 @@ export default function ShopNowScreen() {
     fetchInitialProducts,
   ]);
 
-  const handleAddToCart = (
+  const handleAddToCartLocal = async (
     item: ShopNowProduct,
     selectedVariant: ProductVariant,
     newQuantity: number
   ) => {
-    // Find the current quantity in cart
-    const cartItem = cartItems.find(
-      (cartItem) =>
-        cartItem.id === item.id && cartItem.variantId === selectedVariant.id
-    );
-    const currentQuantity = cartItem ? cartItem.quantity : 0;
-
-    if (newQuantity > 0) {
-      if (currentQuantity === 0) {
-        // Add new item to cart
-        addItem({
-          id: item.id,
-          variantId: selectedVariant.id,
-          name: item.title,
-          image:
-            selectedVariant.mediaItems?.[0]?.mediaUrl ||
-            "https://via.placeholder.com/50",
-          price: selectedVariant.price,
-          unit: selectedVariant.unitTitle,
-          quantity: newQuantity,
-        });
-      } else {
-        // Update existing item quantity
-        updateQuantity(item.id, selectedVariant.id, newQuantity);
-      }
-
-      // Update API if user is logged in
-      if (userId && accessToken) {
-        const quantityChange = newQuantity - currentQuantity;
-        fetch(`${API_URL}/v1/cart`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify({
-            userId: userId,
-            variantProductId: selectedVariant.id,
-            quantity: quantityChange,
-          }),
-        })
-          .then((response) => response.json())
-          .catch((error) => console.error("Cart API Error:", error));
-      }
-
-      Toast.show({
-        type: "success",
-        text1: currentQuantity === 0 ? "Added to Cart" : "Cart Updated",
-        text2: `${item.title} (${selectedVariant.unitTitle}) x${newQuantity} in cart.`,
-      });
-    } else {
-      // Remove item from cart
-      removeItem(item.id, selectedVariant.id);
-
-      // Update API if user is logged in
-      if (userId && accessToken) {
-        fetch(`${API_URL}/v1/cart`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify({
-            userId: userId,
-            variantProductId: selectedVariant.id,
-            quantity: -currentQuantity,
-          }),
-        })
-          .then((response) => response.json())
-          .catch((error) => console.error("Cart API Error:", error));
-      }
-
-      Toast.show({
-        type: "info",
-        text1: "Removed from Cart",
-        text2: `${item.title} (${selectedVariant.unitTitle}) removed from cart.`,
-      });
-    }
+    await handleAddToCart({
+      productId: item.id,
+      variantId: selectedVariant.id,
+      productTitle: item.title,
+      productImage: selectedVariant.mediaItems?.[0]?.mediaUrl || "https://via.placeholder.com/50",
+      productPrice: selectedVariant.price,
+      unitTitle: selectedVariant.unitTitle,
+      newQuantity: newQuantity,
+      showToast: true,
+    });
   };
   if (loading && products.length === 0) {
     return (
@@ -510,7 +443,7 @@ export default function ShopNowScreen() {
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <View>
-                <ShopNowProductCard item={item} onAddToCart={handleAddToCart} />
+                <ShopNowProductCard item={item} onAddToCart={handleAddToCartLocal} />
               </View>
             )}
             numColumns={1}

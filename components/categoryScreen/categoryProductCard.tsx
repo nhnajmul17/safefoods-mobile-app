@@ -19,6 +19,8 @@ import {
 import { Colors, deepGreenColor, yellowColor } from "@/constants/Colors";
 import { Link } from "expo-router";
 import { ensureHttps } from "@/utils/imageUtils";
+import { useCartStore } from "@/store/cartStore";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
 interface QuantityMap {
   [productId: string]: number;
@@ -34,7 +36,8 @@ interface CategoryProductCardProps {
   setQuantities: React.Dispatch<React.SetStateAction<QuantityMap>>;
   handleAddToCart: (
     item: ShopNowProduct,
-    selectedVariant: ProductVariant
+    selectedVariant: ProductVariant,
+    newQuantity: number
   ) => void;
   isSingleItem?: boolean;
 }
@@ -50,8 +53,17 @@ const CategoryProductCard = ({
   handleAddToCart,
   isSingleItem = false,
 }: CategoryProductCardProps) => {
+  const { cartItems } = useCartStore();
   const cardOpacity = useSharedValue(0);
   const cardScale = useSharedValue(0.95);
+
+  // Find if this product variant is already in cart
+  const cartItem = cartItems.find(
+    (cartItem) =>
+      cartItem.id === item.id && cartItem.variantId === selectedVariant.id
+  );
+
+  const currentQuantity = cartItem ? cartItem.quantity : 0;
 
   useEffect(() => {
     cardOpacity.value = withTiming(1, { duration: 300 });
@@ -67,11 +79,20 @@ const CategoryProductCard = ({
     setSelectedVariants((prev) => ({ ...prev, [item.id]: variant }));
   };
 
-  const handleQuantityChange = (delta: number) => {
-    setQuantities((prev: QuantityMap) => {
-      const newQty = Math.max((prev[item.id] || 0) + delta, 0);
-      return { ...prev, [item.id]: newQty };
-    });
+  const handleAddToCartDirect = () => {
+    handleAddToCart(item, selectedVariant, 1);
+  };
+
+  const handleIncrease = () => {
+    handleAddToCart(item, selectedVariant, currentQuantity + 1);
+  };
+
+  const handleDecrease = () => {
+    if (currentQuantity > 1) {
+      handleAddToCart(item, selectedVariant, currentQuantity - 1);
+    } else {
+      handleAddToCart(item, selectedVariant, 0); // Remove from cart
+    }
   };
 
   const cardWidth = isSingleItem
@@ -138,30 +159,33 @@ const CategoryProductCard = ({
           )}
         </View>
 
-        <View style={styles.quantityContainer}>
-          <TouchableOpacity
-            onPress={() => handleQuantityChange(-1)}
-            style={styles.quantityButton}
-          >
-            <Text style={styles.quantityButtonText}>-</Text>
-          </TouchableOpacity>
-          <Text style={styles.quantityText}>{quantity}</Text>
-          <TouchableOpacity
-            onPress={() => handleQuantityChange(1)}
-            style={styles.quantityButton}
-          >
-            <Text style={styles.quantityButtonText}>+</Text>
-          </TouchableOpacity>
+        {/* Cart Section */}
+        <View style={styles.cartSection}>
+          {currentQuantity === 0 ? (
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={handleAddToCartDirect}
+            >
+              <Text style={styles.addButtonText}>ADD</Text>
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.quantityContainer}>
+              <TouchableOpacity
+                onPress={handleDecrease}
+                style={styles.quantityButton}
+              >
+                <Icon name="remove" size={15} color={yellowColor} />
+              </TouchableOpacity>
+              <Text style={styles.quantityText}>{currentQuantity}</Text>
+              <TouchableOpacity
+                onPress={handleIncrease}
+                style={styles.quantityButton}
+              >
+                <Icon name="add" size={15} color={yellowColor} />
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
-
-        {quantity > 0 && (
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => handleAddToCart(item, selectedVariant)}
-          >
-            <Text style={styles.addButtonText}>Add to Cart</Text>
-          </TouchableOpacity>
-        )}
       </View>
     </Animated.View>
   );
@@ -234,7 +258,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 4,
+    marginBottom: 8,
   },
   productPrice: {
     fontSize: 14,
@@ -247,44 +271,42 @@ const styles = StyleSheet.create({
     textDecorationLine: "line-through",
     marginLeft: 4,
   },
-  quantityContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
+  cartSection: {
     alignItems: "center",
-    marginBottom: 4,
-  },
-  quantityButton: {
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    width: 24,
-    height: 24,
     justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: deepGreenColor,
-    marginHorizontal: 4,
-  },
-  quantityButtonText: {
-    fontSize: 16,
-    color: deepGreenColor,
-    fontWeight: "bold",
-  },
-  quantityText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#333",
-    marginHorizontal: 4,
   },
   addButton: {
     backgroundColor: deepGreenColor,
     paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 6,
+    paddingHorizontal: 16,
+    borderRadius: 20,
     alignItems: "center",
+    minWidth: 60,
   },
   addButtonText: {
     color: yellowColor,
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "bold",
+  },
+  quantityContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: deepGreenColor,
+    borderRadius: 20,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    minWidth: 80,
+  },
+  quantityButton: {
+    paddingHorizontal: 4,
+  },
+  quantityText: {
+    fontSize: 14,
+    color: yellowColor,
+    fontWeight: "bold",
+    marginHorizontal: 8,
+    minWidth: 20,
+    textAlign: "center",
   },
 });

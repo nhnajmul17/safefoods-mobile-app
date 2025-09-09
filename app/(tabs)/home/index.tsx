@@ -22,6 +22,7 @@ import { useAuthStore } from "@/store/authStore";
 import BannerCarousel from "@/components/homeScreen/bannerCarousel";
 import { useCartStore } from "@/store/cartStore";
 import { API_URL } from "@/constants/variables";
+import { initializeCartFromApi } from "@/utils/cartUtils";
 import { router } from "expo-router";
 import safefoodLogoPng from "@/assets/images/logo-safefood.png";
 import HomeOnSale from "@/components/homeScreen/onSale";
@@ -36,38 +37,11 @@ export default function HomeScreen() {
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const textZoomAnim = React.useRef(new Animated.Value(0)).current;
 
-  // Fetch cart items only when userId and accessToken are present and not fetched yet
+  // Initialize cart from API for logged-in users
   useEffect(() => {
-    const fetchCartItems = async () => {
-      if (userId && accessToken && !isCartFetchedFromApi) {
-        try {
-          const response = await fetch(`${API_URL}/v1/cart?userId=${userId}`, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          });
-          const data = await response.json();
-          if (data.success) {
-            data.data.items.forEach((item: any) => {
-              addItem({
-                id: item.id,
-                variantId: item.variantProductId,
-                name: item.productTitle,
-                image: item.productImageUrl || "https://via.placeholder.com/50",
-                price: item.productPrice,
-                unit: item.unitTitle,
-                quantity: item.quantity,
-              });
-            });
-            useCartStore.setState({ isCartFetchedFromApi: true });
-          }
-        } catch (error) {
-          console.error("Error fetching cart items:", error);
-        }
-      }
-    };
-
-    fetchCartItems();
+    if (userId && accessToken && !isCartFetchedFromApi) {
+      initializeCartFromApi();
+    }
   }, [userId, accessToken, isCartFetchedFromApi]);
 
   // Animation and render logic

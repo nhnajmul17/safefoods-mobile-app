@@ -80,6 +80,12 @@ export const useCartStore = create<CartState>((set, get) => ({
       (total, item) => total + item.price * item.quantity,
       0
     ),
+  setCartFetchedFromApi: (fetched: boolean) =>
+    set({ isCartFetchedFromApi: fetched }),
+  replaceCart: async (items: CartItem[]) => {
+    await saveCartToStorage(items);
+    set({ cartItems: items });
+  },
 }));
 
 // Initialize store with persisted data

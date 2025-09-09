@@ -11,6 +11,7 @@ import {
 } from "@/constants/variables";
 import { deepGreenColor, yellowColor } from "@/constants/Colors";
 import { PaymentMethod } from "./paymentMethods";
+import { clearCartInDatabaseInOrderPlaced } from "@/utils/cartUtils";
 
 interface PlaceOrderButtonProps {
   selectedZoneId: string | null;
@@ -151,6 +152,8 @@ export const PlaceOrderButton = ({
           text1Style: { fontSize: 16, fontWeight: "bold" },
           text2Style: { fontSize: 14, fontWeight: "bold" },
         });
+
+        clearCartInDatabaseInOrderPlaced();
         clearCart();
         router.push("/(tabs)/home");
       } else {

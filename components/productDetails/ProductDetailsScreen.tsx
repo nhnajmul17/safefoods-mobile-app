@@ -30,6 +30,7 @@ import { CustomLoader } from "@/components/common/loader";
 import RelatedProducts from "./RelatedProducts";
 import RenderHTML from "react-native-render-html";
 import { ensureHttps } from "@/utils/imageUtils";
+import { handleAddToCart as handleAddToCartUtil } from "@/utils/cartUtils";
 
 interface ProductDetailsScreenProps {
   /** The tab context for navigation (home, category, shop-now) */
@@ -119,83 +120,19 @@ const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({ tabContext 
     });
   };
 
-  const handleAddToCart = (newQuantity: number) => {
+  const handleAddToCart = async (newQuantity: number) => {
     if (!product || !selectedVariant) return;
 
-    // Find the current quantity in cart
-    const currentQuantity = quantity;
-
-    if (newQuantity > 0) {
-      if (currentQuantity === 0) {
-        // Add new item to cart
-        addItem({
-          id: product.id,
-          variantId: selectedVariant.id,
-          name: product.title,
-          image:
-            selectedVariant.mediaItems?.[0]?.mediaUrl ||
-            "https://via.placeholder.com/50",
-          price: selectedVariant.price,
-          unit: selectedVariant.unitTitle,
-          quantity: newQuantity,
-        });
-      } else {
-        // Update existing item quantity
-        updateQuantity(product.id, selectedVariant.id, newQuantity);
-      }
-
-      // Update API if user is logged in
-      if (userId && accessToken) {
-        const quantityChange = newQuantity - currentQuantity;
-        fetch(`${API_URL}/v1/cart`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify({
-            userId: userId,
-            variantProductId: selectedVariant.id,
-            quantity: quantityChange,
-          }),
-        })
-          .then((response) => response.json())
-          .catch((error) => console.error("Cart API Error:", error));
-      }
-
-      Toast.show({
-        type: "success",
-        text1: currentQuantity === 0 ? "Added to Cart" : "Cart Updated",
-        text2: `${product.title} (${selectedVariant.unitTitle}) x${newQuantity} in cart.`,
-      });
-    } else {
-      // Remove item from cart
-      removeItem(product.id, selectedVariant.id);
-
-      // Update API if user is logged in
-      if (userId && accessToken) {
-        fetch(`${API_URL}/v1/cart`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify({
-            userId: userId,
-            variantProductId: selectedVariant.id,
-            quantity: -currentQuantity,
-          }),
-        })
-          .then((response) => response.json())
-          .catch((error) => console.error("Cart API Error:", error));
-      }
-
-      Toast.show({
-        type: "info",
-        text1: "Removed from Cart",
-        text2: `${product.title} (${selectedVariant.unitTitle}) removed from cart.`,
-      });
-    }
+    await handleAddToCartUtil({
+      productId: product.id,
+      variantId: selectedVariant.id,
+      productTitle: product.title,
+      productImage: selectedVariant.mediaItems?.[0]?.mediaUrl || "https://via.placeholder.com/50",
+      productPrice: selectedVariant.price,
+      unitTitle: selectedVariant.unitTitle,
+      newQuantity: newQuantity,
+      showToast: true,
+    });
 
     addToCartScale.value = withRepeat(withSpring(0.95), 2, true, () => {
       addToCartScale.value = withSpring(1);

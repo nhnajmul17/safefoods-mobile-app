@@ -15,6 +15,7 @@ import {
 } from "@/components/shopNowScreen/shopNowProductCard";
 import { API_URL } from "@/constants/variables";
 import { useAuthStore } from "@/store/authStore";
+import { handleAddToCart } from "@/utils/cartUtils";
 
 interface QuantityMap {
   [productId: string]: number;
@@ -119,48 +120,21 @@ export default function CategoryProductsScreen({
     }
   }, [loadingMore, hasMore, products.length]);
 
-  const handleAddToCart = (
+  const handleAddToCartLocal = async (
     item: ShopNowProduct,
-    selectedVariant: ProductVariant
+    selectedVariant: ProductVariant,
+    newQuantity: number
   ) => {
-    const quantity = quantities[item.id] || 0;
-    if (quantity > 0) {
-      addItem({
-        id: item.id,
-        variantId: selectedVariant.id,
-        name: item.title,
-        image:
-          selectedVariant.mediaItems?.[0]?.mediaUrl ||
-          "https://via.placeholder.com/50",
-        price: selectedVariant.price,
-        unit: selectedVariant.unitTitle,
-        quantity,
-      });
-      if (userId && accessToken) {
-        fetch(`${API_URL}/v1/cart`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify({
-            userId: userId,
-            variantProductId: selectedVariant.id,
-            quantity,
-          }),
-        })
-          .then((response) => response.json())
-          .catch((error) => console.error("Cart API Error:", error));
-      }
-      Toast.show({
-        type: "success",
-        text1: "Added to Cart",
-        text2: `${item.title} (${selectedVariant.unitTitle}) x${quantity} added to cart.`,
-        text1Style: { fontSize: 16, fontWeight: "bold" },
-        text2Style: { fontSize: 14, fontWeight: "bold" },
-      });
-      setQuantities((prev) => ({ ...prev, [item.id]: 0 }));
-    }
+    await handleAddToCart({
+      productId: item.id,
+      variantId: selectedVariant.id,
+      productTitle: item.title,
+      productImage: selectedVariant.mediaItems?.[0]?.mediaUrl || "https://via.placeholder.com/50",
+      productPrice: selectedVariant.price,
+      unitTitle: selectedVariant.unitTitle,
+      newQuantity: newQuantity,
+      showToast: true,
+    });
   };
 
   if (loading && products.length === 0) {
@@ -185,7 +159,7 @@ export default function CategoryProductsScreen({
             selectedVariant={selectedVariants[item.id] || item.variants[0]}
             setSelectedVariants={setSelectedVariants}
             setQuantities={setQuantities}
-            handleAddToCart={handleAddToCart}
+            handleAddToCart={handleAddToCartLocal}
             isSingleItem={isSingleItem}
           />
         )}
