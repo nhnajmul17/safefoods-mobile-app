@@ -317,11 +317,11 @@ export const initializeCartFromApi = async (): Promise<void> => {
 };
 
 /**
- * Clear entire cart for logged-in users (discard all items in database)
+ * Clear entire cart for logged-in users (isPurchased true all items in database)
  */
 export const clearCartInDatabase = async (): Promise<boolean> => {
   const { userId } = useAuthStore.getState();
-  
+
   if (!userId) {
     return false;
   }
@@ -329,11 +329,11 @@ export const clearCartInDatabase = async (): Promise<boolean> => {
   try {
     // First get all cart items to get their IDs
     const cartItems = await fetchCartItemsFromApi();
-    
+
     if (cartItems.length === 0) {
       return true;
     }
-    
+
     // Discard each item in the database
     const discardPromises = cartItems.map(async (item) => {
       try {
@@ -347,25 +347,79 @@ export const clearCartInDatabase = async (): Promise<boolean> => {
             isDiscarded: true,
           }),
         });
-        
+
         return response.ok;
       } catch (error) {
         console.error(`Error discarding cart item ${item.id}:`, error);
         return false;
       }
     });
-    
+
     const results = await Promise.all(discardPromises);
-    const allSuccessful = results.every(result => result);
-    
+    const allSuccessful = results.every((result) => result);
+
     // Clear cache after successful discard
     if (allSuccessful) {
       clearCartCache();
     }
-    
+
     return allSuccessful;
   } catch (error) {
     console.error("Error clearing cart in database:", error);
+    return false;
+  }
+};
+
+/**
+ * Clear entire cart for logged-in users (discard all items in database)
+ */
+export const clearCartInDatabaseInOrderPlaced = async (): Promise<boolean> => {
+  const { userId } = useAuthStore.getState();
+
+  if (!userId) {
+    return false;
+  }
+
+  try {
+    // First get all cart items to get their IDs
+    const cartItems = await fetchCartItemsFromApi();
+
+    if (cartItems.length === 0) {
+      return true;
+    }
+
+    // Mark each item in the database
+    const orderPromises = cartItems.map(async (item) => {
+      try {
+        const response = await fetch(`${API_URL}/v1/cart`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: item.id,
+            isPurchased: true,
+          }),
+        });
+
+        return response.ok;
+      } catch (error) {
+        console.error(`Error discarding cart item ${item.id}:`, error);
+        return false;
+      }
+    });
+
+    const results = await Promise.all(orderPromises);
+    const allSuccessful = results.every((result) => result);
+
+    // Clear cache after successful purchase
+    if (allSuccessful) {
+      clearCartCache();
+    }
+
+    return allSuccessful;
+  } catch (error) {
+    console.error("Error clearing cart in database while order placed:", error);
     return false;
   }
 };
