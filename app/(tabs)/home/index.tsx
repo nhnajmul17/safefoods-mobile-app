@@ -88,7 +88,7 @@ export default function HomeScreen() {
             {!userId ? (
               <TouchableOpacity
                 style={styles.iconCircle}
-                onPress={() => router.push("/login")}
+                onPress={() => router.push("/login-with-phone")}
               >
                 <Icon name="person" size={24} color="#fff" />
               </TouchableOpacity>

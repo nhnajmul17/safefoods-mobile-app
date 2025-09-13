@@ -89,9 +89,9 @@ export default function ProfileScreen() {
           useCartStore.setState({ isCartFetchedFromApi: false });
           clearCart(); // Clear cart on logout
           logout();
-          router.push("/login");
+          router.push("/login-with-phone");
         } else {
-          router.push("/login");
+          router.push("/login-with-phone");
         }
       },
     },
