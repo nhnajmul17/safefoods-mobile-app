@@ -59,6 +59,15 @@ export default function RootLayout() {
               header: () => <CustomHeader title="Checkout" canGoBack={true} />,
             }}
           />
+
+          <Stack.Screen
+            name="guest-checkout"
+            options={{
+              headerShown: true,
+              header: () => <CustomHeader title="Checkout" canGoBack={true} />,
+            }}
+          />
+
           <Stack.Screen
             name="my-orders"
             options={{

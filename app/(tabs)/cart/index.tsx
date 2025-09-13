@@ -12,7 +12,6 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
 import Toast from "react-native-toast-message";
 import { useAuthStore } from "@/store/authStore";
-import { API_URL } from "@/constants/variables";
 import { handleAddToCart, clearCartInDatabase } from "@/utils/cartUtils";
 import { deepGreenColor, yellowColor } from "@/constants/Colors";
 import { ensureHttps } from "@/utils/imageUtils";
@@ -21,11 +20,15 @@ import { formatWithThousandSeparator } from "@/utils/helperFunctions";
 export default function CartScreen() {
   const { cartItems, removeItem, updateQuantity, clearCart, getTotalPrice } =
     useCartStore();
-  const { userId } = useAuthStore();
+  const { userId, isAuthenticated } = useAuthStore();
   const router = useRouter();
 
   const handleOrderNow = () => {
-    router.push("/checkout");
+    if (isAuthenticated) {
+      router.push("/checkout");
+    } else {
+      router.push("/guest-checkout");
+    }
   };
 
   const handleCartUpdate = async (
