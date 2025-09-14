@@ -1,6 +1,7 @@
 // components/CustomTabBar.tsx
 import { View, TouchableOpacity, Text, Linking } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { deepGreenColor, yellowColor } from "@/constants/Colors";
 import { useCartStore } from "@/store/cartStore";
 import { WHATSAPP_PHONE_NUMBER } from "@/constants/variables";
@@ -13,6 +14,7 @@ interface CustomTabBarProps {
 
 export default function CustomTabBar({ state, navigation }: CustomTabBarProps) {
   const totalItems = useCartStore((state) => state.getTotalItems());
+  const insets = useSafeAreaInsets();
 
   const openWhatsApp = () => {
     const phoneNumber = WHATSAPP_PHONE_NUMBER;
@@ -128,6 +130,7 @@ export default function CustomTabBar({ state, navigation }: CustomTabBarProps) {
         borderTopWidth: 1,
         borderTopColor: "#eee",
         paddingVertical: 8,
+        paddingBottom: Math.max(8, insets.bottom),
       }}
     >
       {tabs.map((tab, index) => {
