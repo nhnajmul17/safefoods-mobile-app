@@ -91,7 +91,7 @@ export default function MyOrdersScreen() {
             phone: order.address.phoneNo,
           },
           payment: {
-            method: order.paymentMethodId || "Unknown",
+            method: order.paymentMethodTitle || "Unknown",
             subtotal: order.subTotal,
             shipping: order.deliveryCharge,
             tax: order.discount,
