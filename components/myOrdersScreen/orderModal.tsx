@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   closeButton: {
-    fontSize: 24,
+    fontSize: 36,
     color: "#666",
   },
   modalStatus: {

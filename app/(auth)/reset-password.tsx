@@ -129,6 +129,7 @@ export default function ResetPasswordScreen() {
           <TextInput
             style={styles.passwordInput}
             placeholder="••••••"
+            placeholderTextColor="#999"
             value={password}
             onChangeText={setPassword}
             secureTextEntry={!showPassword}
@@ -152,6 +153,7 @@ export default function ResetPasswordScreen() {
           <TextInput
             style={styles.passwordInput}
             placeholder="••••••"
+            placeholderTextColor="#999"
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             secureTextEntry={!showConfirmPassword}
@@ -206,6 +208,7 @@ const styles = StyleSheet.create({
     height: 45,
     paddingHorizontal: 12,
     fontSize: 16,
+    color: "#000",
   },
   iconWrapper: {
     paddingHorizontal: 10,

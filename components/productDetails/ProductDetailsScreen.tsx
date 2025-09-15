@@ -34,10 +34,12 @@ import { handleAddToCart as handleAddToCartUtil } from "@/utils/cartUtils";
 
 interface ProductDetailsScreenProps {
   /** The tab context for navigation (home, category, shop-now) */
-  tabContext: 'home' | 'category' | 'shop-now';
+  tabContext: "home" | "category" | "shop-now";
 }
 
-const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({ tabContext }) => {
+const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
+  tabContext,
+}) => {
   const { productId } = useLocalSearchParams();
   const [product, setProduct] = useState<ShopNowProduct | null>(null);
   const [loading, setLoading] = useState(false);
@@ -127,7 +129,9 @@ const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({ tabContext 
       productId: product.id,
       variantId: selectedVariant.id,
       productTitle: product.title,
-      productImage: selectedVariant.mediaItems?.[0]?.mediaUrl || "https://via.placeholder.com/50",
+      productImage:
+        selectedVariant.mediaItems?.[0]?.mediaUrl ||
+        "https://via.placeholder.com/50",
       productPrice: selectedVariant.price,
       unitTitle: selectedVariant.unitTitle,
       newQuantity: newQuantity,
@@ -278,7 +282,7 @@ const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({ tabContext 
             source={{ html: selectedVariant.description || "" }}
             baseStyle={styles.htmlContent}
           />
-          <View style={styles.infoGrid}>
+          {/* <View style={styles.infoGrid}>
             <View style={styles.infoItem}>
               <Image
                 source={{
@@ -315,7 +319,7 @@ const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({ tabContext 
               />
               <Text style={styles.infoText}>Varies by product</Text>
             </View>
-          </View>
+          </View> */}
 
           {/* Related Products Section */}
           <RelatedProducts productSlug={product.slug} tabContext={tabContext} />

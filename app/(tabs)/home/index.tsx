@@ -78,7 +78,14 @@ export default function HomeScreen() {
         {/* Custom Header with consistent height */}
         <View style={styles.appHeader}>
           <View style={styles.logoContainer}>
-            <Image source={safefoodLogoPng} style={styles.appLogo} />
+            <View
+              style={{
+                backgroundColor: "#999",
+                padding: 0.5,
+              }}
+            >
+              <Image source={safefoodLogoPng} style={styles.appLogo} />
+            </View>
             <View style={{ flexDirection: "column", alignItems: "center" }}>
               <Text style={styles.appTitleText}>Safe Food</Text>
               <Text style={[styles.appSubtitleText]}>for your family</Text>

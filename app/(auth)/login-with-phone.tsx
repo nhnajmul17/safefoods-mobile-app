@@ -211,6 +211,7 @@ export default function LoginWithPhoneScreen() {
           <TextInput
             style={styles.input}
             placeholder="01234567890"
+            placeholderTextColor="#999"
             value={phone}
             onChangeText={setPhone}
             keyboardType="phone-pad"
@@ -323,6 +324,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     backgroundColor: "#fff",
     fontSize: 16,
+    color: "#000",
   },
   otpContainer: {
     flexDirection: "row",

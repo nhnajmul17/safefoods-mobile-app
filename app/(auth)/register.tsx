@@ -146,6 +146,7 @@ export default function RegisterScreen() {
         <TextInput
           style={styles.input}
           placeholder="johncharles@example.com"
+          placeholderTextColor="#999"
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
@@ -159,6 +160,7 @@ export default function RegisterScreen() {
           <TextInput
             style={styles.passwordInput}
             placeholder="••••••"
+            placeholderTextColor="#999"
             value={password}
             onChangeText={setPassword}
             secureTextEntry={!showPassword}
@@ -182,6 +184,7 @@ export default function RegisterScreen() {
           <TextInput
             style={styles.passwordInput}
             placeholder="••••••"
+            placeholderTextColor="#999"
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             secureTextEntry={!showConfirmPassword}
@@ -238,6 +241,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     backgroundColor: "#fff",
     fontSize: 16,
+    color: "#000",
   },
   passwordWrapper: {
     flexDirection: "row",
@@ -252,6 +256,7 @@ const styles = StyleSheet.create({
     height: 45,
     paddingHorizontal: 12,
     fontSize: 16,
+    color: "#000",
   },
   iconWrapper: {
     paddingHorizontal: 10,

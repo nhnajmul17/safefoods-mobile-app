@@ -35,13 +35,13 @@ const NoInternetScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Animated.View style={{ transform: [{ rotate: spin }] }}>
-        <Image
-          source={require("../assets/images/safefoods-logo.png")}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-      </Animated.View>
+      {/* <Animated.View style={{ transform: [{ rotate: spin }] }}> */}
+      <Image
+        source={require("../assets/images/safefoods-logo.png")}
+        style={styles.logo}
+        resizeMode="contain"
+      />
+      {/* </Animated.View> */}
       <Text style={styles.title}>No Internet Connection</Text>
       <Text style={styles.subtitle}>
         Oops! It looks like you're offline. Please check your internet
