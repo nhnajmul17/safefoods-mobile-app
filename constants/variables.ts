@@ -22,6 +22,8 @@ export const DISCOUNT_TYPE_FIXED = "fixed";
 export const ORDER_STATUS_PENDING = "pending";
 export const ORDER_STATUS_PROCESSING = "processing";
 export const ORDER_STATUS_DELIVERED = "delivered";
+export const ORDER_STATUS_CANCELLED = "cancelled";
+export const ORDER_STATUS_SHIPPED = "shipped";
 
 //payment methods
 export const PAYMENT_METHOD_CASH_ON_DELIVERY = "cash on delivery";

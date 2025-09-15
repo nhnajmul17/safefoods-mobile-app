@@ -81,7 +81,9 @@ export type ApiResponse = {
 };
 
 export type OrderDetail = {
+  id: string;
   date: string;
+  status: string;
   timeline: { status: string; time: string; description: string }[];
   items: {
     name: string;

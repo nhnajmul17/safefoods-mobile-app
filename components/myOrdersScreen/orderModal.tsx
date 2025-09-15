@@ -1,114 +1,174 @@
+import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import Modal from "react-native-modal";
 import { OrderDetail } from "./orderTypes";
 import { formatWithThousandSeparator } from "@/utils/helperFunctions";
 import { ensureHttps } from "@/utils/imageUtils";
+import CustomConfirmationModal from "@/components/common/CustomConfirmationModal";
+import WarningIcon from "@/components/common/WarningIcon";
+import {
+  ORDER_STATUS_PENDING,
+  ORDER_STATUS_PROCESSING,
+} from "@/constants/variables";
 
 interface OrderModalProps {
   isVisible: boolean;
   onClose: () => void;
   selectedOrder: OrderDetail | null;
+  onCancelOrder: (orderId: string) => Promise<void>;
+  cancelling: boolean;
 }
 
 export default function OrderModal({
   isVisible,
   onClose,
   selectedOrder,
+  onCancelOrder,
+  cancelling,
 }: OrderModalProps) {
+  const [showConfirmation, setShowConfirmation] = useState(false);
+
   if (!selectedOrder) return null;
+
+  // Check if order can be cancelled (status is pending or processing)
+  const canCancelOrder =
+    selectedOrder.status.toLowerCase() === ORDER_STATUS_PENDING ||
+    selectedOrder.status.toLowerCase() === ORDER_STATUS_PROCESSING;
+
+  const handleCancelPress = () => {
+    setShowConfirmation(true);
+  };
+
+  const handleConfirmCancel = async () => {
+    await onCancelOrder(selectedOrder.id);
+    setShowConfirmation(false);
+  };
+
+  const handleCancelConfirmation = () => {
+    setShowConfirmation(false);
+  };
 
   return (
     <Modal isVisible={isVisible} onBackdropPress={onClose} style={styles.modal}>
       <View style={styles.modalContent}>
-        <View style={styles.modalHeader}>
-          <Text style={styles.modalTitle}>
-            Order #{selectedOrder.date.split(" at ")[0]}
+
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>
+              Order #{selectedOrder.date.split(" at ")[0]}
+            </Text>
+            <TouchableOpacity onPress={onClose}>
+              <Text style={styles.closeButton}>×</Text>
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.modalStatus}>{selectedOrder.status}</Text>
+          <Text style={styles.modalDate}>Placed on {selectedOrder.date}</Text>
+          <Text style={styles.modalSection}>Order Timeline</Text>
+          {selectedOrder.timeline.map((event, index) => (
+            <View key={index} style={styles.timelineItem}>
+              <View style={styles.timelineDot} />
+              <View>
+                <Text style={styles.timelineStatus}>{event.status}</Text>
+                <Text style={styles.timelineTime}>{event.time}</Text>
+                <Text style={styles.timelineDescription}>
+                  {event.description}
+                </Text>
+              </View>
+            </View>
+          ))}
+          <Text style={styles.modalSection}>
+            Items ({selectedOrder.items.length})
           </Text>
-          <TouchableOpacity onPress={onClose}>
-            <Text style={styles.closeButton}>×</Text>
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.modalStatus}>Processing</Text>
-        <Text style={styles.modalDate}>Placed on {selectedOrder.date}</Text>
-        <Text style={styles.modalSection}>Order Timeline</Text>
-        {selectedOrder.timeline.map((event, index) => (
-          <View key={index} style={styles.timelineItem}>
-            <View style={styles.timelineDot} />
-            <View>
-              <Text style={styles.timelineStatus}>{event.status}</Text>
-              <Text style={styles.timelineTime}>{event.time}</Text>
-              <Text style={styles.timelineDescription}>
-                {event.description}
+          {selectedOrder.items.map((item, index) => (
+            <View key={index} style={styles.itemRow}>
+              <Image
+                source={{ uri: ensureHttps(item?.media?.url) }}
+                style={styles.itemPlaceholder}
+                resizeMode="cover"
+              />
+              <View style={{ flex: 1, alignItems: "flex-start" }}>
+                <Text style={styles.itemName}>{item.name}</Text>
+                <Text style={styles.itemQuantity}>Qty: {item.quantity}</Text>
+              </View>
+              <Text style={styles.itemPrice}>
+                ৳ {formatWithThousandSeparator(item.price)}
+              </Text>
+            </View>
+          ))}
+          <View style={styles.infoRow}>
+            <View style={styles.infoColumn}>
+              <Text style={styles.infoTitle}>Shipping Information</Text>
+              <Text style={styles.infoText}>{selectedOrder.shipping.name}</Text>
+              <Text style={styles.infoText}>
+                {selectedOrder.shipping.address}
+              </Text>
+              <Text style={styles.infoText}>
+                Phone: {selectedOrder.shipping.phone}
+              </Text>
+            </View>
+            <View style={styles.infoColumn}>
+              <Text style={styles.infoTitle}>Payment Information</Text>
+              <Text style={styles.infoText}>
+                Method: {selectedOrder.payment.method}
+              </Text>
+              <Text style={styles.infoText}>
+                Payment Status: {selectedOrder.payment.paymentStatus}
+              </Text>
+              <Text style={styles.infoText}>
+                Subtotal: ৳
+                {formatWithThousandSeparator(selectedOrder.payment.subtotal)}
+              </Text>
+              <Text style={styles.infoText}>
+                Shipping: ৳
+                {formatWithThousandSeparator(selectedOrder.payment.shipping)}
+              </Text>
+              <Text style={styles.infoText}>
+                Tax: ৳{formatWithThousandSeparator(selectedOrder.payment.tax)}
+              </Text>
+              <Text style={styles.infoTotal}>
+                Total: ৳
+                {formatWithThousandSeparator(selectedOrder.payment.total)}
               </Text>
             </View>
           </View>
-        ))}
-        <Text style={styles.modalSection}>
-          Items ({selectedOrder.items.length})
-        </Text>
-        {selectedOrder.items.map((item, index) => (
-          <View key={index} style={styles.itemRow}>
-            <Image
-              source={{ uri: ensureHttps(item?.media?.url) }}
-              style={styles.itemPlaceholder}
-              resizeMode="cover"
-            />
-            <View style={{ flex: 1, alignItems: "flex-start" }}>
-              <Text style={styles.itemName}>{item.name}</Text>
-              <Text style={styles.itemQuantity}>Qty: {item.quantity}</Text>
-            </View>
-            <Text style={styles.itemPrice}>
-              ৳ {formatWithThousandSeparator(item.price)}
-            </Text>
+          <View style={styles.modalButtons}>
+            <TouchableOpacity
+              style={[
+                styles.closeButtonContainer,
+                !canCancelOrder && styles.fullWidthButton,
+              ]}
+              onPress={onClose}
+            >
+              <Text style={styles.buttonText}>Close</Text>
+            </TouchableOpacity>
+            {canCancelOrder && (
+              <TouchableOpacity
+                style={[
+                  styles.cancelButton,
+                  cancelling && styles.disabledButton,
+                ]}
+                onPress={handleCancelPress}
+                disabled={cancelling}
+              >
+                <Text style={styles.buttonText}>
+                  {cancelling ? "Cancelling..." : "Cancel Order"}
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
-        ))}
-        <View style={styles.infoRow}>
-          <View style={styles.infoColumn}>
-            <Text style={styles.infoTitle}>Shipping Information</Text>
-            <Text style={styles.infoText}>{selectedOrder.shipping.name}</Text>
-            <Text style={styles.infoText}>
-              {selectedOrder.shipping.address}
-            </Text>
-            <Text style={styles.infoText}>
-              Phone: {selectedOrder.shipping.phone}
-            </Text>
-          </View>
-          <View style={styles.infoColumn}>
-            <Text style={styles.infoTitle}>Payment Information</Text>
-            <Text style={styles.infoText}>
-              Method: {selectedOrder.payment.method}
-            </Text>
-            <Text style={styles.infoText}>
-              Payment Status: {selectedOrder.payment.paymentStatus}
-            </Text>
-            <Text style={styles.infoText}>
-              Subtotal: ৳
-              {formatWithThousandSeparator(selectedOrder.payment.subtotal)}
-            </Text>
-            <Text style={styles.infoText}>
-              Shipping: ৳
-              {formatWithThousandSeparator(selectedOrder.payment.shipping)}
-            </Text>
-            <Text style={styles.infoText}>
-              Tax: ৳{formatWithThousandSeparator(selectedOrder.payment.tax)}
-            </Text>
-            <Text style={styles.infoTotal}>
-              Total: ৳{formatWithThousandSeparator(selectedOrder.payment.total)}
-            </Text>
-          </View>
-        </View>
-        <View style={styles.modalButtons}>
-          <TouchableOpacity
-            style={styles.closeButtonContainer}
-            onPress={onClose}
-          >
-            <Text style={styles.buttonText}>Close</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.cancelButton}>
-            <Text style={styles.buttonText}>Cancel Order</Text>
-          </TouchableOpacity>
-        </View>
       </View>
+
+      <CustomConfirmationModal
+        isVisible={showConfirmation}
+        title="Cancel Order"
+        message={`Are you sure you want to cancel this order?`}
+        confirmText="Confirm"
+        cancelText="Keep "
+        onConfirm={handleConfirmCancel}
+        onCancel={handleCancelConfirmation}
+        isLoading={cancelling}
+        confirmButtonColor="#e74c3c"
+        icon={<WarningIcon size={60} color="#f39c12" />}
+      />
     </Modal>
   );
 }
@@ -258,5 +318,12 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 14,
     fontWeight: "bold",
+  },
+  fullWidthButton: {
+    flex: 1,
+    marginRight: 0,
+  },
+  disabledButton: {
+    opacity: 0.6,
   },
 });

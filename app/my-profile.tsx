@@ -121,8 +121,9 @@ export default function MyProfileScreen() {
         Toast.show({
           type: "success",
           text1: "Success",
-          text2: `Address ${selectedAddress ? "updated" : "added"
-            } successfully`,
+          text2: `Address ${
+            selectedAddress ? "updated" : "added"
+          } successfully`,
         });
         setShowAddressModal(false);
         fetchAddresses();

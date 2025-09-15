@@ -45,17 +45,12 @@ const validateAddress = (
   ) {
     return "Address line is required";
   }
-  if (!data.flatNo && (data.flatNo.length < 1 || data.flatNo.length > 100)) {
-    return "Flat number is required";
-  }
-  if (!data.floorNo && (data.floorNo.length < 1 || data.floorNo.length > 100)) {
-    return "Floor number is required";
-  }
+
   if (!data.name || data.name.length < 1 || data.name.length > 100) {
     return "Name is required";
   }
   if (!data.phoneNo || data.phoneNo.length < 11) {
-    return "Phone number is required";
+    return "Valid phone number is required";
   }
   if (data.deliveryNotes && data.deliveryNotes.length > 500) {
     return "Delivery notes must not exceed 500 characters";
@@ -69,12 +64,7 @@ const validateAddress = (
   if (data.country && data.country.length > 100) {
     return "Country must not exceed 100 characters";
   }
-  if (
-    !data.postalCode &&
-    (data.postalCode.length < 1 || data.postalCode.length > 20)
-  ) {
-    return "Postal code is required";
-  }
+
   return null; // No errors
 };
 
@@ -173,10 +163,10 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
               >
-                <Text style={styles.inputLabel}>Flat No *</Text>
+                <Text style={styles.inputLabel}>Flat No</Text>
                 <TextInput
                   style={styles.formInput}
-                  placeholder="Flat No *"
+                  placeholder="Flat No"
                   placeholderTextColor="#999"
                   value={formData.flatNo}
                   onChangeText={(text) =>
@@ -184,10 +174,10 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
                   }
                   returnKeyType="next"
                 />
-                <Text style={styles.inputLabel}>Floor No *</Text>
+                <Text style={styles.inputLabel}>Floor No</Text>
                 <TextInput
                   style={styles.formInput}
-                  placeholder="Floor No *"
+                  placeholder="Floor No"
                   placeholderTextColor="#999"
                   value={formData.floorNo}
                   onChangeText={(text) =>
@@ -262,10 +252,10 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
                   }
                   returnKeyType="next"
                 />
-                <Text style={styles.inputLabel}>Country *</Text>
+                <Text style={styles.inputLabel}>Country</Text>
                 <TextInput
                   style={styles.formInput}
-                  placeholder="Country *"
+                  placeholder="Country"
                   placeholderTextColor="#999"
                   value={formData.country}
                   onChangeText={(text) =>
@@ -273,10 +263,10 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
                   }
                   returnKeyType="next"
                 />
-                <Text style={styles.inputLabel}>Postal Code *</Text>
+                <Text style={styles.inputLabel}>Postal Code</Text>
                 <TextInput
                   style={styles.formInput}
-                  placeholder="Postal Code *"
+                  placeholder="Postal Code"
                   placeholderTextColor="#999"
                   value={formData.postalCode}
                   onChangeText={(text) =>

@@ -1,7 +1,9 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import {
+  ORDER_STATUS_CANCELLED,
   ORDER_STATUS_DELIVERED,
   ORDER_STATUS_PROCESSING,
+  ORDER_STATUS_SHIPPED,
 } from "@/constants/variables";
 import { Order } from "./orderTypes";
 
@@ -16,12 +18,20 @@ export default function OrderCard({ item, toggleModal }: OrderCardProps) {
       ? "#27ae60"
       : item.orderStatus === ORDER_STATUS_PROCESSING
       ? "#3498db"
+      : item.orderStatus === ORDER_STATUS_CANCELLED
+      ? "#e74c3c"
+      : item.orderStatus === ORDER_STATUS_SHIPPED
+      ? "#f39c12"
       : "#f1c40f";
   const statusBackgroundColor =
     item.orderStatus === ORDER_STATUS_DELIVERED
       ? "#e8f5e9"
       : item.orderStatus === ORDER_STATUS_PROCESSING
       ? "#e6f3fa"
+      : item.orderStatus === ORDER_STATUS_SHIPPED
+      ? "#fff3e0"
+      : item.orderStatus === ORDER_STATUS_CANCELLED
+      ? "#fdecea"
       : "#fef9e7";
 
   return (
