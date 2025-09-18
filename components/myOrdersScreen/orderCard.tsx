@@ -10,9 +10,10 @@ import { Order } from "./orderTypes";
 interface OrderCardProps {
   item: Order;
   toggleModal: (orderId: string | null) => void;
+  isGuest?: boolean;
 }
 
-export default function OrderCard({ item, toggleModal }: OrderCardProps) {
+export default function OrderCard({ item, toggleModal, isGuest = false }: OrderCardProps) {
   const statusColor =
     item.orderStatus === ORDER_STATUS_DELIVERED
       ? "#27ae60"
@@ -48,13 +49,15 @@ export default function OrderCard({ item, toggleModal }: OrderCardProps) {
         </Text>
         <Text style={styles.orderTotal}>৳{item.total.toFixed(2)}</Text>
       </View>
-      <View
-        style={[styles.statusBadge, { backgroundColor: statusBackgroundColor }]}
-      >
-        <Text style={[styles.statusText, { color: statusColor }]}>
-          {item.orderStatus}
-        </Text>
-      </View>
+      {!isGuest && (
+        <View
+          style={[styles.statusBadge, { backgroundColor: statusBackgroundColor }]}
+        >
+          <Text style={[styles.statusText, { color: statusColor }]}>
+            {item.orderStatus}
+          </Text>
+        </View>
+      )}
       <TouchableOpacity
         style={styles.viewButton}
         onPress={() => toggleModal(item.id)}

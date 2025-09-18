@@ -6,7 +6,6 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useState, useEffect, useCallback } from "react";
-import { useCartStore } from "@/store/cartStore";
 import Toast from "react-native-toast-message";
 import CategoryProductCard from "@/components/categoryScreen/categoryProductCard";
 import {
@@ -14,7 +13,6 @@ import {
   ProductVariant,
 } from "@/components/shopNowScreen/shopNowProductCard";
 import { API_URL } from "@/constants/variables";
-import { useAuthStore } from "@/store/authStore";
 import { handleAddToCart } from "@/utils/cartUtils";
 
 interface QuantityMap {
@@ -28,8 +26,6 @@ interface CategoryProductsScreenProps {
 export default function CategoryProductsScreen({
   categoryTitle,
 }: CategoryProductsScreenProps) {
-  const { addItem } = useCartStore();
-  const { userId, accessToken } = useAuthStore();
   const [products, setProducts] = useState<ShopNowProduct[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -129,7 +125,9 @@ export default function CategoryProductsScreen({
       productId: item.id,
       variantId: selectedVariant.id,
       productTitle: item.title,
-      productImage: selectedVariant.mediaItems?.[0]?.mediaUrl || "https://via.placeholder.com/50",
+      productImage:
+        selectedVariant.mediaItems?.[0]?.mediaUrl ||
+        "https://via.placeholder.com/50",
       productPrice: selectedVariant.price,
       unitTitle: selectedVariant.unitTitle,
       newQuantity: newQuantity,

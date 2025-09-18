@@ -28,7 +28,7 @@ import safefoodLogoPng from "@/assets/images/logo-safefood.png";
 import HomeOnSale from "@/components/homeScreen/onSale";
 
 export default function HomeScreen() {
-  const { userId, accessToken, userName } = useAuthStore();
+  const { userId, userName } = useAuthStore();
   const { addItem, isCartFetchedFromApi } = useCartStore();
 
   const [isCategoryLoaded, setIsCategoryLoaded] = React.useState(false);
@@ -39,10 +39,10 @@ export default function HomeScreen() {
 
   // Initialize cart from API for logged-in users
   useEffect(() => {
-    if (userId && accessToken && !isCartFetchedFromApi) {
+    if (userId && !isCartFetchedFromApi) {
       initializeCartFromApi();
     }
-  }, [userId, accessToken, isCartFetchedFromApi]);
+  }, [userId, isCartFetchedFromApi]);
 
   // Animation and render logic
   useEffect(() => {

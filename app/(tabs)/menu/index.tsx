@@ -38,16 +38,16 @@ export default function ProfileScreen() {
     //   icon: "https://cdn-icons-png.flaticon.com/512/2099/2099058.png",
     //   action: () => router.push("/settings"),
     // },
-    ...(userId
-      ? [
-          {
-            id: "4",
-            title: "My Orders",
-            icon: "https://cdn-icons-png.flaticon.com/512/891/891462.png",
-            action: () => router.push("/my-orders"),
-          },
-        ]
-      : []),
+    // ...(userId
+    //   ? [
+    {
+      id: "4",
+      title: "My Orders",
+      icon: "https://cdn-icons-png.flaticon.com/512/891/891462.png",
+      action: () => router.push("/my-orders"),
+    },
+    //   ]
+    // : []),
     {
       id: "5",
       title: "Privacy Policy",

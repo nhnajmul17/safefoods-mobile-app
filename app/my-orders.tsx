@@ -12,10 +12,13 @@ import {
 import OrderHeader from "@/components/myOrdersScreen/orderHeader";
 import OrderList from "@/components/myOrdersScreen/orderList";
 import OrderModal from "@/components/myOrdersScreen/orderModal";
-import ProtectedRoute from "@/components/auth/protectedRoute";
+import {
+  getGuestOrders,
+  convertGuestOrderToOrderFormat,
+} from "@/utils/guestOrderStorage";
 
 export default function MyOrdersScreen() {
-  const { userId, accessToken } = useAuthStore();
+  const { userId, isAuthenticated } = useAuthStore();
   const [orders, setOrders] = useState<Order[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [loading, setLoading] = useState(true);
@@ -23,7 +26,7 @@ export default function MyOrdersScreen() {
   const [selectedOrder, setSelectedOrder] = useState<OrderDetail | null>(null);
   const [cancelling, setCancelling] = useState(false);
 
-  const fetchOrders = useCallback(
+  const fetchAuthenticatedOrders = useCallback(
     async (offset: number = 0) => {
       setLoading(true);
       try {
@@ -33,7 +36,6 @@ export default function MyOrdersScreen() {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${accessToken}`,
             },
           }
         );
@@ -52,7 +54,49 @@ export default function MyOrdersScreen() {
         setLoading(false);
       }
     },
-    [accessToken, userId]
+    [userId]
+  );
+
+  const fetchGuestOrders = useCallback(async () => {
+    setLoading(true);
+    try {
+      const guestOrders = await getGuestOrders();
+      const convertedOrders = guestOrders.map(convertGuestOrderToOrderFormat);
+      setOrders(convertedOrders);
+      // Set pagination for guest orders (no server-side pagination)
+      setPagination({
+        offset: 0,
+        limit: convertedOrders.length,
+        total: convertedOrders.length,
+        currentCount: convertedOrders.length,
+      });
+    } catch (error) {
+      console.error("Error loading guest orders:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchOrders = useCallback(
+    async (offset: number = 0) => {
+      // More robust authentication check
+      const isUserAuthenticated = Boolean(isAuthenticated && userId);
+
+      // console.log('Authentication check:', {
+      //   isAuthenticated,
+      //   hasUserId: Boolean(userId),
+      //   finalAuth: isUserAuthenticated
+      // });
+
+      if (isUserAuthenticated) {
+        // console.log('Fetching authenticated user orders');
+        await fetchAuthenticatedOrders(offset);
+      } else {
+        // console.log('Fetching guest orders');
+        await fetchGuestOrders();
+      }
+    },
+    [isAuthenticated, userId, fetchAuthenticatedOrders, fetchGuestOrders]
   );
 
   useEffect(() => {
@@ -60,7 +104,9 @@ export default function MyOrdersScreen() {
   }, [fetchOrders]);
 
   const handleLoadMore = () => {
-    if (pagination && orders.length < pagination.total) {
+    // Only allow load more for authenticated users (guest orders are loaded all at once)
+    const isUserAuthenticated = Boolean(isAuthenticated && userId);
+    if (isUserAuthenticated && pagination && orders.length < pagination.total) {
       fetchOrders(orders.length);
     }
   };
@@ -113,6 +159,16 @@ export default function MyOrdersScreen() {
   const handleCancelOrder = async (orderId: string) => {
     setCancelling(true);
     try {
+      // For guest users, we can't cancel orders via API since they're only stored locally
+      const isUserAuthenticated = Boolean(isAuthenticated && userId);
+      if (!isUserAuthenticated) {
+        // You might want to show a message that guest orders can't be cancelled
+        // or implement local cancellation logic if needed
+        // console.log("Guest orders cannot be cancelled via API");
+        toggleModal(null);
+        return;
+      }
+
       const response = await fetch(`${API_URL}/v1/orders/${orderId}`, {
         method: "PATCH",
         headers: {
@@ -143,26 +199,30 @@ export default function MyOrdersScreen() {
     }
   };
 
+  // Consistent authentication check for render
+  const isUserAuthenticated = Boolean(isAuthenticated && userId);
+  const isGuest = !isUserAuthenticated;
+
   return (
-    <ProtectedRoute>
-      <SafeAreaView style={styles.container}>
-        <OrderHeader />
-        <OrderList
-          orders={orders}
-          loading={loading}
-          pagination={pagination}
-          onLoadMore={handleLoadMore}
-          toggleModal={toggleModal}
-        />
-        <OrderModal
-          isVisible={isModalVisible}
-          onClose={() => toggleModal(null)} // Use toggleModal to close and reset
-          selectedOrder={selectedOrder}
-          onCancelOrder={handleCancelOrder}
-          cancelling={cancelling}
-        />
-      </SafeAreaView>
-    </ProtectedRoute>
+    <SafeAreaView style={styles.container}>
+      <OrderHeader isGuest={isGuest} />
+      <OrderList
+        orders={orders}
+        loading={loading}
+        pagination={pagination}
+        onLoadMore={handleLoadMore}
+        toggleModal={toggleModal}
+        isGuest={isGuest}
+      />
+      <OrderModal
+        isVisible={isModalVisible}
+        onClose={() => toggleModal(null)} // Use toggleModal to close and reset
+        selectedOrder={selectedOrder}
+        onCancelOrder={handleCancelOrder}
+        cancelling={cancelling}
+        isGuest={isGuest}
+      />
+    </SafeAreaView>
   );
 }
 

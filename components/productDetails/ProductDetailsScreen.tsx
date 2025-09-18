@@ -48,8 +48,7 @@ const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     null
   );
-  const { cartItems, addItem, updateQuantity, removeItem } = useCartStore();
-  const { userId, accessToken } = useAuthStore();
+  const { cartItems } = useCartStore();
 
   // Find if this product variant is already in cart
   const cartItem = cartItems.find(

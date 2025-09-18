@@ -9,6 +9,7 @@ interface OrderListProps {
   pagination: Pagination | null;
   onLoadMore: () => void;
   toggleModal: (orderId: string | null) => void;
+  isGuest?: boolean;
 }
 
 export default function OrderList({
@@ -17,6 +18,7 @@ export default function OrderList({
   pagination,
   onLoadMore,
   toggleModal,
+  isGuest = false,
 }: OrderListProps) {
   if (loading && orders.length === 0) {
     return (
@@ -38,7 +40,7 @@ export default function OrderList({
     <FlatList
       data={orders}
       renderItem={({ item }) => (
-        <OrderCard item={item} toggleModal={toggleModal} />
+        <OrderCard item={item} toggleModal={toggleModal} isGuest={isGuest} />
       )}
       keyExtractor={(item) => item.id}
       contentContainerStyle={styles.listContent}

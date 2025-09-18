@@ -13,6 +13,7 @@ import {
 import { deepGreenColor, yellowColor } from "@/constants/Colors";
 import { formatWithThousandSeparator } from "@/utils/helperFunctions";
 import { clearCartInDatabaseInOrderPlaced } from "@/utils/cartUtils";
+import { saveGuestOrder } from "@/utils/guestOrderStorage";
 
 interface ProductOrder {
   variantProductId: string;
@@ -85,7 +86,7 @@ export const UnifiedPlaceOrderButton: React.FC<UnifiedPlaceOrderButtonProps> = (
   transactionDate,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { clearCart } = useCartStore();
+  const { clearCart, cartItems } = useCartStore();
   const router = useRouter();
 
   const validateGuestDetails = (): boolean => {
@@ -391,17 +392,22 @@ export const UnifiedPlaceOrderButton: React.FC<UnifiedPlaceOrderButtonProps> = (
       const data = await response.json();
 
       if (data.success) {
-        // Clear cart after successful order
-        if (!isGuest) {
+        // Save guest order to local storage if it's a guest order
+        if (isGuest) {
+          await saveGuestOrder(data, cartItems, paymentMethods);
+        } else {
+          // Clear cart from database for authenticated users
           clearCartInDatabaseInOrderPlaced();
         }
+        
+        // Clear cart after successful order
         clearCart();
 
         Toast.show({
           type: "success",
           text1: "Order Placed Successfully!",
           text2: isGuest 
-            ? "Your order has been placed. You will receive confirmation shortly."
+            ? "Your order has been saved and you can view it in My Orders."
             : "Your order has been placed successfully.",
           text1Style: { fontSize: 16, fontWeight: "bold" },
           text2Style: { fontSize: 14, fontWeight: "bold" },

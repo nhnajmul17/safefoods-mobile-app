@@ -17,6 +17,7 @@ interface OrderModalProps {
   selectedOrder: OrderDetail | null;
   onCancelOrder: (orderId: string) => Promise<void>;
   cancelling: boolean;
+  isGuest?: boolean;
 }
 
 export default function OrderModal({
@@ -25,15 +26,17 @@ export default function OrderModal({
   selectedOrder,
   onCancelOrder,
   cancelling,
+  isGuest = false,
 }: OrderModalProps) {
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   if (!selectedOrder) return null;
 
-  // Check if order can be cancelled (status is pending or processing)
+  // Check if order can be cancelled (status is pending or processing and not a guest order)
   const canCancelOrder =
-    selectedOrder.status.toLowerCase() === ORDER_STATUS_PENDING ||
-    selectedOrder.status.toLowerCase() === ORDER_STATUS_PROCESSING;
+    !isGuest &&
+    (selectedOrder.status.toLowerCase() === ORDER_STATUS_PENDING ||
+      selectedOrder.status.toLowerCase() === ORDER_STATUS_PROCESSING);
 
   const handleCancelPress = () => {
     setShowConfirmation(true);
@@ -60,21 +63,28 @@ export default function OrderModal({
               <Text style={styles.closeButton}>×</Text>
             </TouchableOpacity>
           </View>
-          <Text style={styles.modalStatus}>{selectedOrder.status}</Text>
-          <Text style={styles.modalDate}>Placed on {selectedOrder.date}</Text>
-          <Text style={styles.modalSection}>Order Timeline</Text>
-          {selectedOrder.timeline.map((event, index) => (
-            <View key={index} style={styles.timelineItem}>
-              <View style={styles.timelineDot} />
-              <View>
-                <Text style={styles.timelineStatus}>{event.status}</Text>
-                <Text style={styles.timelineTime}>{event.time}</Text>
-                <Text style={styles.timelineDescription}>
-                  {event.description}
-                </Text>
-              </View>
-            </View>
-          ))}
+          {!isGuest && (
+            <>
+              <Text style={styles.modalStatus}>{selectedOrder.status}</Text>
+              <Text style={styles.modalDate}>Placed on {selectedOrder.date}</Text>
+              <Text style={styles.modalSection}>Order Timeline</Text>
+              {selectedOrder.timeline.map((event, index) => (
+                <View key={index} style={styles.timelineItem}>
+                  <View style={styles.timelineDot} />
+                  <View>
+                    <Text style={styles.timelineStatus}>{event.status}</Text>
+                    <Text style={styles.timelineTime}>{event.time}</Text>
+                    <Text style={styles.timelineDescription}>
+                      {event.description}
+                    </Text>
+                  </View>
+                </View>
+              ))}
+            </>
+          )}
+          {isGuest && (
+            <Text style={styles.modalDate}>Placed on {selectedOrder.date}</Text>
+          )}
           <Text style={styles.modalSection}>
             Items ({selectedOrder.items.length})
           </Text>

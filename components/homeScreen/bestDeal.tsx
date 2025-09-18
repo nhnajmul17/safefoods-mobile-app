@@ -1,13 +1,6 @@
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  Text,
-  ActivityIndicator,
-} from "react-native";
+import { View, StyleSheet, ScrollView, Text } from "react-native";
 import { Fragment, useState, useEffect } from "react";
-import { useCartStore } from "@/store/cartStore";
-import Toast from "react-native-toast-message";
+
 import {
   ShopNowProduct,
   ProductVariant,
@@ -15,7 +8,6 @@ import {
 
 import BestDealProductCard from "./bestDealProductCard";
 import { API_URL } from "@/constants/variables";
-import { useAuthStore } from "@/store/authStore";
 import BestDealSkeleton from "./bestDealSkeleton";
 import { handleAddToCart } from "@/utils/cartUtils";
 
@@ -25,8 +17,6 @@ interface QuantityMap {
 }
 
 export default function HomeBestDeal() {
-  const { cartItems, addItem, removeItem, updateQuantity } = useCartStore();
-  const { userId, accessToken } = useAuthStore();
   const [products, setProducts] = useState<ShopNowProduct[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -79,7 +69,10 @@ export default function HomeBestDeal() {
       productTitle: item.title,
       productImage: selectedVariant.mediaItems?.[0]?.mediaUrl
         ? selectedVariant.mediaItems[0].mediaUrl.startsWith("http://")
-          ? selectedVariant.mediaItems[0].mediaUrl.replace("http://", "https://")
+          ? selectedVariant.mediaItems[0].mediaUrl.replace(
+              "http://",
+              "https://"
+            )
           : selectedVariant.mediaItems[0].mediaUrl
         : "https://via.placeholder.com/50",
       productPrice: selectedVariant.price,

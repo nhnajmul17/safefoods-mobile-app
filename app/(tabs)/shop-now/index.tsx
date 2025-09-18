@@ -8,7 +8,6 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { useCartStore } from "@/store/cartStore";
 import Toast from "react-native-toast-message";
 import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { deepGreenColor, yellowColor } from "@/constants/Colors";
@@ -18,7 +17,6 @@ import ShopNowProductCard, {
 } from "@/components/shopNowScreen/shopNowProductCard";
 import { API_URL } from "@/constants/variables";
 import { CustomLoader } from "@/components/common/loader";
-import { useAuthStore } from "@/store/authStore";
 import { handleAddToCart } from "@/utils/cartUtils";
 
 import { Category, CategoriesResponse } from "@/components/shopNowScreen/types";
@@ -77,8 +75,6 @@ const getCategoriesAPI = async (): Promise<CategoriesResponse> => {
 };
 
 export default function ShopNowScreen() {
-  const { cartItems, addItem, removeItem, updateQuantity } = useCartStore();
-  const { userId, accessToken } = useAuthStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<ShopNowProduct[]>([]);
@@ -338,7 +334,9 @@ export default function ShopNowScreen() {
       productId: item.id,
       variantId: selectedVariant.id,
       productTitle: item.title,
-      productImage: selectedVariant.mediaItems?.[0]?.mediaUrl || "https://via.placeholder.com/50",
+      productImage:
+        selectedVariant.mediaItems?.[0]?.mediaUrl ||
+        "https://via.placeholder.com/50",
       productPrice: selectedVariant.price,
       unitTitle: selectedVariant.unitTitle,
       newQuantity: newQuantity,
@@ -443,7 +441,10 @@ export default function ShopNowScreen() {
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <View>
-                <ShopNowProductCard item={item} onAddToCart={handleAddToCartLocal} />
+                <ShopNowProductCard
+                  item={item}
+                  onAddToCart={handleAddToCartLocal}
+                />
               </View>
             )}
             numColumns={1}
