@@ -1,6 +1,7 @@
-import React from "react";
-import { View, Text, TextInput, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TextInput, StyleSheet, Switch, Button, Alert } from "react-native";
 import { deepGreenColor } from "@/constants/Colors";
+import { API_URL } from "@/constants/variables";
 
 export interface GuestDetails {
   fullName: string;
@@ -21,10 +22,81 @@ interface GuestDetailsSectionProps {
   onDetailsChange: (field: keyof GuestDetails, value: string) => void;
 }
 
+const sendOtpAPI = async (phone: string) => {
+  const response = await fetch(`${API_URL}/v2/auth/send-mobile-otp`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ phoneNumber: phone }),
+  });
+  return response.json();
+};
+
+const verifyOtpAPI = async (phone: string, otp: string, token: string) => {
+  const response = await fetch(`${API_URL}/v2/auth/verify-mobile-otp`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "otp-verification-token": token,
+    },
+    body: JSON.stringify({ phoneNumber: phone, otp: parseInt(otp) }),
+  });
+  return response.json();
+};
+
 export const GuestDetailsSection: React.FC<GuestDetailsSectionProps> = ({
   guestDetails,
   onDetailsChange,
 }) => {
+  const [createAccount, setCreateAccount] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [token, setToken] = useState("");
+
+  const handleSendOtp = async () => {
+    if (!guestDetails.phoneNumber) {
+      Alert.alert("Error", "Please enter a phone number to send OTP.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const response = await sendOtpAPI(guestDetails.phoneNumber);
+      if (response.success) {
+        setOtpSent(true);
+        setToken(response.token);
+        Alert.alert("OTP Sent", "An OTP has been sent to your phone number.");
+      } else {
+        Alert.alert("Error", response.message || "Failed to send OTP.");
+      }
+    } catch (error) {
+      Alert.alert("Error", "An error occurred while sending OTP.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otp) {
+      Alert.alert("Error", "Please enter the OTP.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const response = await verifyOtpAPI(guestDetails.phoneNumber, otp, token);
+      if (response.success) {
+        setOtpVerified(true);
+        Alert.alert("Success", "OTP verified and account created successfully.");
+      } else {
+        Alert.alert("Error", response.message || "Invalid OTP. Please try again.");
+      }
+    } catch (error) {
+      Alert.alert("Error", "An error occurred while verifying OTP.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.sectionTitle}>Your Details</Text>
@@ -68,6 +140,40 @@ export const GuestDetailsSection: React.FC<GuestDetailsSectionProps> = ({
             autoCapitalize="none"
           />
         </View>
+
+        {/* Create Account Switch */}
+        <View style={styles.inputContainer}>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Switch
+              value={createAccount}
+              onValueChange={setCreateAccount}
+            />
+            <Text style={styles.label}>Create an account now</Text>
+          </View>
+        </View>
+
+        {createAccount && (
+          <>
+            {!otpSent ? (
+              <Button title="Send OTP" onPress={handleSendOtp} disabled={loading} />
+            ) : (
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Enter OTP</Text>
+                <TextInput
+                  style={styles.input}
+                  value={otp}
+                  onChangeText={setOtp}
+                  placeholder="Enter the OTP"
+                  placeholderTextColor="#999"
+                  keyboardType="numeric"
+                />
+                <View style={{ marginTop: 12 }}>
+                  <Button title="Verify OTP" onPress={handleVerifyOtp} disabled={loading} />
+                </View>
+              </View>
+            )}
+          </>
+        )}
       </View>
 
       {/* Address Information */}
