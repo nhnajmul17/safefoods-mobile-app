@@ -92,10 +92,21 @@ interface UnifiedCheckoutScreenProps {
   isGuest?: boolean;
 }
 
-export default function UnifiedCheckoutScreen({ isGuest = false }: UnifiedCheckoutScreenProps) {
+export default function UnifiedCheckoutScreen({
+  isGuest = false,
+}: UnifiedCheckoutScreenProps) {
   const { cartItems, getTotalPrice } = useCartStore();
-  const { userId } = useAuthStore();
+  const { userId, login } = useAuthStore();
   const flatListRef = useRef<FlatList>(null);
+
+  // State to track if guest user became authenticated during checkout
+  const [guestBecameAuthenticated, setGuestBecameAuthenticated] =
+    useState(false);
+  const [newUserId, setNewUserId] = useState<string | null>(null);
+  const [newUserAddressId, setNewUserAddressId] = useState<string | null>(null);
+  
+  // Guest account creation state
+  const [createAccount, setCreateAccount] = useState(false);
 
   const [deliveryZones, setDeliveryZones] = useState<DeliveryZone[]>([]);
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
@@ -115,7 +126,9 @@ export default function UnifiedCheckoutScreen({ isGuest = false }: UnifiedChecko
 
   // Authenticated user addresses
   const [addresses, setAddresses] = useState<Address[]>([]);
-  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
+    null
+  );
 
   // Guest details state
   const [guestDetails, setGuestDetails] = useState<GuestDetails>({
@@ -253,6 +266,41 @@ export default function UnifiedCheckoutScreen({ isGuest = false }: UnifiedChecko
     }));
   };
 
+  const handleAccountCreated = async (
+    userId: string,
+    accessToken: string,
+    refreshToken: string
+  ) => {
+    try {
+      // Extract user info from the token or make an API call to get user details
+      // For now, we'll use the phone number as the username
+      const userName = guestDetails.fullName || guestDetails.phoneNumber;
+      const userEmail = guestDetails.email || "";
+
+      // Update auth store
+      login(userId, userName, userEmail, accessToken);
+
+      // Set the new user data
+      setNewUserId(userId);
+      setGuestBecameAuthenticated(true);
+
+      // Fetch the user's address to set as selected address
+      try {
+        const addressResponse = await fetch(
+          `${API_URL}/v1/addresses/user/${userId}`
+        );
+        const addressData = await addressResponse.json();
+        if (addressData.success && addressData.data.length > 0) {
+          setNewUserAddressId(addressData.data[0].id);
+        }
+      } catch (error) {
+        console.error("Error fetching user addresses:", error);
+      }
+    } catch (error) {
+      console.error("Error handling account creation:", error);
+    }
+  };
+
   const handleSaveAddress = async (
     formData: Omit<
       Address,
@@ -261,7 +309,8 @@ export default function UnifiedCheckoutScreen({ isGuest = false }: UnifiedChecko
       isActive?: boolean;
     }
   ) => {
-    if (!userId) {
+    const currentUserId = guestBecameAuthenticated ? newUserId : userId;
+    if (!currentUserId) {
       console.error("User ID is null");
       return;
     }
@@ -269,7 +318,7 @@ export default function UnifiedCheckoutScreen({ isGuest = false }: UnifiedChecko
     const url = `${API_URL}/v1/addresses/`;
     const method = "POST";
     const body = {
-      userId: userId,
+      userId: currentUserId,
       ...formData,
       isActive: formData.isActive ?? false,
     };
@@ -284,7 +333,7 @@ export default function UnifiedCheckoutScreen({ isGuest = false }: UnifiedChecko
       if (data.success) {
         const newAddress: Address = {
           id: data.data.id,
-          userId: userId,
+          userId: currentUserId,
           flatNo: formData.flatNo,
           floorNo: formData.floorNo,
           addressLine: formData.addressLine,
@@ -311,9 +360,10 @@ export default function UnifiedCheckoutScreen({ isGuest = false }: UnifiedChecko
   };
 
   const getSectionData = () => {
+    const showAsGuest = isGuest && !guestBecameAuthenticated;
     const sections = [
       { type: "delivery", key: "delivery" },
-      ...(isGuest
+      ...(showAsGuest
         ? [{ type: "guestDetails", key: "guestDetails" }]
         : [{ type: "deliveryAddress", key: "deliveryAddress" }]),
       { type: "order", key: "order" },
@@ -337,22 +387,36 @@ export default function UnifiedCheckoutScreen({ isGuest = false }: UnifiedChecko
           />
         );
       case "deliveryAddress":
+        const currentAddresses = guestBecameAuthenticated ? [] : addresses;
+        const currentSelectedAddressId = guestBecameAuthenticated
+          ? newUserAddressId
+          : selectedAddressId;
+
         return (
           <View>
-            {addresses.length > 0 && (
+            {guestBecameAuthenticated && newUserAddressId && (
+              <View style={styles.accountCreatedMessage}>
+                <Text style={styles.accountCreatedText}>
+                  ✓ Account created! Using your saved address for delivery.
+                </Text>
+              </View>
+            )}
+            {currentAddresses.length > 0 && (
               <DeliveryAddressSection
-                addresses={addresses}
-                selectedAddressId={selectedAddressId}
+                addresses={currentAddresses}
+                selectedAddressId={currentSelectedAddressId}
                 onAddressSelect={setSelectedAddressId}
               />
             )}
-            <TouchableOpacity
-              style={styles.addAddressButton}
-              onPress={() => setShowAddressModal(true)}
-            >
-              <Icon name="add" size={20} color={yellowColor} />
-              <Text style={styles.addAddressButtonText}>Add New Address</Text>
-            </TouchableOpacity>
+            {!guestBecameAuthenticated && (
+              <TouchableOpacity
+                style={styles.addAddressButton}
+                onPress={() => setShowAddressModal(true)}
+              >
+                <Icon name="add" size={20} color={yellowColor} />
+                <Text style={styles.addAddressButtonText}>Add New Address</Text>
+              </TouchableOpacity>
+            )}
           </View>
         );
       case "guestDetails":
@@ -360,6 +424,8 @@ export default function UnifiedCheckoutScreen({ isGuest = false }: UnifiedChecko
           <GuestDetailsSection
             guestDetails={guestDetails}
             onDetailsChange={handleGuestDetailsChange}
+            createAccount={createAccount}
+            onCreateAccountChange={setCreateAccount}
           />
         );
       case "order":
@@ -400,7 +466,7 @@ export default function UnifiedCheckoutScreen({ isGuest = false }: UnifiedChecko
       case "placeOrder":
         return (
           <UnifiedPlaceOrderButton
-            isGuest={isGuest}
+            isGuest={isGuest && !guestBecameAuthenticated}
             selectedZoneId={selectedZoneId}
             deliveryCharge={deliveryCharge}
             getTotalPrice={getTotalPrice}
@@ -409,14 +475,18 @@ export default function UnifiedCheckoutScreen({ isGuest = false }: UnifiedChecko
             preferredDeliveryDateTime={preferredDeliveryDateTime}
             paymentMethods={paymentMethods}
             paymentMethodId={selectedPaymentMethodId}
-            addressId={selectedAddressId}
+            addressId={
+              guestBecameAuthenticated ? newUserAddressId : selectedAddressId
+            }
             productOrders={mapCartToProductOrders()}
-            userId={userId}
+            userId={guestBecameAuthenticated ? newUserId : userId}
             couponId={couponId}
             guestDetails={guestDetails}
             transactionNo={transactionNo}
             transactionPhoneNo={transactionPhoneNo}
             transactionDate={transactionDate}
+            createAccount={createAccount}
+            onAccountCreated={handleAccountCreated}
           />
         );
       default:
@@ -470,7 +540,7 @@ export default function UnifiedCheckoutScreen({ isGuest = false }: UnifiedChecko
           }
           keyboardShouldPersistTaps="handled"
         />
-        {!isGuest && (
+        {(!isGuest || guestBecameAuthenticated) && (
           <AddressFormModal
             visible={showAddressModal}
             onClose={() => setShowAddressModal(false)}
@@ -529,5 +599,17 @@ const styles = StyleSheet.create({
     color: yellowColor,
     fontSize: 16,
     fontWeight: "bold",
+  },
+  accountCreatedMessage: {
+    backgroundColor: "#e8f5e8",
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  accountCreatedText: {
+    color: deepGreenColor,
+    fontSize: 14,
+    fontWeight: "600",
+    textAlign: "center",
   },
 });

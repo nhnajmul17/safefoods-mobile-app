@@ -1,6 +1,12 @@
 import React from "react";
-import { View, Text, TextInput, StyleSheet } from "react-native";
-import { deepGreenColor } from "@/constants/Colors";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  Switch,
+} from "react-native";
+import { deepGreenColor, yellowColor } from "@/constants/Colors";
 
 export interface GuestDetails {
   fullName: string;
@@ -19,12 +25,19 @@ export interface GuestDetails {
 interface GuestDetailsSectionProps {
   guestDetails: GuestDetails;
   onDetailsChange: (field: keyof GuestDetails, value: string) => void;
+  onAccountCreated?: (userId: string, accessToken: string, refreshToken: string) => void;
+  createAccount: boolean;
+  onCreateAccountChange: (value: boolean) => void;
 }
+
 
 export const GuestDetailsSection: React.FC<GuestDetailsSectionProps> = ({
   guestDetails,
   onDetailsChange,
+  createAccount,
+  onCreateAccountChange,
 }) => {
+
   return (
     <View style={styles.container}>
       <Text style={styles.sectionTitle}>Your Details</Text>
@@ -67,6 +80,24 @@ export const GuestDetailsSection: React.FC<GuestDetailsSectionProps> = ({
             keyboardType="email-address"
             autoCapitalize="none"
           />
+        </View>
+
+        {/* Create Account Switch */}
+        <View style={styles.inputContainer}>
+          <View style={styles.switchContainer}>
+            <Switch
+              value={createAccount}
+              onValueChange={onCreateAccountChange}
+              trackColor={{ false: "#767577", true: deepGreenColor }}
+              thumbColor={createAccount ? yellowColor : "#f4f3f4"}
+            />
+            <Text style={styles.switchLabel}>Create account during checkout</Text>
+          </View>
+          {createAccount && (
+            <Text style={styles.createAccountInfo}>
+              Account will be created when you place your order
+            </Text>
+          )}
         </View>
       </View>
 
@@ -232,5 +263,22 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     alignItems: "center",
+  },
+  switchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  switchLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#333",
+    marginLeft: 8,
+  },
+  createAccountInfo: {
+    fontSize: 12,
+    color: "#666",
+    fontStyle: "italic",
+    marginTop: 4,
   },
 });

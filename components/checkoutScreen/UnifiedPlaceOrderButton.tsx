@@ -14,6 +14,7 @@ import { deepGreenColor, yellowColor } from "@/constants/Colors";
 import { formatWithThousandSeparator } from "@/utils/helperFunctions";
 import { clearCartInDatabaseInOrderPlaced } from "@/utils/cartUtils";
 import { saveGuestOrder } from "@/utils/guestOrderStorage";
+import { OTPVerificationModal } from "@/components/checkoutScreen/OTPVerificationModal";
 
 interface ProductOrder {
   variantProductId: string;
@@ -64,9 +65,17 @@ interface UnifiedPlaceOrderButtonProps {
   transactionNo: string;
   transactionPhoneNo: string;
   transactionDate: Date | null;
+  createAccount?: boolean; // For guest account creation
+  onAccountCreated?: (
+    userId: string,
+    accessToken: string,
+    refreshToken: string
+  ) => void;
 }
 
-export const UnifiedPlaceOrderButton: React.FC<UnifiedPlaceOrderButtonProps> = ({
+export const UnifiedPlaceOrderButton: React.FC<
+  UnifiedPlaceOrderButtonProps
+> = ({
   isGuest,
   selectedZoneId,
   deliveryCharge,
@@ -84,10 +93,151 @@ export const UnifiedPlaceOrderButton: React.FC<UnifiedPlaceOrderButtonProps> = (
   transactionNo,
   transactionPhoneNo,
   transactionDate,
+  createAccount = false,
+  onAccountCreated,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { clearCart, cartItems } = useCartStore();
   const router = useRouter();
+
+  // OTP verification state
+  const [showOTPModal, setShowOTPModal] = useState(false);
+  const [otpToken, setOtpToken] = useState("");
+  const [createdUserId, setCreatedUserId] = useState<string | null>(null);
+  const [createdAddressId, setCreatedAddressId] = useState<string | null>(null);
+
+  const sendOTP = async (): Promise<boolean> => {
+    if (!guestDetails?.phoneNumber) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Please enter a phone number",
+        text1Style: { fontSize: 16, fontWeight: "bold" },
+        text2Style: { fontSize: 14, fontWeight: "bold" },
+      });
+      return false;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/v2/auth/send-mobile-otp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          phoneNumber: guestDetails.phoneNumber,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setOtpToken(data.token);
+        setShowOTPModal(true);
+        return true;
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: data.message || "Failed to send OTP",
+          text1Style: { fontSize: 16, fontWeight: "bold" },
+          text2Style: { fontSize: 14, fontWeight: "bold" },
+        });
+        return false;
+      }
+    } catch (error) {
+      console.error("Send OTP error:", error);
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Failed to send OTP. Please try again.",
+        text1Style: { fontSize: 16, fontWeight: "bold" },
+        text2Style: { fontSize: 14, fontWeight: "bold" },
+      });
+      return false;
+    }
+  };
+
+  const createUserAddress = async (userId: string): Promise<string | null> => {
+    if (!guestDetails) return null;
+
+    try {
+      const addressData = {
+        userId: userId,
+        addressLine: guestDetails.addressLine,
+        name: guestDetails.fullName,
+        phoneNo: guestDetails.phoneNumber,
+        city: guestDetails.city,
+      };
+
+      const response = await fetch(`${API_URL}/v1/addresses`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(addressData),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        return data.data.id;
+      } else {
+        console.error("Failed to create address:", data.message);
+        return null;
+      }
+    } catch (error) {
+      console.error("Address creation error:", error);
+      return null;
+    }
+  };
+
+  const handleOTPVerifySuccess = async (verifyResponse: any) => {
+    try {
+      const userId = verifyResponse.data.id;
+      const accessToken = verifyResponse.accessToken;
+      const refreshToken = verifyResponse.refreshToken;
+
+      // Create address for the new user
+      const addressId = await createUserAddress(userId);
+
+      if (addressId) {
+        setCreatedUserId(userId);
+        setCreatedAddressId(addressId);
+        setShowOTPModal(false);
+
+        // Notify parent component
+        if (onAccountCreated) {
+          onAccountCreated(userId, accessToken, refreshToken);
+        }
+
+        // Now place the order as an authenticated user
+        await placeOrderAsAuthenticatedUser(userId, addressId);
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2:
+            "Account created but failed to save address. Please try again.",
+          text1Style: { fontSize: 16, fontWeight: "bold" },
+          text2Style: { fontSize: 14, fontWeight: "bold" },
+        });
+        setShowOTPModal(false);
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error("Account creation error:", error);
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Failed to create account. Please try again.",
+        text1Style: { fontSize: 16, fontWeight: "bold" },
+        text2Style: { fontSize: 14, fontWeight: "bold" },
+      });
+      setShowOTPModal(false);
+      setIsLoading(false);
+    }
+  };
 
   const validateGuestDetails = (): boolean => {
     if (!isGuest || !guestDetails) return true;
@@ -101,14 +251,26 @@ export const UnifiedPlaceOrderButton: React.FC<UnifiedPlaceOrderButtonProps> = (
 
     for (const { field, name } of requiredFields) {
       if (!field.trim()) {
-        Alert.alert("Missing Information", `Please enter ${name}`);
+        Toast.show({
+          type: "error",
+          text1: "Missing Information",
+          text2: `Please enter ${name}`,
+          text1Style: { fontSize: 16, fontWeight: "bold" },
+          text2Style: { fontSize: 14, fontWeight: "bold" },
+        });
         return false;
       }
     }
 
     // Phone validation (basic)
     if (guestDetails.phoneNumber.length < 10) {
-      Alert.alert("Invalid Phone", "Please enter a valid phone number");
+      Toast.show({
+        type: "error",
+        text1: "Invalid Phone",
+        text2: "Please enter a valid phone number",
+        text1Style: { fontSize: 16, fontWeight: "bold" },
+        text2Style: { fontSize: 14, fontWeight: "bold" },
+      });
       return false;
     }
 
@@ -218,8 +380,11 @@ export const UnifiedPlaceOrderButton: React.FC<UnifiedPlaceOrderButtonProps> = (
 
     if (!selectedPaymentMethod) return true;
 
-    const isCashOnDelivery = selectedPaymentMethod.title.toLowerCase() === PAYMENT_METHOD_CASH_ON_DELIVERY;
-    const isBkash = selectedPaymentMethod.title.toLowerCase() === PAYMENT_METHOD_BKASH;
+    const isCashOnDelivery =
+      selectedPaymentMethod.title.toLowerCase() ===
+      PAYMENT_METHOD_CASH_ON_DELIVERY;
+    const isBkash =
+      selectedPaymentMethod.title.toLowerCase() === PAYMENT_METHOD_BKASH;
     const requiresTransaction = !isCashOnDelivery;
 
     if (requiresTransaction) {
@@ -295,14 +460,21 @@ export const UnifiedPlaceOrderButton: React.FC<UnifiedPlaceOrderButtonProps> = (
   const calculateTotals = () => {
     const subtotal = getTotalPrice();
     let discountAmount = 0;
-    
-    if (discountType === DISCOUNT_TYPE_PERCENTAGE || discountType === "percentage") {
+
+    if (
+      discountType === DISCOUNT_TYPE_PERCENTAGE ||
+      discountType === "percentage"
+    ) {
       discountAmount = (subtotal * appliedDiscount) / 100;
-    } else if (discountType === DISCOUNT_TYPE_FIXED || discountType === "fixed") {
+    } else if (
+      discountType === DISCOUNT_TYPE_FIXED ||
+      discountType === "fixed"
+    ) {
       discountAmount = appliedDiscount;
     }
-    
-    const afterDiscountTotal = subtotal - (discountAmount > subtotal ? subtotal : discountAmount);
+
+    const afterDiscountTotal =
+      subtotal - (discountAmount > subtotal ? subtotal : discountAmount);
     const total = afterDiscountTotal + deliveryCharge;
 
     return {
@@ -341,8 +513,10 @@ export const UnifiedPlaceOrderButton: React.FC<UnifiedPlaceOrderButtonProps> = (
 
     // Add transaction details if they exist
     if (transactionNo) (baseOrderData as any).transactionNo = transactionNo;
-    if (transactionPhoneNo) (baseOrderData as any).transactionPhoneNo = transactionPhoneNo;
-    if (transactionDate) (baseOrderData as any).transactionDate = transactionDate.toISOString();
+    if (transactionPhoneNo)
+      (baseOrderData as any).transactionPhoneNo = transactionPhoneNo;
+    if (transactionDate)
+      (baseOrderData as any).transactionDate = transactionDate.toISOString();
 
     if (isGuest && guestDetails) {
       // Guest order data
@@ -370,6 +544,74 @@ export const UnifiedPlaceOrderButton: React.FC<UnifiedPlaceOrderButtonProps> = (
     }
   };
 
+  const placeOrderAsAuthenticatedUser = async (
+    userIdToUse: string,
+    addressIdToUse: string
+  ) => {
+    try {
+      const orderData = {
+        ...buildOrderData(),
+        userId: userIdToUse,
+        addressId: addressIdToUse,
+      };
+
+      // Remove guest-specific fields
+      delete (orderData as any).fullName;
+      delete (orderData as any).phoneNumber;
+      delete (orderData as any).email;
+      delete (orderData as any).flatNo;
+      delete (orderData as any).floorNo;
+      delete (orderData as any).addressLine;
+      delete (orderData as any).deliveryNotes;
+      delete (orderData as any).city;
+      delete (orderData as any).state;
+      delete (orderData as any).country;
+      delete (orderData as any).postalCode;
+
+      const response = await fetch(`${API_URL}/v1/orders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderData),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Clear cart from database for authenticated users
+        clearCartInDatabaseInOrderPlaced();
+
+        // Clear cart after successful order
+        clearCart();
+
+        Toast.show({
+          type: "success",
+          text1: "Order Placed Successfully!",
+          text2: "Your account has been created and order placed successfully.",
+          text1Style: { fontSize: 16, fontWeight: "bold" },
+          text2Style: { fontSize: 14, fontWeight: "bold" },
+        });
+
+        router.push("/(tabs)/home");
+      } else {
+        throw new Error(data.message || "Failed to place order");
+      }
+    } catch (error) {
+      console.error("Order placement error:", error);
+      Toast.show({
+        type: "error",
+        text1: "Order Failed",
+        text2:
+          error instanceof Error
+            ? error.message
+            : "Something went wrong. Please try again.",
+        text1Style: { fontSize: 16, fontWeight: "bold" },
+        text2Style: { fontSize: 14, fontWeight: "bold" },
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handlePlaceOrder = async () => {
     // Validate based on user type
     if (!validateCommonFields()) return;
@@ -379,9 +621,22 @@ export const UnifiedPlaceOrderButton: React.FC<UnifiedPlaceOrderButtonProps> = (
 
     setIsLoading(true);
 
+    // If guest wants to create account, start OTP flow
+    if (isGuest && createAccount) {
+      const otpSent = await sendOTP();
+      if (!otpSent) {
+        setIsLoading(false);
+      }
+      // OTP modal will handle the rest of the flow
+      return;
+    }
+
+    // Regular order placement flow
     try {
       const orderData = buildOrderData();
-      const endpoint = isGuest ? `${API_URL}/v1/orders/guest` : `${API_URL}/v1/orders`;
+      const endpoint = isGuest
+        ? `${API_URL}/v1/orders/guest`
+        : `${API_URL}/v1/orders`;
 
       const response = await fetch(endpoint, {
         method: "POST",
@@ -399,14 +654,14 @@ export const UnifiedPlaceOrderButton: React.FC<UnifiedPlaceOrderButtonProps> = (
           // Clear cart from database for authenticated users
           clearCartInDatabaseInOrderPlaced();
         }
-        
+
         // Clear cart after successful order
         clearCart();
 
         Toast.show({
           type: "success",
           text1: "Order Placed Successfully!",
-          text2: isGuest 
+          text2: isGuest
             ? "Your order has been saved and you can view it in My Orders."
             : "Your order has been placed successfully.",
           text1Style: { fontSize: 16, fontWeight: "bold" },
@@ -422,7 +677,10 @@ export const UnifiedPlaceOrderButton: React.FC<UnifiedPlaceOrderButtonProps> = (
       Toast.show({
         type: "error",
         text1: "Order Failed",
-        text2: error instanceof Error ? error.message : "Something went wrong. Please try again.",
+        text2:
+          error instanceof Error
+            ? error.message
+            : "Something went wrong. Please try again.",
         text1Style: { fontSize: 16, fontWeight: "bold" },
         text2Style: { fontSize: 14, fontWeight: "bold" },
       });
@@ -451,6 +709,18 @@ export const UnifiedPlaceOrderButton: React.FC<UnifiedPlaceOrderButtonProps> = (
           {isLoading ? "Placing Order..." : "Place Order"}
         </Text>
       </TouchableOpacity>
+
+      {/* OTP Verification Modal */}
+      <OTPVerificationModal
+        visible={showOTPModal}
+        phoneNumber={guestDetails?.phoneNumber || ""}
+        token={otpToken}
+        onClose={() => {
+          setShowOTPModal(false);
+          setIsLoading(false);
+        }}
+        onVerifySuccess={handleOTPVerifySuccess}
+      />
     </View>
   );
 };
