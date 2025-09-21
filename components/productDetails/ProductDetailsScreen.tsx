@@ -346,14 +346,16 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: "100%",
+    height: 250,
     backgroundColor: "#f5f5f5",
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
+    overflow: "hidden",
   },
   productImage: {
     width: "100%",
-    height: 200,
-    resizeMode: "cover",
+    height: "100%",
+    resizeMode: "stretch",
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
   },
