@@ -54,117 +54,112 @@ export default function OrderModal({
   return (
     <Modal isVisible={isVisible} onBackdropPress={onClose} style={styles.modal}>
       <View style={styles.modalContent}>
-
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>
-              Order #{selectedOrder.date.split(" at ")[0]}
-            </Text>
-            <TouchableOpacity onPress={onClose}>
-              <Text style={styles.closeButton}>×</Text>
-            </TouchableOpacity>
-          </View>
-          {!isGuest && (
-            <>
-              <Text style={styles.modalStatus}>{selectedOrder.status}</Text>
-              <Text style={styles.modalDate}>Placed on {selectedOrder.date}</Text>
-              <Text style={styles.modalSection}>Order Timeline</Text>
-              {selectedOrder.timeline.map((event, index) => (
-                <View key={index} style={styles.timelineItem}>
-                  <View style={styles.timelineDot} />
-                  <View>
-                    <Text style={styles.timelineStatus}>{event.status}</Text>
-                    <Text style={styles.timelineTime}>{event.time}</Text>
-                    <Text style={styles.timelineDescription}>
-                      {event.description}
-                    </Text>
-                  </View>
-                </View>
-              ))}
-            </>
-          )}
-          {isGuest && (
-            <Text style={styles.modalDate}>Placed on {selectedOrder.date}</Text>
-          )}
-          <Text style={styles.modalSection}>
-            Items ({selectedOrder.items.length})
+        <View style={styles.modalHeader}>
+          <Text style={styles.modalTitle}>
+            Order #{selectedOrder.date.split(" at ")[0]}
           </Text>
-          {selectedOrder.items.map((item, index) => (
-            <View key={index} style={styles.itemRow}>
-              <Image
-                source={{ uri: ensureHttps(item?.media?.url) }}
-                style={styles.itemPlaceholder}
-                resizeMode="cover"
-              />
-              <View style={{ flex: 1, alignItems: "flex-start" }}>
-                <Text style={styles.itemName}>{item.name}</Text>
-                <Text style={styles.itemQuantity}>Qty: {item.quantity}</Text>
+          <TouchableOpacity onPress={onClose}>
+            <Text style={styles.closeButton}>×</Text>
+          </TouchableOpacity>
+        </View>
+        {!isGuest && (
+          <>
+            <Text style={styles.modalStatus}>{selectedOrder.status}</Text>
+            <Text style={styles.modalDate}>Placed on {selectedOrder.date}</Text>
+            <Text style={styles.modalSection}>Order Timeline</Text>
+            {selectedOrder.timeline.map((event, index) => (
+              <View key={index} style={styles.timelineItem}>
+                <View style={styles.timelineDot} />
+                <View>
+                  <Text style={styles.timelineStatus}>{event.status}</Text>
+                  <Text style={styles.timelineTime}>{event.time}</Text>
+                  <Text style={styles.timelineDescription}>
+                    {event.description}
+                  </Text>
+                </View>
               </View>
-              <Text style={styles.itemPrice}>
-                ৳ {formatWithThousandSeparator(item.price)}
-              </Text>
+            ))}
+          </>
+        )}
+        {isGuest && (
+          <Text style={styles.modalDate}>Placed on {selectedOrder.date}</Text>
+        )}
+        <Text style={styles.modalSection}>
+          Items ({selectedOrder.items.length})
+        </Text>
+        {selectedOrder.items.map((item, index) => (
+          <View key={index} style={styles.itemRow}>
+            <Image
+              source={{ uri: ensureHttps(item?.media?.url) }}
+              style={styles.itemPlaceholder}
+              resizeMode="cover"
+            />
+            <View style={{ flex: 1, alignItems: "flex-start" }}>
+              <Text style={styles.itemName}>{item.name}</Text>
+              <Text style={styles.itemQuantity}>Qty: {item.quantity}</Text>
             </View>
-          ))}
-          <View style={styles.infoRow}>
-            <View style={styles.infoColumn}>
-              <Text style={styles.infoTitle}>Shipping Information</Text>
-              <Text style={styles.infoText}>{selectedOrder.shipping.name}</Text>
-              <Text style={styles.infoText}>
-                {selectedOrder.shipping.address}
-              </Text>
-              <Text style={styles.infoText}>
-                Phone: {selectedOrder.shipping.phone}
-              </Text>
-            </View>
-            <View style={styles.infoColumn}>
-              <Text style={styles.infoTitle}>Payment Information</Text>
-              <Text style={styles.infoText}>
-                Method: {selectedOrder.payment.method}
-              </Text>
-              <Text style={styles.infoText}>
-                Payment Status: {selectedOrder.payment.paymentStatus}
-              </Text>
-              <Text style={styles.infoText}>
-                Subtotal: ৳
-                {formatWithThousandSeparator(selectedOrder.payment.subtotal)}
-              </Text>
-              <Text style={styles.infoText}>
-                Shipping: ৳
-                {formatWithThousandSeparator(selectedOrder.payment.shipping)}
-              </Text>
-              <Text style={styles.infoText}>
-                Tax: ৳{formatWithThousandSeparator(selectedOrder.payment.tax)}
-              </Text>
-              <Text style={styles.infoTotal}>
-                Total: ৳
-                {formatWithThousandSeparator(selectedOrder.payment.total)}
-              </Text>
-            </View>
+            <Text style={styles.itemPrice}>
+              ৳ {formatWithThousandSeparator(item.price)}
+            </Text>
           </View>
-          <View style={styles.modalButtons}>
+        ))}
+        <View style={styles.infoRow}>
+          <View style={styles.infoColumn}>
+            <Text style={styles.infoTitle}>Shipping Information</Text>
+            <Text style={styles.infoText}>{selectedOrder.shipping.name}</Text>
+            <Text style={styles.infoText}>
+              {selectedOrder.shipping.address}
+            </Text>
+            <Text style={styles.infoText}>
+              Phone: {selectedOrder.shipping.phone}
+            </Text>
+          </View>
+          <View style={styles.infoColumn}>
+            <Text style={styles.infoTitle}>Payment Information</Text>
+            <Text style={styles.infoText}>
+              Method: {selectedOrder.payment.method}
+            </Text>
+            <Text style={styles.infoText}>
+              Payment Status: {selectedOrder.payment.paymentStatus}
+            </Text>
+            <Text style={styles.infoText}>
+              Subtotal: ৳
+              {formatWithThousandSeparator(selectedOrder.payment.subtotal)}
+            </Text>
+            <Text style={styles.infoText}>
+              Shipping: ৳
+              {formatWithThousandSeparator(selectedOrder.payment.shipping)}
+            </Text>
+            <Text style={styles.infoText}>
+              Tax: ৳{formatWithThousandSeparator(selectedOrder.payment.tax)}
+            </Text>
+            <Text style={styles.infoTotal}>
+              Total: ৳{formatWithThousandSeparator(selectedOrder.payment.total)}
+            </Text>
+          </View>
+        </View>
+        <View style={styles.modalButtons}>
+          <TouchableOpacity
+            style={[
+              styles.closeButtonContainer,
+              !canCancelOrder && styles.fullWidthButton,
+            ]}
+            onPress={onClose}
+          >
+            <Text style={styles.buttonText}>Close</Text>
+          </TouchableOpacity>
+          {canCancelOrder && (
             <TouchableOpacity
-              style={[
-                styles.closeButtonContainer,
-                !canCancelOrder && styles.fullWidthButton,
-              ]}
-              onPress={onClose}
+              style={[styles.cancelButton, cancelling && styles.disabledButton]}
+              onPress={handleCancelPress}
+              disabled={cancelling}
             >
-              <Text style={styles.buttonText}>Close</Text>
+              <Text style={styles.buttonText}>
+                {cancelling ? "Cancelling..." : "Cancel Order"}
+              </Text>
             </TouchableOpacity>
-            {canCancelOrder && (
-              <TouchableOpacity
-                style={[
-                  styles.cancelButton,
-                  cancelling && styles.disabledButton,
-                ]}
-                onPress={handleCancelPress}
-                disabled={cancelling}
-              >
-                <Text style={styles.buttonText}>
-                  {cancelling ? "Cancelling..." : "Cancel Order"}
-                </Text>
-              </TouchableOpacity>
-            )}
-          </View>
+          )}
+        </View>
       </View>
 
       <CustomConfirmationModal

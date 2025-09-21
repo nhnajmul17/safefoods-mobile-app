@@ -20,7 +20,15 @@ const AddressCard: React.FC<AddressCardProps> = ({
     <View style={styles.addressCard}>
       <View style={styles.addressDetails}>
         <Text style={styles.addressText}>
-          {`${address.flatNo}, ${address.floorNo}, ${address.addressLine}, ${address.city}, ${address.postalCode}`}
+          {[
+            address.flatNo && `${address.flatNo}`,
+            address.floorNo && `${address.floorNo}`,
+            address.addressLine,
+            address.city,
+            address.postalCode && `${address.postalCode}`,
+          ]
+            .filter(Boolean)
+            .join(", ")}
         </Text>
         <Text style={styles.addressSubText}>
           {address.name} - {address.phoneNo}

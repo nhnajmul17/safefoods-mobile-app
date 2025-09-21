@@ -135,8 +135,17 @@ export default function MyOrdersScreen() {
           })),
           shipping: {
             name: order.address.name,
-            address: `Flat No. ${order.address.flatNo}, Floor No. ${order.address.floorNo}, ${order.address.addressLine}, ${order.address.city}, ${order.address.state},  ${order.address.postalCode}, ${order.address.country},`,
-
+            address: [
+              order.address.flatNo ? `Flat No. ${order.address.flatNo}` : "",
+              order.address.floorNo ? `Floor No. ${order.address.floorNo}` : "",
+              order.address.addressLine,
+              order.address.city,
+              order.address.state,
+              order.address.postalCode,
+              order.address.country,
+            ]
+              .filter(Boolean)
+              .join(", "),
             phone: order.address.phoneNo,
           },
           payment: {
