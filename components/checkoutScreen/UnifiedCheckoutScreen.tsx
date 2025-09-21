@@ -27,6 +27,7 @@ import AddressFormModal from "@/components/myProfileScreen/addressFormModal";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { deepGreenColor, yellowColor } from "@/constants/Colors";
 import { GuestDetailsSection } from "@/components/checkoutScreen/guestDetails";
+import Toast from "react-native-toast-message";
 
 export interface DeliveryZone {
   id: string;
@@ -104,7 +105,7 @@ export default function UnifiedCheckoutScreen({
     useState(false);
   const [newUserId, setNewUserId] = useState<string | null>(null);
   const [newUserAddressId, setNewUserAddressId] = useState<string | null>(null);
-  
+
   // Guest account creation state
   const [createAccount, setCreateAccount] = useState(false);
 
@@ -154,6 +155,7 @@ export default function UnifiedCheckoutScreen({
 
   // Address modal state
   const [showAddressModal, setShowAddressModal] = useState(false);
+  const [editingAddress, setEditingAddress] = useState<Address | null>(null);
 
   useEffect(() => {
     const fetchDeliveryZones = async () => {
@@ -315,12 +317,16 @@ export default function UnifiedCheckoutScreen({
       return;
     }
 
-    const url = `${API_URL}/v1/addresses/`;
-    const method = "POST";
+    const url = editingAddress
+      ? `${API_URL}/v1/addresses/${editingAddress.id}`
+      : `${API_URL}/v1/addresses/`;
+    const method = editingAddress ? "PATCH" : "POST";
     const body = {
       userId: currentUserId,
       ...formData,
-      isActive: formData.isActive ?? false,
+      ...(editingAddress && {
+        isActive: formData.isActive ?? editingAddress.isActive,
+      }),
     };
 
     try {
@@ -331,31 +337,55 @@ export default function UnifiedCheckoutScreen({
       });
       const data = await response.json();
       if (data.success) {
-        const newAddress: Address = {
-          id: data.data.id,
-          userId: currentUserId,
-          flatNo: formData.flatNo,
-          floorNo: formData.floorNo,
-          addressLine: formData.addressLine,
-          name: formData.name,
-          phoneNo: formData.phoneNo,
-          deliveryNotes: formData.deliveryNotes,
-          city: formData.city,
-          state: formData.state,
-          country: formData.country,
-          postalCode: formData.postalCode,
-          isActive: false,
-          createdAt: data.data.createdAt || undefined,
-          updatedAt: data.data.updatedAt || undefined,
-        };
-        setAddresses((prev) => [...prev, newAddress]);
+        // Show success toast
+        Toast.show({
+          type: "success",
+          text1: "Success",
+          text2: `Address ${editingAddress ? "updated" : "added"} successfully`,
+          text1Style: { fontSize: 16, fontWeight: "bold" },
+          text2Style: { fontSize: 14, fontWeight: "bold" },
+        });
+
+        // Refresh addresses list
+        if (!isGuest && (userId || newUserId)) {
+          try {
+            const addressResponse = await fetch(
+              `${API_URL}/v1/addresses/user/${currentUserId}`
+            );
+            const addressData = await addressResponse.json();
+            if (addressData.success) {
+              setAddresses(addressData.data);
+              // If it's a new address, select it
+              if (!editingAddress) {
+                setSelectedAddressId(data.data.id);
+              }
+            }
+          } catch (error) {
+            console.error("Error refreshing addresses:", error);
+          }
+        }
+
         setShowAddressModal(false);
-        setSelectedAddressId(newAddress.id);
+        setEditingAddress(null);
       } else {
         console.error("Failed to save address:", data.message);
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: data.message || "Failed to save address",
+          text1Style: { fontSize: 16, fontWeight: "bold" },
+          text2Style: { fontSize: 14, fontWeight: "bold" },
+        });
       }
     } catch (error) {
       console.error("Error saving address:", error);
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Failed to save address. Please try again.",
+        text1Style: { fontSize: 16, fontWeight: "bold" },
+        text2Style: { fontSize: 14, fontWeight: "bold" },
+      });
     }
   };
 
@@ -406,12 +436,19 @@ export default function UnifiedCheckoutScreen({
                 addresses={currentAddresses}
                 selectedAddressId={currentSelectedAddressId}
                 onAddressSelect={setSelectedAddressId}
+                onEditAddress={(address) => {
+                  setEditingAddress(address);
+                  setShowAddressModal(true);
+                }}
               />
             )}
             {!guestBecameAuthenticated && (
               <TouchableOpacity
                 style={styles.addAddressButton}
-                onPress={() => setShowAddressModal(true)}
+                onPress={() => {
+                  setEditingAddress(null);
+                  setShowAddressModal(true);
+                }}
               >
                 <Icon name="add" size={20} color={yellowColor} />
                 <Text style={styles.addAddressButtonText}>Add New Address</Text>
@@ -543,9 +580,12 @@ export default function UnifiedCheckoutScreen({
         {(!isGuest || guestBecameAuthenticated) && (
           <AddressFormModal
             visible={showAddressModal}
-            onClose={() => setShowAddressModal(false)}
+            onClose={() => {
+              setShowAddressModal(false);
+              setEditingAddress(null);
+            }}
             onSave={handleSaveAddress}
-            initialData={null}
+            initialData={editingAddress}
           />
         )}
       </KeyboardAvoidingView>
