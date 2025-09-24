@@ -52,7 +52,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               name
             )}
           </Text>
-          <Text style={styles.email}>
+          {/* <Text style={styles.email}>
             {isEditing ? (
               <TextInput
                 style={styles.input}
@@ -63,10 +63,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             ) : (
               email
             )}
-          </Text>
+          </Text> */}
         </View>
       </View>
-      {isEditing ? (
+      {/* {isEditing ? (
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.saveButton} onPress={onSave}>
             <Text style={styles.buttonText}>Save</Text>
@@ -79,7 +79,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         <TouchableOpacity style={styles.editButton} onPress={onEdit}>
           <Text style={styles.buttonText}>Edit Profile</Text>
         </TouchableOpacity>
-      )}
+      )} */}
     </View>
   );
 };

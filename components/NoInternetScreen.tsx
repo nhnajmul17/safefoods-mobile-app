@@ -37,7 +37,7 @@ const NoInternetScreen = () => {
     <View style={styles.container}>
       {/* <Animated.View style={{ transform: [{ rotate: spin }] }}> */}
       <Image
-        source={require("../assets/images/safefoods-logo.png")}
+        source={require("../assets/images/safefoods-splash-logo.png")}
         style={styles.logo}
         resizeMode="contain"
       />
