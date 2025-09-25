@@ -126,7 +126,7 @@ const CategoryProductCard = ({
         </Link>
         <Text style={styles.productCategory}>{item.categoryTitle}</Text>
 
-        <View style={styles.variantContainer}>
+        {/* <View style={styles.variantContainer}>
           {item.variants.map((variant) => (
             <TouchableOpacity
               key={variant.id}
@@ -148,7 +148,7 @@ const CategoryProductCard = ({
               </Text>
             </TouchableOpacity>
           ))}
-        </View>
+        </View> */}
 
         <View style={styles.priceContainer}>
           <Text style={styles.productPrice}>৳{selectedVariant.price}</Text>
@@ -261,9 +261,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   productPrice: {
-    fontSize: 14,
+    fontSize: 16,
     color: deepGreenColor,
-    fontWeight: "600",
+    fontWeight: "900",
   },
   originalPrice: {
     fontSize: 12,

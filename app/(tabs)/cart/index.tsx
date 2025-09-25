@@ -121,7 +121,8 @@ export default function CartScreen() {
       {/* Product Details */}
       <View style={styles.itemDetails}>
         <Text style={styles.itemName}>
-          {item.name} ({item.unit})
+          {item.name}
+          {item.unit ? ` (${item.unit})` : ""}
         </Text>
         <Text style={styles.itemPrice}>
           ৳{formatWithThousandSeparator(item.price * item.quantity)}
@@ -141,7 +142,9 @@ export default function CartScreen() {
               Toast.show({
                 type: "info",
                 text1: "Removed from Cart",
-                text2: `${item.name} (${item.unit}) removed from your cart.`,
+                text2: item.unit
+                  ? `${item.name} (${item.unit}) removed from your cart.`
+                  : `${item.name} removed from your cart.`,
                 text1Style: { fontSize: 16, fontWeight: "bold" },
                 text2Style: { fontSize: 14, fontWeight: "bold" },
               });

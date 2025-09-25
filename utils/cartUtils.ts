@@ -250,7 +250,9 @@ export const handleAddToCart = async ({
         Toast.show({
           type: "success",
           text1: currentQuantity === 0 ? "Added to Cart" : "Cart Updated",
-          text2: `${productTitle} (${unitTitle}) x${newQuantity} in cart.`,
+          text2: unitTitle
+            ? `${productTitle} (${unitTitle}) x${newQuantity} in cart.`
+            : `${productTitle} x${newQuantity} in cart.`,
           text1Style: { fontSize: 16, fontWeight: "bold" },
           text2Style: { fontSize: 14, fontWeight: "bold" },
         });
@@ -258,7 +260,9 @@ export const handleAddToCart = async ({
         Toast.show({
           type: "info",
           text1: "Removed from Cart",
-          text2: `${productTitle} (${unitTitle}) removed from cart.`,
+          text2: unitTitle
+            ? `${productTitle} (${unitTitle}) removed from cart.`
+            : `${productTitle} removed from cart.`,
           text1Style: { fontSize: 16, fontWeight: "bold" },
           text2Style: { fontSize: 14, fontWeight: "bold" },
         });

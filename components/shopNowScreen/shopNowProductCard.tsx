@@ -155,7 +155,7 @@ const ShopNowProductCard = ({ item, onAddToCart }: ProductCardProps) => {
           </Link>
 
           {/* Variants */}
-          <View style={styles.variantContainer}>
+          {/* <View style={styles.variantContainer}>
             {item.variants.map((variant) => (
               <TouchableOpacity
                 key={variant.id}
@@ -178,7 +178,7 @@ const ShopNowProductCard = ({ item, onAddToCart }: ProductCardProps) => {
                 </Text>
               </TouchableOpacity>
             ))}
-          </View>
+          </View> */}
 
           {/* Price and Add to Cart / Quantity Controls in a row */}
           <View
@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
   },
   productDetails: {
     flex: 1,
-    justifyContent: "space-between",
+    justifyContent: "space-evenly",
   },
   productName: {
     fontSize: 14,
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
   priceContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 6,
+    // marginBottom: 6,
   },
   productPrice: {
     fontSize: 18,

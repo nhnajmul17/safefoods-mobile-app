@@ -50,7 +50,7 @@ export const OrderSummarySection = ({
   const renderOrderItem = ({ item }: { item: CartItem }) => (
     <View style={styles.orderItem}>
       <Text style={styles.orderItemText}>
-        {item.name} ({item.unit}) x{item.quantity}
+        {item.name} {item.unit ? ` (${item.unit})` : ""} x{item.quantity}
       </Text>
       <Text style={styles.orderItemPrice}>
         ৳ {formatWithThousandSeparator(item.price * item.quantity)}

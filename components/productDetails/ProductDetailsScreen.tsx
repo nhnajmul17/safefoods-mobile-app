@@ -235,7 +235,7 @@ const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
             justifyContent: "space-between",
           }}
         >
-          <View style={styles.variantContainer}>
+          {/* <View style={styles.variantContainer}>
             {product.variants.map((variant) => (
               <Animated.View key={variant.id} style={variantStyle}>
                 <TouchableOpacity
@@ -258,7 +258,7 @@ const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
                 </TouchableOpacity>
               </Animated.View>
             ))}
-          </View>
+          </View> */}
 
           <View style={styles.priceContainer}>
             <Text style={styles.weightPrice}>৳{selectedVariant.price}</Text>
@@ -447,7 +447,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   weightPrice: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
     color: deepGreenColor,
   },

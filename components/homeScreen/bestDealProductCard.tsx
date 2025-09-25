@@ -115,8 +115,8 @@ const BestDealProductCard = ({
           <Text style={styles.productName}>{item.title}</Text>
         </Link>
         <Text style={styles.productCategory}>{item.categoryTitle}</Text>
-
-        <View style={styles.variantContainer}>
+        {/* variant code */}
+        {/* <View style={styles.variantContainer}>
           {item.variants.map((variant) => (
             <TouchableOpacity
               key={variant.id}
@@ -138,7 +138,7 @@ const BestDealProductCard = ({
               </Text>
             </TouchableOpacity>
           ))}
-        </View>
+        </View> */}
 
         <View style={styles.priceContainer}>
           <Text style={styles.productPrice}>৳{selectedVariant.price}</Text>

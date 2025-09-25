@@ -9,6 +9,7 @@ import {
   useColorScheme,
   SafeAreaView,
   Animated,
+  Pressable,
 } from "react-native";
 import React, { useRef, useState, useEffect } from "react";
 import { useFocusEffect } from "@react-navigation/native";
@@ -61,6 +62,76 @@ interface CategoriesResponse {
   };
   message: string;
 }
+
+// CategoryCard component to handle individual card animations
+interface CategoryCardProps {
+  item: Category;
+  opacity: Animated.Value;
+  getCategoryIcon: (category: Category) => string;
+}
+
+const CategoryCard: React.FC<CategoryCardProps> = ({
+  item,
+  opacity,
+  getCategoryIcon,
+}) => {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.95,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  return (
+    <Animated.View
+      style={[
+        styles.card,
+        {
+          opacity,
+          transform: [{ scale: scaleAnim }],
+        },
+      ]}
+    >
+      <Link href={`/(tabs)/category/${item.slug}`} asChild>
+        <Pressable
+          style={styles.cardContent}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          android_ripple={{
+            color: "rgba(74, 226, 112, 0.2)",
+            borderless: false,
+            radius: 60,
+          }}
+        >
+          <View style={styles.iconContainer}>
+            <Image
+              source={{ uri: getCategoryIcon(item) }}
+              style={styles.icon}
+              onError={(e) =>
+                console.log(
+                  `Category icon load error (${item.title}):`,
+                  e.nativeEvent.error
+                )
+              }
+            />
+          </View>
+          <Text style={styles.cardText} numberOfLines={2} ellipsizeMode="tail">
+            {item.title}
+          </Text>
+        </Pressable>
+      </Link>
+    </Animated.View>
+  );
+};
 
 // Fallback icons for categories
 const fallbackIcons: Record<string, string> = {
@@ -190,23 +261,11 @@ export default function CategoryScreen() {
           contentContainerStyle={styles.grid}
           columnWrapperStyle={styles.columnWrapper}
           renderItem={({ item }) => (
-            <Link href={`/(tabs)/category/${item.slug}`} style={styles.card}>
-              <Animated.View style={[styles.cardContent, { opacity }]}>
-                <Image
-                  source={{ uri: getCategoryIcon(item) }}
-                  style={styles.icon}
-                  onError={(e) =>
-                    console.log(
-                      `Category icon load error (${item.title}):`,
-                      e.nativeEvent.error
-                    )
-                  }
-                />
-                <Text style={[styles.cardText, { color: Colors.light.text }]}>
-                  {item.title}
-                </Text>
-              </Animated.View>
-            </Link>
+            <CategoryCard
+              item={item}
+              opacity={opacity}
+              getCategoryIcon={getCategoryIcon}
+            />
           )}
         />
       </View>
@@ -218,41 +277,70 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 10,
+    backgroundColor: "#f8fafe",
   },
   grid: {
     padding: 16,
+    paddingBottom: 24,
   },
   columnWrapper: {
     justifyContent: "space-between",
+    marginBottom: 12,
   },
   card: {
     width: "23%",
-    margin: 4,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#eee",
+    borderRadius: 16,
+    backgroundColor: "#fff",
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "#fff",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-    aspectRatio: 1,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 6,
+    minHeight: 110,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.05)",
   },
   cardContent: {
     justifyContent: "center",
     alignItems: "center",
-    padding: 12,
+    flex: 1,
+    width: "100%",
+    borderRadius: 16,
+    overflow: "hidden",
+  },
+  iconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.08)",
   },
   icon: {
-    width: 50,
-    height: 50,
-    marginBottom: 8,
+    width: 36,
+    height: 36,
+    resizeMode: "contain",
   },
   cardText: {
-    fontSize: 14,
+    fontSize: 12,
     textAlign: "center",
+    lineHeight: 12,
+    fontWeight: "600",
+    color: "#2c3e50",
+    letterSpacing: 0.3,
+    marginTop: 2,
   },
   errorContainer: {
     flex: 1,
