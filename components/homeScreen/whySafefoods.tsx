@@ -40,31 +40,31 @@ const safeFoodsReasons: SafeFoodsReason[] = [
     id: "1",
     title: "Freshness Guaranteed",
     description: "We source the freshest produce daily to ensure quality.",
-    icon: "https://cdn-icons-png.flaticon.com/512/415/415682.png",
+    icon: "https://cdn3.iconfinder.com/data/icons/product-labeling-dazzle-vol-1/256/fresh-512.png",
   },
   {
     id: "2",
-    title: "100% Organic",
+    title: "Organic",
     description: "Our products are free from harmful chemicals.",
-    icon: "https://cdn-icons-png.flaticon.com/512/2927/2927216.png",
+    icon: "https://cdn2.iconfinder.com/data/icons/eco-food-and-cosmetic-labels/128/Artboard_55-512.png",
   },
   {
     id: "3",
     title: "Safe & Reliable",
     description: "Strict quality checks for your peace of mind.",
-    icon: "https://cdn-icons-png.flaticon.com/512/1828/1828884.png",
+    icon: "https://cdn4.iconfinder.com/data/icons/eco-food-and-cosmetic-labels-3/128/100_reliable-512.png",
   },
   {
     id: "4",
     title: "Fast Delivery",
     description: "Get your groceries delivered in hours.",
-    icon: "https://cdn-icons-png.flaticon.com/512/3063/3063175.png",
+    icon: "https://cdn4.iconfinder.com/data/icons/e-commerce-and-online-shopping-flat/512/location_delivery_service_map_transportation_transport_fast-512.png",
   },
   {
     id: "5",
     title: "Sustainable Sourcing",
     description: "We support eco-friendly farming practices.",
-    icon: "https://cdn-icons-png.flaticon.com/512/2927/2927217.png",
+    icon: "https://cdn3.iconfinder.com/data/icons/strength-durability-product/100/sustainable_sourcing_durability_product_resilience_toughness-512.png",
   },
 ];
 
