@@ -10,7 +10,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen name="home" />
-      <Tabs.Screen name="category" />
+      <Tabs.Screen name="category" options={{ href: null }} />
       <Tabs.Screen name="shop-now" />
       <Tabs.Screen name="cart" />
       <Tabs.Screen name="menu" />

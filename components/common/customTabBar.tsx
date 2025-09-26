@@ -44,17 +44,6 @@ export default function CustomTabBar({ state, navigation }: CustomTabBarProps) {
       ),
     },
     {
-      name: "category",
-      title: "Categories",
-      icon: (focused: boolean) => (
-        <Ionicons
-          name={focused ? "grid" : "grid-outline"}
-          size={24}
-          color={focused ? yellowColor : "#666"}
-        />
-      ),
-    },
-    {
       name: "shop-now",
       title: "Shop Now",
       icon: (focused: boolean) => (
@@ -134,7 +123,9 @@ export default function CustomTabBar({ state, navigation }: CustomTabBarProps) {
       }}
     >
       {tabs.map((tab, index) => {
-        const isFocused = state.index === index && !tab.isAction;
+        // Map the current router state to the visible tab index
+        const currentRouteName = state.routes[state.index]?.name;
+        const isFocused = currentRouteName === tab.name && !tab.isAction;
 
         if (tab.isAction) {
           return (
