@@ -4,19 +4,6 @@ import { CUSTOM_HEADER_OPTIONS } from "@/constants/headerConfig";
 import { Stack } from "expo-router";
 
 export default function CategoryLayout() {
-  const categoryTitles: { [key: string]: string } = {
-    protein: "Protein",
-    dairy: "Dairy",
-    meat: "Meat",
-    egg: "Egg",
-    chicken: "Chicken",
-    fish: "Fish",
-    fruits: "Fruits",
-    vegetables: "Vegetables",
-    oil: "Oil",
-    honey: "Honey",
-  };
-
   return (
     <Stack screenOptions={CUSTOM_HEADER_OPTIONS}>
       <Stack.Screen
@@ -31,7 +18,7 @@ export default function CategoryLayout() {
         options={({ route }) => {
           const params = route.params as { category?: string };
           const category = params?.category || "";
-          const title = categoryTitles[category] || "Category";
+          const title = category.charAt(0).toUpperCase() + category.slice(1);
 
           return {
             headerShown: true,
