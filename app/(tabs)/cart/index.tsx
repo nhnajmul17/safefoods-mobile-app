@@ -12,7 +12,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
 import Toast from "react-native-toast-message";
 import { useAuthStore } from "@/store/authStore";
-import { handleAddToCart, clearCartInDatabase } from "@/utils/cartUtils";
+import { clearCartInDatabase } from "@/utils/cartUtils";
 import { deepGreenColor, yellowColor } from "@/constants/Colors";
 import { ensureHttps } from "@/utils/imageUtils";
 import { formatWithThousandSeparator } from "@/utils/helperFunctions";
@@ -31,36 +31,46 @@ export default function CartScreen() {
     }
   };
 
-  const handleCartUpdate = async (
-    item: {
-      id: string;
-      variantId: string;
-      name: string;
-      image: string;
-      price: number;
-      unit: string;
-      quantity: number;
-    },
-    newQuantity: number
-  ) => {
-    if (!userId) {
-      return;
-    }
+  const handleIncrease = async (item: {
+    id: string;
+    variantId: string;
+    name: string;
+    image: string;
+    price: number;
+    unit: string;
+    quantity: number;
+  }) => {
+    const newQuantity = item.quantity + 1;
+    await updateQuantity(item.id, item.variantId, newQuantity);
+  };
 
-    try {
-      await handleAddToCart({
-        productId: item.id,
-        variantId: item.variantId,
-        productTitle: item.name,
-        productImage: item.image,
-        productPrice: item.price,
-        unitTitle: item.unit,
-        newQuantity: newQuantity,
-        showToast: false, // We'll handle toast in the UI
-      });
-    } catch (error) {
-      console.error("Cart update failed:", error);
+  const handleDecrease = async (item: {
+    id: string;
+    variantId: string;
+    name: string;
+    image: string;
+    price: number;
+    unit: string;
+    quantity: number;
+  }) => {
+    const newQuantity = item.quantity - 1;
+    if (newQuantity > 0) {
+      await updateQuantity(item.id, item.variantId, newQuantity);
+    } else {
+      await removeItem(item.id, item.variantId);
     }
+  };
+
+  const handleRemoveItem = async (item: {
+    id: string;
+    variantId: string;
+    name: string;
+    image: string;
+    price: number;
+    unit: string;
+    quantity: number;
+  }) => {
+    await removeItem(item.id, item.variantId);
   };
 
   const handleClearCart = async () => {
@@ -132,13 +142,8 @@ export default function CartScreen() {
       <View style={styles.quantityContainer}>
         <TouchableOpacity
           onPress={async () => {
-            const newQuantity = item.quantity - 1;
-            if (newQuantity > 0) {
-              // Let handleCartUpdate handle both database and local updates
-              await handleCartUpdate(item, newQuantity);
-            } else {
-              // Let handleCartUpdate handle both database and local updates
-              await handleCartUpdate(item, 0);
+            await handleDecrease(item);
+            if (item.quantity === 1) {
               Toast.show({
                 type: "info",
                 text1: "Removed from Cart",
@@ -157,9 +162,7 @@ export default function CartScreen() {
         <Text style={styles.quantityText}>{item.quantity}</Text>
         <TouchableOpacity
           onPress={async () => {
-            const newQuantity = item.quantity + 1;
-            // Let handleCartUpdate handle both database and local updates
-            await handleCartUpdate(item, newQuantity);
+            await handleIncrease(item);
           }}
           style={styles.quantityButton}
         >
@@ -169,12 +172,13 @@ export default function CartScreen() {
       {/* Remove Button */}
       <TouchableOpacity
         onPress={async () => {
-          // Let handleCartUpdate handle both database and local updates
-          await handleCartUpdate(item, 0);
+          await handleRemoveItem(item);
           Toast.show({
             type: "error",
             text1: "Removed from Cart",
-            text2: `${item.name} (${item.unit}) removed from your cart.`,
+            text2: item.unit
+              ? `${item.name} (${item.unit}) removed from your cart.`
+              : `${item.name} removed from your cart.`,
             text1Style: { fontSize: 16, fontWeight: "bold" },
             text2Style: { fontSize: 14, fontWeight: "bold" },
           });
