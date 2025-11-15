@@ -29,19 +29,15 @@ interface Category {
   levelTitle: string;
   levelSlug: string;
   parentId: string | null;
-  parentTitle: string | null;
-  parentSlug: string | null;
+  productCount: number;
+  children: Category[];
 }
 
 interface CategoriesResponse {
   success: boolean;
   data: Category[];
-  pagination: {
-    offset: number;
-    limit: number;
-    total: number;
-    currentCount: number;
-  };
+  total: number;
+  message: string;
   _links: {
     self: {
       href: string;
@@ -56,7 +52,6 @@ interface CategoriesResponse {
       href: string;
     };
   };
-  message: string;
 }
 
 // Fallback icons for categories
@@ -87,17 +82,36 @@ export default function HomeCategorySection({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Function to flatten nested categories
+  const flattenCategories = (categories: Category[]): Category[] => {
+    const result: Category[] = [];
+
+    const flatten = (cats: Category[]) => {
+      cats.forEach((cat) => {
+        result.push(cat);
+        if (cat.children && cat.children.length > 0) {
+          flatten(cat.children);
+        }
+      });
+    };
+
+    flatten(categories);
+    return result;
+  };
+
   // Fetch categories from API
   const fetchCategories = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`${API_URL}/v1/categories/flat`);
+      const response = await fetch(`${API_URL}/v1/categories`);
       const data: CategoriesResponse = await response.json();
 
       if (data.success) {
-        setCategories(data.data);
+        // Flatten the hierarchical data
+        const flatCategories = flattenCategories(data.data);
+        setCategories(flatCategories);
       } else {
         setError("Failed to load categories");
       }

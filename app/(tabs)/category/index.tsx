@@ -33,19 +33,15 @@ interface Category {
   levelTitle: string;
   levelSlug: string;
   parentId: string | null;
-  parentTitle: string | null;
-  parentSlug: string | null;
+  productCount: number;
+  children: Category[];
 }
 
 interface CategoriesResponse {
   success: boolean;
   data: Category[];
-  pagination: {
-    offset: number;
-    limit: number;
-    total: number;
-    currentCount: number;
-  };
+  total: number;
+  message: string;
   _links: {
     self: {
       href: string;
@@ -60,7 +56,6 @@ interface CategoriesResponse {
       href: string;
     };
   };
-  message: string;
 }
 
 // CategoryCard component to handle individual card animations
@@ -146,7 +141,7 @@ const fallbackIcons: Record<string, string> = {
   // https://cdn-icons-png.flaticon.com/512/2713/2713474.png
   snacks: "https://cdn-icons-png.flaticon.com/512/3075/3075977.png",
   // Add more fallback icons as needed
-  default: "https://cdn-icons-png.flaticon.com/512/2553/2553691.png",
+  default: "https://cdn-icons-png.flaticon.com/512/3514/3514242.png",
 };
 
 export default function CategoryScreen() {
@@ -156,17 +151,36 @@ export default function CategoryScreen() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [error, setError] = useState<string | null>(null);
 
+  // Function to flatten nested categories
+  const flattenCategories = (categories: Category[]): Category[] => {
+    const result: Category[] = [];
+
+    const flatten = (cats: Category[]) => {
+      cats.forEach((cat) => {
+        result.push(cat);
+        if (cat.children && cat.children.length > 0) {
+          flatten(cat.children);
+        }
+      });
+    };
+
+    flatten(categories);
+    return result;
+  };
+
   // Fetch categories from API
   const fetchCategories = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`${API_URL}/v1/categories/flat`);
+      const response = await fetch(`${API_URL}/v1/categories`);
       const data: CategoriesResponse = await response.json();
 
       if (data.success) {
-        setCategories(data.data);
+        // Flatten the hierarchical data
+        const flatCategories = flattenCategories(data.data);
+        setCategories(flatCategories);
       } else {
         setError("Failed to load categories");
       }
@@ -298,9 +312,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 12,
     elevation: 6,
-    minHeight: 110,
+    minHeight: 120,
     paddingVertical: 12,
-    paddingHorizontal: 8,
+    paddingHorizontal: 6,
     borderWidth: 1,
     borderColor: "rgba(0,0,0,0.05)",
   },
@@ -334,13 +348,14 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   cardText: {
-    fontSize: 12,
+    fontSize: 11,
     textAlign: "center",
-    lineHeight: 12,
+    lineHeight: 14,
     fontWeight: "600",
     color: "#2c3e50",
-    letterSpacing: 0.3,
+    letterSpacing: 0.2,
     marginTop: 2,
+    paddingHorizontal: 2,
   },
   errorContainer: {
     flex: 1,
