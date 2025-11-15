@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -13,13 +13,24 @@ interface SubcategoryListProps {
   subcategories: Category[];
   selectedSubcategory: Category | null;
   onSelectSubcategory: (subcategory: Category | null) => void;
+  flatListRef?: React.RefObject<FlatList | null>;
 }
 
 const SubcategoryList: React.FC<SubcategoryListProps> = ({
   subcategories,
   selectedSubcategory,
   onSelectSubcategory,
+  flatListRef,
 }) => {
+  const internalFlatListRef = useRef<FlatList>(null);
+  const listRef = flatListRef || internalFlatListRef;
+
+  // Reset scroll position when subcategories change
+  useEffect(() => {
+    if (listRef.current) {
+      listRef.current.scrollToOffset({ offset: 0, animated: false });
+    }
+  }, [subcategories]);
   const renderSubcategoryItem = ({ item }: { item: Category }) => {
     const isSelected = selectedSubcategory?.id === item.id;
 
@@ -64,12 +75,15 @@ const SubcategoryList: React.FC<SubcategoryListProps> = ({
       </TouchableOpacity>
 
       <FlatList
+        ref={listRef}
         data={subcategories}
         renderItem={renderSubcategoryItem}
         keyExtractor={(item) => item.id}
         horizontal
-        showsHorizontalScrollIndicator={false}
+        showsHorizontalScrollIndicator={subcategories.length > 3}
+        persistentScrollbar={subcategories.length > 3}
         contentContainerStyle={styles.listContent}
+        style={styles.flatList}
       />
     </View>
   );
@@ -91,7 +105,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginHorizontal: 4,
     borderRadius: 20,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#e6f8dcff",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -106,6 +120,9 @@ const styles = StyleSheet.create({
   selectedSubcategoryText: {
     color: yellowColor,
     fontWeight: "600",
+  },
+  flatList: {
+    flexGrow: 0,
   },
 });
 

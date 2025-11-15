@@ -123,9 +123,15 @@ export default function ShopNowScreen() {
     return selectedCategory.children || [];
   }, [selectedCategory]);
 
-  // Reset subcategory when category changes
+  // Reset subcategory and scroll position when category changes
+  const flatListRef = useRef<FlatList>(null);
+
   useEffect(() => {
     setSelectedSubcategory(null);
+    // Reset scroll position when category changes
+    if (flatListRef.current) {
+      flatListRef.current.scrollToOffset({ offset: 0, animated: false });
+    }
   }, [selectedCategory]);
 
   // Enhanced search with better UX
@@ -427,11 +433,12 @@ export default function ShopNowScreen() {
         {/* Products Area */}
         <View style={styles.productsContainer}>
           {/* Subcategories */}
-          {selectedCategory && (
+          {selectedCategory && subcategories.length > 0 && (
             <SubcategoryList
               subcategories={subcategories}
               selectedSubcategory={selectedSubcategory}
               onSelectSubcategory={handleSubcategorySelect}
+              flatListRef={flatListRef}
             />
           )}
 
