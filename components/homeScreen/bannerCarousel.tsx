@@ -32,17 +32,17 @@ const staticBanners: BannerItem[] = [
   {
     id: "1",
     imageUrl:
-      "https://res.cloudinary.com/dymnymsph/image/upload/v1752568782/safefoods/xfefedgstnnaq4tobunx.png",
+      "https://res.cloudinary.com/dymnymsph/image/upload/v1759228344/safefoods/dldqkk5h7qy34eejbfqo.jpg",
   },
   {
     id: "2",
     imageUrl:
-      "https://res.cloudinary.com/dymnymsph/image/upload/v1752568679/safefoods/gmpio2pnmi6cwyatxjy1.png",
+      "https://res.cloudinary.com/dymnymsph/image/upload/v1759304303/safefoods/jf8thsovmpp3rz6ddc02.jpg",
   },
   {
     id: "3",
     imageUrl:
-      "https://res.cloudinary.com/dymnymsph/image/upload/v1752568607/safefoods/slkwfg82txztkdjhd4sm.png",
+      "https://res.cloudinary.com/dymnymsph/image/upload/v1759304315/safefoods/aec8exfdufeenfcwbvpk.jpg",
   },
 ];
 
@@ -268,7 +268,6 @@ const BannerCarousel = () => {
             source={{ uri: optimizedUrl, cache: "force-cache" }}
             style={[styles.bannerImage, { height: imageHeight }]}
             resizeMode="contain"
-            defaultSource={require("@/assets/images/safefoods-splash-logo.png")}
           />
         </View>
       </Animated.View>
