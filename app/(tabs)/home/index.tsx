@@ -26,6 +26,7 @@ import { initializeCartFromApi } from "@/utils/cartUtils";
 import { router } from "expo-router";
 import safefoodLogoPng from "@/assets/images/logo-safefood.png";
 import HomeOnSale from "@/components/homeScreen/onSale";
+import SliderCarousel from "@/components/homeScreen/sliderCarousel";
 
 export default function HomeScreen() {
   const { userId, userName } = useAuthStore();
@@ -188,6 +189,7 @@ export default function HomeScreen() {
               </View>
 
               <HomeBestDeal />
+              <SliderCarousel />
 
               {/* On Sale Section */}
               <View style={styles.sectionHeader}>
