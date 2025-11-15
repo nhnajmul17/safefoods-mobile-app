@@ -38,31 +38,56 @@ const validateAddress = (
     isActive?: boolean;
   }
 ): string | null => {
-  if (
-    !data.addressLine ||
-    data.addressLine.length < 1 ||
-    data.addressLine.length > 500
-  ) {
-    return "Address line is required";
+  // Required field: Address Line
+  if (!data.addressLine || data.addressLine.trim().length === 0) {
+    return "Address Line is required";
+  }
+  if (data.addressLine.length > 500) {
+    return "Address Line must not exceed 500 characters";
   }
 
-  if (!data.name || data.name.length < 1 || data.name.length > 100) {
+  // Required field: Name
+  if (!data.name || data.name.trim().length === 0) {
     return "Name is required";
   }
-  if (!data.phoneNo || data.phoneNo.length < 11) {
-    return "Valid phone number is required";
+  if (data.name.length > 100) {
+    return "Name must not exceed 100 characters";
+  }
+
+  // Required field: Phone Number
+  if (!data.phoneNo || data.phoneNo.trim().length === 0) {
+    return "Phone Number is required";
+  }
+  if (data.phoneNo.length < 11) {
+    return "Phone Number must be at least 11 digits";
+  }
+
+  // Required field: City
+  if (!data.city || data.city.trim().length === 0) {
+    return "City is required";
+  }
+  if (data.city.length > 100) {
+    return "City must not exceed 100 characters";
+  }
+
+  // Optional field validations
+  if (data.flatNo && data.flatNo.length > 50) {
+    return "Flat No must not exceed 50 characters";
+  }
+  if (data.floorNo && data.floorNo.length > 50) {
+    return "Floor No must not exceed 50 characters";
   }
   if (data.deliveryNotes && data.deliveryNotes.length > 500) {
-    return "Delivery notes must not exceed 500 characters";
-  }
-  if (!data.city || data.city.length < 1 || data.city.length > 100) {
-    return "City is required ";
+    return "Delivery Notes must not exceed 500 characters";
   }
   if (data.state && data.state.length > 100) {
     return "State must not exceed 100 characters";
   }
   if (data.country && data.country.length > 100) {
     return "Country must not exceed 100 characters";
+  }
+  if (data.postalCode && data.postalCode.length > 20) {
+    return "Postal Code must not exceed 20 characters";
   }
 
   return null; // No errors

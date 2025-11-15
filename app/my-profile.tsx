@@ -102,13 +102,36 @@ export default function MyProfileScreen() {
       ? `${API_URL}/v1/addresses/${selectedAddress.id}`
       : `${API_URL}/v1/addresses/`;
     const method = selectedAddress ? "PATCH" : "POST";
-    const body = {
-      userId, // Explicitly use userId from useAuthStore
-      ...formData,
-      ...(selectedAddress && {
-        isActive: formData.isActive ?? selectedAddress.isActive,
-      }),
+
+    // Clean up the form data - remove empty optional fields
+    const cleanedData: any = {
+      userId, // Always include userId
+      addressLine: formData.addressLine,
+      name: formData.name,
+      phoneNo: formData.phoneNo,
+      city: formData.city,
     };
+
+    // Add optional fields only if they have values
+    if (formData.flatNo && formData.flatNo.trim())
+      cleanedData.flatNo = formData.flatNo;
+    if (formData.floorNo && formData.floorNo.trim())
+      cleanedData.floorNo = formData.floorNo;
+    if (formData.deliveryNotes && formData.deliveryNotes.trim())
+      cleanedData.deliveryNotes = formData.deliveryNotes;
+    if (formData.state && formData.state.trim())
+      cleanedData.state = formData.state;
+    if (formData.country && formData.country.trim())
+      cleanedData.country = formData.country;
+    if (formData.postalCode && formData.postalCode.trim())
+      cleanedData.postalCode = formData.postalCode;
+
+    // Handle isActive for updates
+    if (selectedAddress) {
+      cleanedData.isActive = formData.isActive ?? selectedAddress.isActive;
+    }
+
+    const body = cleanedData;
 
     try {
       const response = await fetch(url, {
