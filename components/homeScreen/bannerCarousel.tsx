@@ -17,6 +17,7 @@ import Animated, {
 import { FlatList as GestureHandlerFlatList } from "react-native-gesture-handler";
 import { API_URL } from "@/constants/variables";
 import { ensureHttps } from "@/utils/imageUtils";
+import BannerCarouselSkeleton from "./bannerCarouselSkeleton";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const AUTO_SCROLL_INTERVAL = 4000;
@@ -287,21 +288,9 @@ const BannerCarousel = () => {
     );
   };
 
-  // Optionally, show a loading state while fetching
+  // Show skeleton while fetching
   if (isLoading) {
-    return (
-      <View style={styles.container}>
-        <View style={[styles.imageContainer, { height: 180 }]}>
-          <Image
-            source={{
-              uri: "https://via.placeholder.com/640x200?text=Loading...",
-            }}
-            style={[styles.bannerImage, { height: 180 }]}
-            resizeMode="cover"
-          />
-        </View>
-      </View>
-    );
+    return <BannerCarouselSkeleton />;
   }
 
   return (

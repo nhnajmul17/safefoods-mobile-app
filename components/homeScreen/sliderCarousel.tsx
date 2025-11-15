@@ -17,6 +17,7 @@ import Animated, {
 import { useRouter } from "expo-router";
 import { API_URL } from "@/constants/variables";
 import { ensureHttps } from "@/utils/imageUtils";
+import SliderCarouselSkeleton from "./sliderCarouselSkeleton";
 
 const { width } = Dimensions.get("window");
 const ITEM_WIDTH = (width - 48) / 2; // Show 2 items with padding
@@ -39,6 +40,7 @@ interface ApiBanner {
 
 export default function SliderCarousel() {
   const [banners, setBanners] = useState<BannerItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollX = useSharedValue(0);
   const flatListRef = React.useRef<FlatList>(null);
@@ -73,6 +75,7 @@ export default function SliderCarousel() {
 
   const fetchBanners = async () => {
     try {
+      setIsLoading(true);
       const response = await fetch(`${API_URL}/v1/banners`);
       const data = await response.json();
 
@@ -90,6 +93,8 @@ export default function SliderCarousel() {
       }
     } catch (error) {
       console.error("Error fetching banners:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -135,6 +140,10 @@ export default function SliderCarousel() {
       </Animated.View>
     );
   };
+
+  if (isLoading) {
+    return <SliderCarouselSkeleton />;
+  }
 
   if (banners.length === 0) {
     return null;

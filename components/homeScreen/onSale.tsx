@@ -14,6 +14,7 @@ import {
 import { API_URL } from "@/constants/variables";
 import OnSaleProductCard from "./onSaleProductCard";
 import { handleAddToCart } from "@/utils/cartUtils";
+import OnSaleSkeleton from "./onSaleSkeleton";
 
 // Define QuantityMap interface
 interface QuantityMap {
@@ -89,11 +90,7 @@ export default function HomeOnSale() {
   };
 
   if (loading) {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color="#888" />
-      </View>
-    );
+    return <OnSaleSkeleton />;
   }
 
   if (error) {
