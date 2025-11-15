@@ -261,10 +261,12 @@ const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
           </View> */}
 
           <View style={styles.priceContainer}>
-            <Text style={styles.weightPrice}>৳{selectedVariant.price}</Text>
+            <Text style={styles.weightPrice}>
+              ৳{selectedVariant.price.toLocaleString()}
+            </Text>
             {selectedVariant.originalPrice > selectedVariant.price && (
               <Text style={styles.originalPrice}>
-                ৳{selectedVariant.originalPrice}
+                ৳{selectedVariant.originalPrice.toLocaleString()}
               </Text>
             )}
           </View>
@@ -404,12 +406,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   cartQuantityText: {
-    fontSize: 16,
+    fontSize: 22,
     color: yellowColor,
     fontWeight: "bold",
   },
   cartQuantity: {
-    fontSize: 16,
+    fontSize: 22,
     color: yellowColor,
     fontWeight: "bold",
     marginHorizontal: 8,

@@ -16,10 +16,13 @@ import { ensureHttps } from "@/utils/imageUtils";
 interface RelatedProductsProps {
   productSlug: string;
   /** The tab context for navigation (home, category, shop-now) */
-  tabContext: 'home' | 'category' | 'shop-now';
+  tabContext: "home" | "category" | "shop-now";
 }
 
-const RelatedProducts: React.FC<RelatedProductsProps> = ({ productSlug, tabContext }) => {
+const RelatedProducts: React.FC<RelatedProductsProps> = ({
+  productSlug,
+  tabContext,
+}) => {
   const router = useRouter();
   const [relatedProducts, setRelatedProducts] = useState<ShopNowProduct[]>([]);
   const [loading, setLoading] = useState(true);
@@ -102,7 +105,7 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({ productSlug, tabConte
                 {product.title}
               </Text>
               <Text style={styles.productPrice}>
-                ৳{firstVariant?.price || "N/A"}
+                ৳{firstVariant?.price?.toLocaleString() || "N/A"}
               </Text>
             </TouchableOpacity>
           );

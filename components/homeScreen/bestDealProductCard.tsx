@@ -141,10 +141,12 @@ const BestDealProductCard = ({
         </View> */}
 
         <View style={styles.priceContainer}>
-          <Text style={styles.productPrice}>৳{selectedVariant.price}</Text>
+          <Text style={styles.productPrice}>
+            ৳{selectedVariant.price.toLocaleString()}
+          </Text>
           {selectedVariant.originalPrice > selectedVariant.price && (
             <Text style={styles.originalPrice}>
-              ৳{selectedVariant.originalPrice}
+              ৳{selectedVariant.originalPrice.toLocaleString()}
             </Text>
           )}
         </View>
