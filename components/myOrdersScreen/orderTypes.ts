@@ -96,7 +96,7 @@ export type OrderDetail = {
     method: string;
     subtotal: number;
     shipping: number;
-    tax: number;
+    discount: number;
     total: number;
     paymentStatus: string;
   };

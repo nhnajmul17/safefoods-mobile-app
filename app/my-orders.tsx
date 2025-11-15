@@ -152,7 +152,7 @@ export default function MyOrdersScreen() {
             method: order.paymentMethodTitle || "Unknown",
             subtotal: order.subTotal,
             shipping: order.deliveryCharge,
-            tax: order.discount,
+            discount: order.discount,
             total: order.total,
             paymentStatus: order.paymentStatus,
           },

@@ -591,7 +591,7 @@ export const UnifiedPlaceOrderButton: React.FC<
           text2Style: { fontSize: 14, fontWeight: "bold" },
         });
 
-        router.push("/(tabs)/home");
+        router.push("/my-orders");
       } else {
         throw new Error(data.message || "Failed to place order");
       }
@@ -668,7 +668,7 @@ export const UnifiedPlaceOrderButton: React.FC<
           text2Style: { fontSize: 14, fontWeight: "bold" },
         });
 
-        router.push("/(tabs)/home");
+        router.push("/my-orders");
       } else {
         throw new Error(data.message || "Failed to place order");
       }

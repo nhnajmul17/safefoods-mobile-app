@@ -131,7 +131,8 @@ export default function OrderModal({
               {formatWithThousandSeparator(selectedOrder.payment.shipping)}
             </Text>
             <Text style={styles.infoText}>
-              Tax: ৳{formatWithThousandSeparator(selectedOrder.payment.tax)}
+              Discount: ৳
+              {formatWithThousandSeparator(selectedOrder.payment.discount)}
             </Text>
             <Text style={styles.infoTotal}>
               Total: ৳{formatWithThousandSeparator(selectedOrder.payment.total)}
