@@ -97,8 +97,8 @@ const BannerCarousel = () => {
 
   // Determine which banners to use (API or static)
   const banners = apiBanners.length > 0 ? apiBanners : staticBanners;
-  // Create infinite banners for scrolling
-  const infiniteBanners = [...banners, ...banners, ...banners];
+  // Create infinite banners for scrolling (reduced to 2 copies to save memory)
+  const infiniteBanners = banners.length > 0 ? [...banners, ...banners] : [];
 
   // Fetch API data
   useEffect(() => {
@@ -169,26 +169,12 @@ const BannerCarousel = () => {
 
   const startAutoScroll = () => {
     stopAutoScroll();
-    let targetIndex = banners.length; // Start from middle section
+    let targetIndex = 0;
     autoScrollTimer.current = setInterval(() => {
       if (!isManualScroll.current) {
-        const nextIndex = (targetIndex % banners.length) + 1; // Next item in sequence
-        targetIndex = nextIndex + banners.length; // Target middle section
-        if (targetIndex >= banners.length * 2.5) {
-          // Approaching end, prepare to reset to middle
-          const normalizedIndex = nextIndex % banners.length;
-          targetIndex = normalizedIndex + banners.length;
-          // Scroll to the next item first, then reset position
-          scrollToIndex(targetIndex);
-          setTimeout(() => {
-            if (!isManualScroll.current) {
-              scrollToIndex(normalizedIndex + banners.length, false);
-            }
-          }, 300); // Delay to allow animation to complete
-        } else {
-          scrollToIndex(targetIndex);
-        }
-        runOnJS(setCurrentIndex)(nextIndex % banners.length);
+        targetIndex = (targetIndex + 1) % banners.length;
+        scrollToIndex(targetIndex);
+        runOnJS(setCurrentIndex)(targetIndex);
       }
     }, AUTO_SCROLL_INTERVAL);
   };
@@ -202,11 +188,6 @@ const BannerCarousel = () => {
 
   useEffect(() => {
     if (!isLoading && banners.length > 0) {
-      // Initial scroll to middle section
-      requestAnimationFrame(() => {
-        scrollToIndex(banners.length, false);
-      });
-
       startAutoScroll();
     }
 
@@ -215,11 +196,6 @@ const BannerCarousel = () => {
 
   const handleSnapToItem = (index: number) => {
     const normalizedIndex = index % banners.length;
-    if (index >= banners.length * 2 || index < banners.length) {
-      setTimeout(() => {
-        scrollToIndex(normalizedIndex + banners.length, false);
-      }, 100); // Slight delay to ensure smooth snap
-    }
     setCurrentIndex(normalizedIndex);
   };
 
@@ -278,22 +254,21 @@ const BannerCarousel = () => {
     });
 
     // Calculate height based on aspect ratio
-    const imageHeight = item.aspectRatio ? ITEM_WIDTH / item.aspectRatio : 200; // Default height if aspect ratio is not available
+    const imageHeight = item.aspectRatio ? ITEM_WIDTH / item.aspectRatio : 200;
+
+    // Optimize image URL for lower quality if from Cloudinary
+    const optimizedUrl = item.imageUrl.includes("cloudinary.com")
+      ? item.imageUrl.replace("/upload/", "/upload/q_70,w_800,f_auto/")
+      : item.imageUrl;
 
     return (
       <Animated.View style={[styles.carouselItem, animatedStyle]}>
         <View style={[styles.imageContainer, { height: imageHeight }]}>
           <Image
-            source={{ uri: item.imageUrl }}
+            source={{ uri: optimizedUrl, cache: "force-cache" }}
             style={[styles.bannerImage, { height: imageHeight }]}
-            resizeMode="cover"
-            onError={(e) => {
-              console.log(
-                `Banner image load error (${item.id}):`,
-                e.nativeEvent.error
-              );
-              // You could set a fallback image here
-            }}
+            resizeMode="contain"
+            defaultSource={require("@/assets/images/safefoods-splash-logo.png")}
           />
         </View>
       </Animated.View>
@@ -303,45 +278,12 @@ const BannerCarousel = () => {
   const PaginationDots = () => {
     return (
       <View style={styles.pagination}>
-        {banners.map((_, index) => {
-          const animatedStyle = useAnimatedStyle(() => {
-            const inputRange = [
-              (index - 1 + banners.length) * (ITEM_WIDTH + ITEM_SPACING),
-              (index + banners.length) * (ITEM_WIDTH + ITEM_SPACING),
-              (index + 1 + banners.length) * (ITEM_WIDTH + ITEM_SPACING),
-            ];
-
-            const opacity = interpolate(
-              scrollX.value,
-              inputRange,
-              [0.3, 1, 0.3],
-              Extrapolate.CLAMP
-            );
-
-            const scale = interpolate(
-              scrollX.value,
-              inputRange,
-              [0.8, 1.2, 0.8],
-              Extrapolate.CLAMP
-            );
-
-            return {
-              opacity,
-              transform: [{ scale }],
-            };
-          });
-
-          return (
-            <Animated.View
-              key={index}
-              style={[
-                styles.dot,
-                animatedStyle,
-                currentIndex === index && styles.activeDot,
-              ]}
-            />
-          );
-        })}
+        {banners.map((_, index) => (
+          <View
+            key={index}
+            style={[styles.dot, currentIndex === index && styles.activeDot]}
+          />
+        ))}
       </View>
     );
   };
@@ -381,6 +323,10 @@ const BannerCarousel = () => {
         snapToAlignment="start"
         decelerationRate="fast"
         contentContainerStyle={styles.contentContainer}
+        initialNumToRender={3}
+        maxToRenderPerBatch={2}
+        windowSize={3}
+        removeClippedSubviews={true}
         onScrollToIndexFailed={() => {
           requestAnimationFrame(() => {
             scrollToIndex(banners.length, false);

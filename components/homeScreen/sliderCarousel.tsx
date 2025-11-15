@@ -112,6 +112,11 @@ export default function SliderCarousel() {
 
     const imageHeight = 180;
 
+    // Optimize image URL for lower quality if from Cloudinary
+    const optimizedUrl = item.imageUrl.includes("cloudinary.com")
+      ? item.imageUrl.replace("/upload/", "/upload/q_70,w_400,f_auto/")
+      : item.imageUrl;
+
     return (
       <Animated.View style={[styles.carouselItem, animatedStyle]}>
         <TouchableOpacity
@@ -121,7 +126,7 @@ export default function SliderCarousel() {
         >
           <View style={[styles.imageContainer, { height: imageHeight }]}>
             <Image
-              source={{ uri: item.imageUrl }}
+              source={{ uri: optimizedUrl, cache: "force-cache" }}
               style={styles.bannerImage}
               resizeMode="contain"
             />
@@ -151,10 +156,10 @@ export default function SliderCarousel() {
         contentContainerStyle={styles.flatListContent}
         onScroll={scrollHandler}
         scrollEventThrottle={16}
-        removeClippedSubviews={false}
-        initialNumToRender={5}
-        maxToRenderPerBatch={5}
-        windowSize={5}
+        removeClippedSubviews={true}
+        initialNumToRender={4}
+        maxToRenderPerBatch={2}
+        windowSize={3}
         onScrollToIndexFailed={(info) => {
           const wait = new Promise((resolve) => setTimeout(resolve, 500));
           wait.then(() => {
