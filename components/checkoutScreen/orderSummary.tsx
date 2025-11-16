@@ -34,7 +34,7 @@ export const OrderSummarySection = ({
   const subtotal = getTotalPrice();
   let discountAmount = 0;
   if (discountType === DISCOUNT_TYPE_PERCENTAGE) {
-    discountAmount = (subtotal * appliedDiscount) / 100;
+    discountAmount = ((subtotal + deliveryCharge) * appliedDiscount) / 100;
   } else if (discountType === DISCOUNT_TYPE_FIXED) {
     discountAmount = appliedDiscount;
   }
@@ -79,6 +79,14 @@ export const OrderSummarySection = ({
                 ৳ {formatWithThousandSeparator(deliveryCharge)}
               </Text>
             </View>
+
+            <View style={styles.orderSummary}>
+              <Text style={styles.totalText}>Total</Text>
+              <Text style={styles.totalPrice}>
+                ৳ {formatWithThousandSeparator(subtotal + deliveryCharge)}
+              </Text>
+            </View>
+
             {appliedDiscount > 0 && (
               <View style={styles.orderSummary}>
                 <Text style={styles.summaryText}>Discount</Text>
@@ -87,12 +95,14 @@ export const OrderSummarySection = ({
                 </Text>
               </View>
             )}
-            <View style={styles.orderSummary}>
-              <Text style={styles.totalText}>Total</Text>
-              <Text style={styles.totalPrice}>
-                ৳ {formatWithThousandSeparator(calculateDiscountedTotal())}
-              </Text>
-            </View>
+            {appliedDiscount > 0 && (
+              <View style={styles.orderSummary}>
+                <Text style={styles.totalText}>Total After Discount</Text>
+                <Text style={styles.totalPrice}>
+                  ৳ {formatWithThousandSeparator(calculateDiscountedTotal())}
+                </Text>
+              </View>
+            )}
           </>
         }
       />

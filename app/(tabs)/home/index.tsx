@@ -21,7 +21,6 @@ import { Colors, deepGreenColor } from "@/constants/Colors";
 import { useAuthStore } from "@/store/authStore";
 import BannerCarousel from "@/components/homeScreen/bannerCarousel";
 import { useCartStore } from "@/store/cartStore";
-import { API_URL } from "@/constants/variables";
 import { initializeCartFromApi } from "@/utils/cartUtils";
 import { router } from "expo-router";
 import safefoodLogoPng from "@/assets/images/logo-safefood.png";
