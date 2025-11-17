@@ -101,7 +101,7 @@ export default function HomeScreen() {
               </TouchableOpacity>
             ) : (
               <View style={styles.userInfo}>
-                <View style={styles.userText}>
+                {/* <View style={styles.userText}>
                   <Text style={[styles.greeting, { color: Colors.dark.text }]}>
                     {(() => {
                       const hour = new Date().getHours();
@@ -113,7 +113,7 @@ export default function HomeScreen() {
                   <Text style={[styles.userName, { color: Colors.dark.text }]}>
                     {userName || "John Abram"}
                   </Text>
-                </View>
+                </View> */}
                 <TouchableOpacity
                   style={styles.avatarCircle}
                   onPress={() => router.push("/menu")}

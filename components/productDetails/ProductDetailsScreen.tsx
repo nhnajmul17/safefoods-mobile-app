@@ -16,9 +16,11 @@ import Animated, {
   withSpring,
   withRepeat,
   Easing,
+  useAnimatedScrollHandler,
+  interpolate,
+  Extrapolation,
 } from "react-native-reanimated";
 import { useCartStore } from "@/store/cartStore";
-import Toast from "react-native-toast-message";
 import { deepGreenColor, yellowColor } from "@/constants/Colors";
 import {
   ProductVariant,
@@ -63,6 +65,12 @@ const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
   const detailsTranslateY = useSharedValue(100);
   const addToCartScale = useSharedValue(1);
   const variantScale = useSharedValue(1);
+  const scrollY = useSharedValue(0);
+
+  // Constants for collapsing header
+  const HEADER_MAX_HEIGHT = 350;
+  const HEADER_MIN_HEIGHT = 150;
+  const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
   useEffect(() => {
     setLoading(true);
@@ -86,10 +94,6 @@ const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
   useEffect(() => {
     if (product && selectedVariant) {
       imageOpacity.value = withTiming(1, {
-        duration: 800,
-        easing: Easing.ease,
-      });
-      detailsTranslateY.value = withTiming(0, {
         duration: 800,
         easing: Easing.ease,
       });
@@ -142,13 +146,52 @@ const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
     });
   };
 
-  const imageStyle = useAnimatedStyle(() => ({
-    opacity: imageOpacity.value,
-  }));
+  // Scroll handler
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollY.value = event.contentOffset.y;
+    },
+  });
 
-  const detailsStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: detailsTranslateY.value }],
-  }));
+  // Animated header height based on scroll
+  const headerStyle = useAnimatedStyle(() => {
+    const height = interpolate(
+      scrollY.value,
+      [0, HEADER_SCROLL_DISTANCE],
+      [HEADER_MAX_HEIGHT, HEADER_MIN_HEIGHT],
+      Extrapolation.CLAMP
+    );
+    return {
+      height,
+      opacity: imageOpacity.value,
+    };
+  });
+
+  const fixedInfoStyle = useAnimatedStyle(() => {
+    const headerHeight = interpolate(
+      scrollY.value,
+      [0, HEADER_SCROLL_DISTANCE],
+      [HEADER_MAX_HEIGHT, HEADER_MIN_HEIGHT],
+      Extrapolation.CLAMP
+    );
+    return {
+      top: headerHeight,
+    };
+  });
+
+  const scrollContentStyle = useAnimatedStyle(() => {
+    const headerHeight = interpolate(
+      scrollY.value,
+      [0, HEADER_SCROLL_DISTANCE],
+      [HEADER_MAX_HEIGHT, HEADER_MIN_HEIGHT],
+      Extrapolation.CLAMP
+    );
+    // Add fixed info height (~100px for title + price section)
+    return {
+      paddingTop: headerHeight + 100,
+      paddingBottom: 20,
+    };
+  });
 
   const addToCartStyle = useAnimatedStyle(() => ({
     transform: [{ scale: addToCartScale.value }],
@@ -156,6 +199,10 @@ const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
 
   const variantStyle = useAnimatedStyle(() => ({
     transform: [{ scale: variantScale.value }],
+  }));
+
+  const imageStyle = useAnimatedStyle(() => ({
+    opacity: imageOpacity.value,
   }));
 
   if (loading) {
@@ -179,88 +226,57 @@ const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Fixed Header Section */}
-      <Animated.View style={[styles.imageContainer, imageStyle]}>
-        <Image
-          source={{
-            uri: selectedVariant.mediaItems?.[0]?.mediaUrl
-              ? ensureHttps(selectedVariant.mediaItems[0].mediaUrl)
-              : "https://via.placeholder.com/200",
-          }}
-          style={styles.productImage}
-          onError={(e) =>
-            console.log(
-              `Product image load error (${product.title}):`,
-              e.nativeEvent.error
-            )
-          }
-        />
-      </Animated.View>
+      <View style={styles.container}>
+        {/* Collapsing Header Section */}
+        <Animated.View style={[styles.imageContainer, headerStyle]}>
+          <Image
+            source={{
+              uri: selectedVariant.mediaItems?.[0]?.mediaUrl
+                ? ensureHttps(selectedVariant.mediaItems[0].mediaUrl)
+                : "https://via.placeholder.com/200",
+            }}
+            style={styles.productImage}
+            onError={(e) =>
+              console.log(
+                `Product image load error (${product.title}):`,
+                e.nativeEvent.error
+              )
+            }
+          />
+        </Animated.View>
 
-      <Animated.View style={[styles.detailsContainer, detailsStyle]}>
-        {/* Fixed Product Info */}
-        <View style={styles.header}>
-          <Text style={styles.name}>{product.title}</Text>
-          <Animated.View style={addToCartStyle}>
-            {quantity === 0 ? (
-              <TouchableOpacity
-                style={styles.addToCartButton}
-                onPress={() => handleAddToCart(1)}
-              >
-                <Text style={styles.addToCartText}>Add to cart</Text>
-              </TouchableOpacity>
-            ) : (
-              <View style={styles.cartQuantityContainer}>
+        {/* Fixed Product Info Section */}
+        <Animated.View style={[styles.fixedInfoContainer, fixedInfoStyle]}>
+          <View style={styles.header}>
+            <Text style={styles.name}>{product.title}</Text>
+            <Animated.View style={addToCartStyle}>
+              {quantity === 0 ? (
                 <TouchableOpacity
-                  onPress={handleDecrease}
-                  style={styles.cartQuantityButton}
+                  style={styles.addToCartButton}
+                  onPress={() => handleAddToCart(1)}
                 >
-                  <Text style={styles.cartQuantityText}>-</Text>
+                  <Text style={styles.addToCartText}>Add to cart</Text>
                 </TouchableOpacity>
-                <Text style={styles.cartQuantity}>{quantity}</Text>
-                <TouchableOpacity
-                  onPress={handleIncrease}
-                  style={styles.cartQuantityButton}
-                >
-                  <Text style={styles.cartQuantityText}>+</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </Animated.View>
-        </View>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          {/* <View style={styles.variantContainer}>
-            {product.variants.map((variant) => (
-              <Animated.View key={variant.id} style={variantStyle}>
-                <TouchableOpacity
-                  style={[
-                    styles.variantBadge,
-                    selectedVariant.id === variant.id &&
-                      styles.selectedVariantBadge,
-                  ]}
-                  onPress={() => handleVariantChange(variant)}
-                >
-                  <Text
-                    style={[
-                      styles.variantText,
-                      selectedVariant.id === variant.id &&
-                        styles.selectedVariantText,
-                    ]}
+              ) : (
+                <View style={styles.cartQuantityContainer}>
+                  <TouchableOpacity
+                    onPress={handleDecrease}
+                    style={styles.cartQuantityButton}
                   >
-                    {variant.unitTitle}
-                  </Text>
-                </TouchableOpacity>
-              </Animated.View>
-            ))}
-          </View> */}
-
-          <View style={styles.priceContainer}>
+                    <Text style={styles.cartQuantityText}>-</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.cartQuantity}>{quantity}</Text>
+                  <TouchableOpacity
+                    onPress={handleIncrease}
+                    style={styles.cartQuantityButton}
+                  >
+                    <Text style={styles.cartQuantityText}>+</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </Animated.View>
+          </View>
+          <View style={styles.priceRow}>
             <Text style={styles.weightPrice}>
               ৳{selectedVariant.price.toLocaleString()}
             </Text>
@@ -270,64 +286,33 @@ const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
               </Text>
             )}
           </View>
-        </View>
+        </Animated.View>
 
-        {/* Scrollable Description Section */}
-        <ScrollView
-          style={styles.scrollContainer}
-          contentContainerStyle={styles.scrollContent}
+        {/* Scrollable Content */}
+        <Animated.ScrollView
+          onScroll={scrollHandler}
+          scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}
+          style={styles.scrollView}
         >
-          <RenderHTML
-            contentWidth={300}
-            source={{ html: selectedVariant.description || "" }}
-            baseStyle={styles.htmlContent}
-          />
-          {/* <View style={styles.infoGrid}>
-            <View style={styles.infoItem}>
-              <Image
-                source={{
-                  uri: "https://cdn-icons-png.flaticon.com/512/2927/2927216.png",
-                }}
-                style={styles.infoIcon}
+          <Animated.View style={scrollContentStyle}>
+            {/* Description Section */}
+            <View style={styles.descriptionContainer}>
+              <RenderHTML
+                contentWidth={300}
+                source={{ html: selectedVariant.description || "" }}
+                baseStyle={styles.htmlContent}
               />
-              <Text style={styles.infoText}>100% Organic</Text>
             </View>
-            <View style={styles.infoItem}>
-              <Image
-                source={{
-                  uri: "https://cdn-icons-png.flaticon.com/512/2927/2927217.png",
-                }}
-                style={styles.infoIcon}
-              />
-              <Text style={styles.infoText}>1 Month</Text>
-            </View>
-            <View style={styles.infoItem}>
-              <Image
-                source={{
-                  uri: "https://cdn-icons-png.flaticon.com/512/1828/1828884.png",
-                }}
-                style={styles.infoIcon}
-              />
-              <Text style={styles.infoText}>4.5 (320) Reviews</Text>
-            </View>
-            <View style={styles.infoItem}>
-              <Image
-                source={{
-                  uri: "https://cdn-icons-png.flaticon.com/512/3170/3170733.png",
-                }}
-                style={styles.infoIcon}
-              />
-              <Text style={styles.infoText}>Varies by product</Text>
-            </View>
-          </View> */}
 
-          {/* Related Products Section */}
-          <RelatedProducts productSlug={product.slug} tabContext={tabContext} />
-        </ScrollView>
-      </Animated.View>
-
-      <Toast />
+            {/* Related Products Section */}
+            <RelatedProducts
+              productSlug={product.slug}
+              tabContext={tabContext}
+            />
+          </Animated.View>
+        </Animated.ScrollView>
+      </View>
     </SafeAreaView>
   );
 };
@@ -340,6 +325,9 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
+  scrollView: {
+    flex: 1,
+  },
   errorText: {
     fontSize: 18,
     color: "#333",
@@ -347,22 +335,51 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   imageContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
     width: "100%",
-    height: 250,
-    backgroundColor: "#f5f5f5",
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+    backgroundColor: "#ffffff",
+    // borderBottomLeftRadius: 30,
+    // borderBottomRightRadius: 30,
     overflow: "hidden",
+    zIndex: 1,
   },
   productImage: {
     width: "100%",
     height: "100%",
-    resizeMode: "stretch",
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+    resizeMode: "contain",
+    // borderBottomLeftRadius: 30,
+    // borderBottomRightRadius: 30,
+  },
+  fixedInfoContainer: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    backgroundColor: "#fff",
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 8,
+    zIndex: 2,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  priceRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    gap: 8,
   },
   detailsContainer: {
-    flex: 1,
     paddingHorizontal: 16,
     paddingTop: 8,
   },
@@ -370,7 +387,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 8,
   },
   name: {
     fontSize: 24,
@@ -446,7 +463,7 @@ const styles = StyleSheet.create({
     color: "white",
   },
   priceContainer: {
-    alignItems: "flex-end",
+    alignItems: "flex-start",
   },
   weightPrice: {
     fontSize: 24,
@@ -454,17 +471,15 @@ const styles = StyleSheet.create({
     color: deepGreenColor,
   },
   originalPrice: {
-    fontSize: 14,
+    fontSize: 16,
     color: "#999",
     textDecorationLine: "line-through",
-    marginTop: 2,
+    marginLeft: 8,
   },
-  scrollContainer: {
-    flex: 1,
+  descriptionContainer: {
     marginTop: 16,
-  },
-  scrollContent: {
-    paddingBottom: 20,
+    marginBottom: 20,
+    paddingHorizontal: 16,
   },
   htmlContent: {
     fontSize: 14,

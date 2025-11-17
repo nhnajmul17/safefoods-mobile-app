@@ -5,6 +5,7 @@ export interface PaymentMethod {
   id: string;
   title: string;
   description: string;
+  accountNumber: string;
   isActive: boolean;
   isDeleted: boolean;
   createdAt: string;
@@ -38,7 +39,12 @@ export const PaymentMethodSection = ({
             )}
           </View>
           <View>
-            <Text style={styles.paymentText}>{method.title}</Text>
+            <Text style={styles.paymentText}>
+              {method.title}{" "}
+              <Text style={styles.paymentNumberText}>
+                {method.accountNumber && `(${method.accountNumber})`}
+              </Text>
+            </Text>
           </View>
         </TouchableOpacity>
       ))}
@@ -81,5 +87,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#333",
     fontWeight: "500",
+  },
+  paymentNumberText: {
+    fontSize: 16,
+    color: "#666",
+    fontWeight: "600",
   },
 });
