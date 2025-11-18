@@ -39,12 +39,12 @@ export const PaymentMethodSection = ({
             )}
           </View>
           <View>
-            <Text style={styles.paymentText}>
-              {method.title}{" "}
+            <Text style={styles.paymentText}>{method.title} </Text>
+            {selectedPaymentMethodId === method.id && method.accountNumber && (
               <Text style={styles.paymentNumberText}>
-                {method.accountNumber && `(${method.accountNumber})`}
+                {method.accountNumber}
               </Text>
-            </Text>
+            )}
           </View>
         </TouchableOpacity>
       ))}
