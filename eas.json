@@ -2,14 +2,14 @@
   "build": {
     "production": {
       "android": {
-        "gradleCommand": ":app:assembleRelease"
+        "gradleCommand": ":app:bundleRelease"
       },
       "distribution": "store"
     },
     "local": {
       "android": {
-        "gradleCommand": ":app:assembleRelease",
-        "buildType": "apk"
+        "gradleCommand": ":app:bundleRelease",
+        "buildType": "app-bundle"
       }
     }
   }
