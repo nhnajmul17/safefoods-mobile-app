@@ -13,7 +13,7 @@ import { Colors, deepGreenColor, yellowColor } from "@/constants/Colors";
 import { Link, useRouter } from "expo-router";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useCartStore } from "@/store/cartStore";
-import { ensureHttps } from "@/utils/imageUtils";
+import { ensureHttps, getOptimizedImageUrl } from "@/utils/imageUtils";
 
 interface QuantityMap {
   [productId: string]: number;
@@ -93,12 +93,13 @@ const BestDealProductCard = ({
       >
         <Image
           source={{
-            uri: selectedVariant.mediaItems?.[0]?.mediaUrl
-              ? ensureHttps(selectedVariant.mediaItems[0].mediaUrl)
-              : "https://via.placeholder.com/50",
+            uri: getOptimizedImageUrl(
+              selectedVariant.mediaItems?.[0]?.mediaUrl
+            ),
           }}
           style={styles.productImage}
           resizeMode="cover"
+          resizeMethod="resize"
           onError={(e) =>
             console.log(
               `Product image load error (${item.title}):`,

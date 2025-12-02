@@ -16,8 +16,11 @@ import Animated, {
 } from "react-native-reanimated";
 import { FlatList as GestureHandlerFlatList } from "react-native-gesture-handler";
 import { API_URL } from "@/constants/variables";
-import { ensureHttps } from "@/utils/imageUtils";
+import { ensureHttps, optimizeCloudinaryImage } from "@/utils/imageUtils";
 import BannerCarouselSkeleton from "./bannerCarouselSkeleton";
+
+// Memory pool optimization: React Native has a ~200MB image memory pool limit
+// These optimizations prevent "Pool hard cap violation" errors
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const AUTO_SCROLL_INTERVAL = 4000;
@@ -77,6 +80,7 @@ const BannerCarousel = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [apiBanners, setApiBanners] = useState<BannerItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
 
   // Function to get image dimensions with better error handling
   const getImageAspectRatio = (url: string): Promise<number> => {
@@ -98,8 +102,18 @@ const BannerCarousel = () => {
 
   // Determine which banners to use (API or static)
   const banners = apiBanners.length > 0 ? apiBanners : staticBanners;
-  // Create infinite banners for scrolling (reduced to 2 copies to save memory)
-  const infiniteBanners = banners.length > 0 ? [...banners, ...banners] : [];
+  // Use regular banners without infinite scrolling for better performance
+  const displayBanners = banners;
+
+  // Prefetch images to improve loading - very limited to prevent memory issues
+  const prefetchImages = (banners: BannerItem[]) => {
+    // Only prefetch the first image to avoid memory pool violations
+    if (banners.length > 0) {
+      Image.prefetch(ensureHttps(banners[0].imageUrl)).catch(() => {
+        // Ignore prefetch errors
+      });
+    }
+  };
 
   // Fetch API data
   useEffect(() => {
@@ -121,6 +135,7 @@ const BannerCarousel = () => {
             })
           );
           setApiBanners(mappedBanners);
+          prefetchImages(mappedBanners);
         } else {
           // Use static banners with HTTPS and calculated aspect ratios
           const staticBannersWithRatios = await Promise.all(
@@ -134,6 +149,7 @@ const BannerCarousel = () => {
             })
           );
           setApiBanners(staticBannersWithRatios);
+          prefetchImages(staticBannersWithRatios);
         }
       } catch (error) {
         console.error("Error fetching sliders:", error);
@@ -144,6 +160,7 @@ const BannerCarousel = () => {
           aspectRatio: 16 / 9, // Default aspect ratio
         }));
         setApiBanners(staticBannersWithHttps);
+        prefetchImages(staticBannersWithHttps);
       } finally {
         setIsLoading(false);
       }
@@ -173,7 +190,7 @@ const BannerCarousel = () => {
     let targetIndex = 0;
     autoScrollTimer.current = setInterval(() => {
       if (!isManualScroll.current) {
-        targetIndex = (targetIndex + 1) % banners.length;
+        targetIndex = (targetIndex + 1) % displayBanners.length;
         scrollToIndex(targetIndex);
         runOnJS(setCurrentIndex)(targetIndex);
       }
@@ -188,15 +205,19 @@ const BannerCarousel = () => {
   };
 
   useEffect(() => {
-    if (!isLoading && banners.length > 0) {
+    if (!isLoading && displayBanners.length > 0) {
       startAutoScroll();
     }
 
-    return stopAutoScroll;
-  }, [isLoading, banners.length]);
+    return () => {
+      stopAutoScroll();
+      // Clear loaded images set on unmount to free memory
+      setLoadedImages(new Set());
+    };
+  }, [isLoading, displayBanners.length]);
 
   const handleSnapToItem = (index: number) => {
-    const normalizedIndex = index % banners.length;
+    const normalizedIndex = index % displayBanners.length;
     setCurrentIndex(normalizedIndex);
   };
 
@@ -220,65 +241,89 @@ const BannerCarousel = () => {
     },
   });
 
-  const CarouselItem = ({
-    item,
-    index,
-  }: {
-    item: BannerItem;
-    index: number;
-  }) => {
-    const animatedStyle = useAnimatedStyle(() => {
-      const inputRange = [
-        (index - 1) * (ITEM_WIDTH + ITEM_SPACING),
-        index * (ITEM_WIDTH + ITEM_SPACING),
-        (index + 1) * (ITEM_WIDTH + ITEM_SPACING),
-      ];
+  const CarouselItem = React.memo(
+    ({ item, index }: { item: BannerItem; index: number }) => {
+      // Check if this specific image URL has been loaded before
+      const imageLoaded = loadedImages.has(item.id);
 
-      const scale = interpolate(
-        scrollX.value,
-        inputRange,
-        [0.9, 1, 0.9],
-        Extrapolate.CLAMP
+      const animatedStyle = useAnimatedStyle(() => {
+        const inputRange = [
+          (index - 1) * (ITEM_WIDTH + ITEM_SPACING),
+          index * (ITEM_WIDTH + ITEM_SPACING),
+          (index + 1) * (ITEM_WIDTH + ITEM_SPACING),
+        ];
+
+        const scale = interpolate(
+          scrollX.value,
+          inputRange,
+          [0.9, 1, 0.9],
+          Extrapolate.CLAMP
+        );
+
+        const opacity = interpolate(
+          scrollX.value,
+          inputRange,
+          [0.7, 1, 0.7],
+          Extrapolate.CLAMP
+        );
+
+        return {
+          transform: [{ scale }],
+          opacity,
+        };
+      });
+
+      // Calculate height based on aspect ratio
+      const imageHeight = item.aspectRatio
+        ? ITEM_WIDTH / item.aspectRatio
+        : 200;
+
+      // Use optimized image URL to prevent memory issues
+      const imageUrl = optimizeCloudinaryImage(
+        ensureHttps(item.imageUrl),
+        800,
+        65
       );
 
-      const opacity = interpolate(
-        scrollX.value,
-        inputRange,
-        [0.7, 1, 0.7],
-        Extrapolate.CLAMP
-      );
-
-      return {
-        transform: [{ scale }],
-        opacity,
+      const handleImageLoad = () => {
+        setLoadedImages((prev) => new Set(prev).add(item.id));
       };
-    });
 
-    // Calculate height based on aspect ratio
-    const imageHeight = item.aspectRatio ? ITEM_WIDTH / item.aspectRatio : 200;
+      return (
+        <Animated.View style={[styles.carouselItem, animatedStyle]}>
+          <View style={[styles.imageContainer, { height: imageHeight }]}>
+            {/* Placeholder/Loading state - only show if image hasn't been loaded yet */}
+            {!imageLoaded && (
+              <View style={styles.imagePlaceholder}>
+                <View style={styles.shimmerEffect} />
+              </View>
+            )}
 
-    // Optimize image URL for lower quality if from Cloudinary
-    const optimizedUrl = item.imageUrl.includes("cloudinary.com")
-      ? item.imageUrl.replace("/upload/", "/upload/q_70,w_800,f_auto/")
-      : item.imageUrl;
-
-    return (
-      <Animated.View style={[styles.carouselItem, animatedStyle]}>
-        <View style={[styles.imageContainer, { height: imageHeight }]}>
-          <Image
-            source={{ uri: optimizedUrl, cache: "force-cache" }}
-            style={[styles.bannerImage, { height: imageHeight }]}
-            resizeMode="contain"
-          />
-        </View>
-      </Animated.View>
-    );
-  };
+            <Image
+              source={{ uri: imageUrl }}
+              style={[
+                styles.bannerImage,
+                { height: imageHeight },
+                !imageLoaded && styles.hiddenImage,
+              ]}
+              resizeMode="contain"
+              onLoad={handleImageLoad}
+              onError={(e) => {
+                console.log("Image load error:", e.nativeEvent.error);
+              }}
+              // Limit image size to prevent memory issues
+              resizeMethod="resize"
+            />
+          </View>
+        </Animated.View>
+      );
+    }
+  );
 
   const PaginationDots = () => {
     return (
       <View style={styles.pagination}>
-        {banners.map((_, index) => (
+        {displayBanners.map((_, index) => (
           <View
             key={index}
             style={[styles.dot, currentIndex === index && styles.activeDot]}
@@ -297,12 +342,12 @@ const BannerCarousel = () => {
     <View style={styles.container}>
       <AnimatedFlatList
         ref={flatListRef}
-        data={infiniteBanners}
-        keyExtractor={(item, index) => `${item.id}-${index}`}
+        data={displayBanners}
+        keyExtractor={(item) => item.id}
         horizontal
         showsHorizontalScrollIndicator={false}
         renderItem={({ item, index }) => (
-          <CarouselItem item={item} index={index} />
+          <CarouselItem key={`${item.id}-${index}`} item={item} index={index} />
         )}
         onScroll={scrollHandler}
         scrollEventThrottle={16}
@@ -311,13 +356,13 @@ const BannerCarousel = () => {
         snapToAlignment="start"
         decelerationRate="fast"
         contentContainerStyle={styles.contentContainer}
-        initialNumToRender={3}
-        maxToRenderPerBatch={2}
-        windowSize={3}
+        initialNumToRender={2}
+        maxToRenderPerBatch={1}
+        windowSize={2}
         removeClippedSubviews={true}
         onScrollToIndexFailed={() => {
           requestAnimationFrame(() => {
-            scrollToIndex(banners.length, false);
+            scrollToIndex(0, false);
           });
         }}
       />
@@ -357,9 +402,29 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.3,
     shadowRadius: 8,
+    backgroundColor: "#f0f0f0",
+    position: "relative",
   },
   bannerImage: {
     width: "100%",
+  },
+  hiddenImage: {
+    opacity: 0,
+  },
+  imagePlaceholder: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "#f0f0f0",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  shimmerEffect: {
+    width: "100%",
+    height: "100%",
+    backgroundColor: "#e0e0e0",
   },
   pagination: {
     flexDirection: "row",

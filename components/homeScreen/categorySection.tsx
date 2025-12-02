@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { API_URL } from "@/constants/variables";
 import CategorySkeleton from "./categorySkeleton";
-import { ensureHttps } from "@/utils/imageUtils";
+import { ensureHttps, getOptimizedImageUrl } from "@/utils/imageUtils";
 
 // Define the API response type
 interface Category {
@@ -109,9 +109,8 @@ export default function HomeCategorySection({
       const data: CategoriesResponse = await response.json();
 
       if (data.success) {
-        // Flatten the hierarchical data
-        const flatCategories = flattenCategories(data.data);
-        setCategories(flatCategories);
+        // Show only parent categories (top-level categories)
+        setCategories(data.data);
       } else {
         setError("Failed to load categories");
       }
@@ -148,7 +147,7 @@ export default function HomeCategorySection({
   const getCategoryIcon = (category: Category) => {
     // Use mediaUrl from API if available
     if (category.mediaUrl) {
-      return ensureHttps(category.mediaUrl);
+      return getOptimizedImageUrl(category.mediaUrl);
     }
 
     // Use fallback icon based on slug
@@ -206,6 +205,7 @@ export default function HomeCategorySection({
               <Image
                 source={{ uri: getCategoryIcon(category) }}
                 style={styles.categoryIcon}
+                resizeMethod="resize"
                 onError={(e) =>
                   console.log(
                     `Category icon load error (${category.title}):`,
@@ -214,7 +214,11 @@ export default function HomeCategorySection({
                 }
               />
             </TouchableOpacity>
-            <Text style={[styles.categoryText, { color: Colors.light.text }]}>
+            <Text
+              style={[styles.categoryText, { color: Colors.light.text }]}
+              numberOfLines={2}
+              ellipsizeMode="tail"
+            >
               {category.title}
             </Text>
           </View>
@@ -258,7 +262,8 @@ const styles = StyleSheet.create({
   },
   categoryItem: {
     alignItems: "center",
-    marginRight: 35,
+    marginRight: 20,
+    width: 70,
   },
   categoryIconContainer: {
     width: 60,
@@ -280,6 +285,7 @@ const styles = StyleSheet.create({
   categoryText: {
     fontSize: 14,
     textAlign: "center",
+    width: "100%",
   },
   loadingContainer: {
     alignItems: "center",

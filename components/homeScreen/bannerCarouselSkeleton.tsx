@@ -47,14 +47,15 @@ const BannerCarouselSkeleton = () => {
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 16,
+    marginVertical: 15,
+    minHeight: 150,
   },
   skeletonBanner: {
-    width: width - 32,
-    height: 200,
+    width: width - 40,
+    height: 150,
     backgroundColor: "#e0e0e0",
-    borderRadius: 15,
-    marginHorizontal: 16,
+    borderRadius: 10,
+    marginHorizontal: 20,
   },
   pagination: {
     flexDirection: "row",
