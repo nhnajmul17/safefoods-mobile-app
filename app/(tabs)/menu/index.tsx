@@ -55,7 +55,7 @@ export default function ProfileScreen() {
       action: () =>
         router.push({
           pathname: "/webview",
-          params: { url: "https://safefoods.com.bd/private-policy" },
+          params: { url: "https://safefoods.com.bd/privacy-policy" },
         }),
     },
     {

@@ -35,7 +35,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
             source={{
               uri: item.mediaUrl
                 ? ensureHttps(item.mediaUrl)
-                : "https://cdn-icons-png.flaticon.com/512/2153/2153788.png",
+                : "https://cdn-icons-png.flaticon.com/512/3050/3050158.png",
             }}
             style={styles.categoryImage}
             resizeMode="contain"
@@ -72,7 +72,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
         >
           <Image
             source={{
-              uri: "https://cdn-icons-png.flaticon.com/512/2153/2153788.png",
+              uri: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png",
             }}
             style={styles.categoryImage}
             resizeMode="contain"
@@ -120,21 +120,23 @@ const styles = StyleSheet.create({
   imageCircle: {
     width: 50,
     height: 50,
-    borderRadius: 35,
+    borderRadius: 25,
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 6,
     borderWidth: 1,
     borderColor: "#eee",
+    overflow: "hidden",
   },
   selectedCircle: {
     backgroundColor: "#d6f5db", // selected circle light green
     borderColor: deepGreenColor,
+    borderWidth: 2,
   },
   categoryImage: {
-    width: 40,
-    height: 40,
+    width: "100%",
+    height: "100%",
   },
   categoryText: {
     fontSize: 12,

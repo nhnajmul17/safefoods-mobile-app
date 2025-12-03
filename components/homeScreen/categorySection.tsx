@@ -277,10 +277,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
+    overflow: "hidden",
   },
   categoryIcon: {
-    width: 30,
-    height: 30,
+    width: "100%",
+    height: "100%",
   },
   categoryText: {
     fontSize: 14,

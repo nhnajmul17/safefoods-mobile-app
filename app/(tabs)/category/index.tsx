@@ -341,10 +341,11 @@ const styles = StyleSheet.create({
     elevation: 2,
     borderWidth: 1,
     borderColor: "rgba(0,0,0,0.08)",
+    overflow: "hidden",
   },
   icon: {
-    width: 36,
-    height: 36,
+    width: "100%",
+    height: "100%",
     resizeMode: "contain",
   },
   cardText: {

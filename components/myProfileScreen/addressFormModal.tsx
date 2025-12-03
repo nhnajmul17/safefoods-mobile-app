@@ -1,6 +1,6 @@
 import { Address } from "@/app/my-profile";
 import { deepGreenColor, yellowColor } from "@/constants/Colors";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -117,6 +117,18 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
     isActive: false,
   });
 
+  // Create refs for each input field
+  const flatNoRef = useRef<TextInput>(null);
+  const floorNoRef = useRef<TextInput>(null);
+  const addressLineRef = useRef<TextInput>(null);
+  const nameRef = useRef<TextInput>(null);
+  const phoneNoRef = useRef<TextInput>(null);
+  const deliveryNotesRef = useRef<TextInput>(null);
+  const cityRef = useRef<TextInput>(null);
+  const stateRef = useRef<TextInput>(null);
+  const countryRef = useRef<TextInput>(null);
+  const postalCodeRef = useRef<TextInput>(null);
+
   useEffect(() => {
     if (initialData) {
       setFormData({
@@ -151,7 +163,7 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
 
   const handleSave = () => {
     const error = validateAddress(formData);
-    console.log("error----------------------", error);
+
     if (error) {
       Alert.alert("Validation Error", error);
       return;
@@ -190,6 +202,7 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
               >
                 <Text style={styles.inputLabel}>Flat No</Text>
                 <TextInput
+                  ref={flatNoRef}
                   style={styles.formInput}
                   placeholder="Flat No"
                   placeholderTextColor="#999"
@@ -198,9 +211,12 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
                     setFormData({ ...formData, flatNo: text })
                   }
                   returnKeyType="next"
+                  onSubmitEditing={() => floorNoRef.current?.focus()}
+                  blurOnSubmit={false}
                 />
                 <Text style={styles.inputLabel}>Floor No</Text>
                 <TextInput
+                  ref={floorNoRef}
                   style={styles.formInput}
                   placeholder="Floor No"
                   placeholderTextColor="#999"
@@ -209,9 +225,12 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
                     setFormData({ ...formData, floorNo: text })
                   }
                   returnKeyType="next"
+                  onSubmitEditing={() => addressLineRef.current?.focus()}
+                  blurOnSubmit={false}
                 />
                 <Text style={styles.inputLabel}>Address Line *</Text>
                 <TextInput
+                  ref={addressLineRef}
                   style={styles.formInput}
                   placeholder="Address Line *"
                   placeholderTextColor="#999"
@@ -220,9 +239,12 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
                     setFormData({ ...formData, addressLine: text })
                   }
                   returnKeyType="next"
+                  onSubmitEditing={() => nameRef.current?.focus()}
+                  blurOnSubmit={false}
                 />
                 <Text style={styles.inputLabel}>Name *</Text>
                 <TextInput
+                  ref={nameRef}
                   style={styles.formInput}
                   placeholder="Name *"
                   placeholderTextColor="#999"
@@ -231,9 +253,12 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
                     setFormData({ ...formData, name: text })
                   }
                   returnKeyType="next"
+                  onSubmitEditing={() => phoneNoRef.current?.focus()}
+                  blurOnSubmit={false}
                 />
                 <Text style={styles.inputLabel}>Phone No *</Text>
                 <TextInput
+                  ref={phoneNoRef}
                   style={styles.formInput}
                   placeholder="Phone No *"
                   placeholderTextColor="#999"
@@ -243,9 +268,12 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
                   }
                   keyboardType="phone-pad"
                   returnKeyType="next"
+                  onSubmitEditing={() => deliveryNotesRef.current?.focus()}
+                  blurOnSubmit={false}
                 />
                 <Text style={styles.inputLabel}>Delivery Notes</Text>
                 <TextInput
+                  ref={deliveryNotesRef}
                   style={styles.formInput}
                   placeholder="Delivery Notes"
                   placeholderTextColor="#999"
@@ -254,9 +282,12 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
                     setFormData({ ...formData, deliveryNotes: text })
                   }
                   returnKeyType="next"
+                  onSubmitEditing={() => cityRef.current?.focus()}
+                  blurOnSubmit={false}
                 />
                 <Text style={styles.inputLabel}>City *</Text>
                 <TextInput
+                  ref={cityRef}
                   style={styles.formInput}
                   placeholder="City *"
                   placeholderTextColor="#999"
@@ -265,9 +296,12 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
                     setFormData({ ...formData, city: text })
                   }
                   returnKeyType="next"
+                  onSubmitEditing={() => stateRef.current?.focus()}
+                  blurOnSubmit={false}
                 />
                 <Text style={styles.inputLabel}>State</Text>
                 <TextInput
+                  ref={stateRef}
                   style={styles.formInput}
                   placeholder="State"
                   placeholderTextColor="#999"
@@ -276,9 +310,12 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
                     setFormData({ ...formData, state: text })
                   }
                   returnKeyType="next"
+                  onSubmitEditing={() => countryRef.current?.focus()}
+                  blurOnSubmit={false}
                 />
                 <Text style={styles.inputLabel}>Country</Text>
                 <TextInput
+                  ref={countryRef}
                   style={styles.formInput}
                   placeholder="Country"
                   placeholderTextColor="#999"
@@ -287,9 +324,12 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
                     setFormData({ ...formData, country: text })
                   }
                   returnKeyType="next"
+                  onSubmitEditing={() => postalCodeRef.current?.focus()}
+                  blurOnSubmit={false}
                 />
                 <Text style={styles.inputLabel}>Postal Code</Text>
                 <TextInput
+                  ref={postalCodeRef}
                   style={styles.formInput}
                   placeholder="Postal Code"
                   placeholderTextColor="#999"
@@ -299,6 +339,7 @@ const AddressFormModal: React.FC<AddressFormModalProps> = ({
                   }
                   keyboardType="number-pad"
                   returnKeyType="done"
+                  onSubmitEditing={dismissKeyboard}
                 />
               </ScrollView>
 
@@ -346,11 +387,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 12,
     width: "90%",
-    maxHeight: "85%",
+    maxHeight: "90%",
     overflow: "hidden",
   },
   scrollView: {
-    maxHeight: "75%",
+    flexGrow: 1,
   },
   scrollViewContent: {
     padding: 16,
