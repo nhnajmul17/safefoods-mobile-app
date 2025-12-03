@@ -16,7 +16,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useRouter } from "expo-router";
 import { API_URL } from "@/constants/variables";
-import { ensureHttps, optimizeCloudinaryImage } from "@/utils/imageUtils";
+import { ensureHttps } from "@/utils/imageUtils";
 import SliderCarouselSkeleton from "./sliderCarouselSkeleton";
 
 const { width } = Dimensions.get("window");
@@ -42,7 +42,6 @@ export default function SliderCarousel() {
   const [banners, setBanners] = useState<BannerItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const scrollX = useSharedValue(0);
   const flatListRef = React.useRef<FlatList>(null);
   const router = useRouter();
@@ -53,22 +52,12 @@ export default function SliderCarousel() {
     },
   });
 
-  // Prefetch images to improve loading - very limited to prevent memory issues
-  const prefetchImages = (banners: BannerItem[]) => {
-    // Only prefetch the first image to avoid memory pool violations
-    if (banners.length > 0) {
-      Image.prefetch(ensureHttps(banners[0].imageUrl)).catch(() => {
-        // Ignore prefetch errors
-      });
-    }
-  };
-
   useEffect(() => {
     fetchBanners();
   }, []);
 
   useEffect(() => {
-    if (banners.length > 1 && !isLoading) {
+    if (banners.length > 1) {
       const interval = setInterval(() => {
         setActiveIndex((prevIndex) => {
           const nextIndex = (prevIndex + 1) % banners.length;
@@ -82,14 +71,7 @@ export default function SliderCarousel() {
 
       return () => clearInterval(interval);
     }
-  }, [banners.length, isLoading]);
-
-  useEffect(() => {
-    return () => {
-      // Clear loaded images set on unmount to free memory
-      setLoadedImages(new Set());
-    };
-  }, []);
+  }, [banners.length]);
 
   const fetchBanners = async () => {
     try {
@@ -107,7 +89,6 @@ export default function SliderCarousel() {
             aspectRatio: banner.aspectRatio,
           }));
         setBanners(formattedBanners);
-        prefetchImages(formattedBanners);
       } else {
       }
     } catch (error) {
@@ -123,60 +104,42 @@ export default function SliderCarousel() {
     }
   };
 
-  const CarouselItem = React.memo(
-    ({ item, index }: { item: BannerItem; index: number }) => {
-      // Check if this specific image URL has been loaded before
-      const imageLoaded = loadedImages.has(item.id);
+  const CarouselItem = ({
+    item,
+    index,
+  }: {
+    item: BannerItem;
+    index: number;
+  }) => {
+    const animatedStyle = useAnimatedStyle(() => {
+      return {};
+    });
 
-      const animatedStyle = useAnimatedStyle(() => {
-        return {};
-      });
+    const imageHeight = 180;
 
-      const imageHeight = 180;
+    // Optimize image URL for lower quality if from Cloudinary
+    const optimizedUrl = item.imageUrl.includes("cloudinary.com")
+      ? item.imageUrl.replace("/upload/", "/upload/q_70,w_400,f_auto/")
+      : item.imageUrl;
 
-      // Use optimized image URL to prevent memory issues
-      const imageUrl = optimizeCloudinaryImage(
-        ensureHttps(item.imageUrl),
-        400,
-        60
-      );
-
-      const handleImageLoad = () => {
-        setLoadedImages((prev) => new Set(prev).add(item.id));
-      };
-
-      return (
-        <Animated.View style={[styles.carouselItem, animatedStyle]}>
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={() => handleBannerPress(item.productSlug)}
-            disabled={!item.productSlug}
-          >
-            <View style={[styles.imageContainer, { height: imageHeight }]}>
-              {/* Placeholder/Loading state - only show if image hasn't been loaded yet */}
-              {!imageLoaded && (
-                <View style={styles.imagePlaceholder}>
-                  <View style={styles.shimmerEffect} />
-                </View>
-              )}
-
-              <Image
-                source={{ uri: imageUrl }}
-                style={[styles.bannerImage, !imageLoaded && styles.hiddenImage]}
-                resizeMode="contain"
-                onLoad={handleImageLoad}
-                onError={(e) => {
-                  console.log("Image load error:", e.nativeEvent.error);
-                }}
-                // Limit image size to prevent memory issues
-                resizeMethod="resize"
-              />
-            </View>
-          </TouchableOpacity>
-        </Animated.View>
-      );
-    }
-  );
+    return (
+      <Animated.View style={[styles.carouselItem, animatedStyle]}>
+        <TouchableOpacity
+          activeOpacity={0.9}
+          onPress={() => handleBannerPress(item.productSlug)}
+          disabled={!item.productSlug}
+        >
+          <View style={[styles.imageContainer, { height: imageHeight }]}>
+            <Image
+              source={{ uri: optimizedUrl, cache: "force-cache" }}
+              style={styles.bannerImage}
+              resizeMode="contain"
+            />
+          </View>
+        </TouchableOpacity>
+      </Animated.View>
+    );
+  };
 
   if (isLoading) {
     return <SliderCarouselSkeleton />;
@@ -192,7 +155,7 @@ export default function SliderCarousel() {
         ref={flatListRef}
         data={banners}
         renderItem={({ item, index }) => (
-          <CarouselItem key={`${item.id}-${index}`} item={item} index={index} />
+          <CarouselItem item={item} index={index} />
         )}
         keyExtractor={(item) => item.id}
         horizontal
@@ -203,9 +166,9 @@ export default function SliderCarousel() {
         onScroll={scrollHandler}
         scrollEventThrottle={16}
         removeClippedSubviews={true}
-        initialNumToRender={2}
-        maxToRenderPerBatch={1}
-        windowSize={2}
+        initialNumToRender={4}
+        maxToRenderPerBatch={2}
+        windowSize={3}
         onScrollToIndexFailed={(info) => {
           const wait = new Promise((resolve) => setTimeout(resolve, 500));
           wait.then(() => {
@@ -249,30 +212,11 @@ const styles = StyleSheet.create({
     width: "100%",
     borderRadius: 15,
     overflow: "hidden",
-    backgroundColor: "#f0f0f0",
-    position: "relative",
+    // backgroundColor: "#f0f0f0",
   },
   bannerImage: {
     width: "100%",
     height: "100%",
-  },
-  hiddenImage: {
-    opacity: 0,
-  },
-  imagePlaceholder: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "#f0f0f0",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  shimmerEffect: {
-    width: "100%",
-    height: "100%",
-    backgroundColor: "#e0e0e0",
   },
   pagination: {
     flexDirection: "row",
