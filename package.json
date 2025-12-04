@@ -63,5 +63,8 @@
     "react-test-renderer": "19.0.0",
     "typescript": "^5.3.3"
   },
+  "overrides": {
+    "react-server-dom-webpack": "19.0.1"
+  },
   "private": true
 }
