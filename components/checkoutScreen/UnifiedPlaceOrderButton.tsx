@@ -339,19 +339,20 @@ export const UnifiedPlaceOrderButton: React.FC<
     }
 
     if (!preferredDeliveryDateTime) {
-      const message = "Please select delivery date and time";
-      if (isGuest) {
-        Alert.alert("Missing Information", message);
-      } else {
-        Toast.show({
-          type: "error",
-          text1: "Error",
-          text2: message,
-          text1Style: { fontSize: 16, fontWeight: "bold" },
-          text2Style: { fontSize: 14, fontWeight: "bold" },
-        });
-      }
-      return false;
+      // Optional field - skip validation
+      // const message = "Please select delivery date and time";
+      // if (isGuest) {
+      //   Alert.alert("Missing Information", message);
+      // } else {
+      //   Toast.show({
+      //     type: "error",
+      //     text1: "Error",
+      //     text2: message,
+      //     text1Style: { fontSize: 16, fontWeight: "bold" },
+      //     text2Style: { fontSize: 14, fontWeight: "bold" },
+      //   });
+      // }
+      // return false;
     }
 
     if (productOrders.length === 0) {

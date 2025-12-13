@@ -480,6 +480,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 20,
     paddingHorizontal: 16,
+    paddingTop: 40,
   },
   htmlContent: {
     fontSize: 14,

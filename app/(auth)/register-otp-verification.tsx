@@ -12,13 +12,14 @@ import { useAuthStore } from "@/store/authStore";
 import { API_URL } from "@/constants/variables";
 
 const verifyOtpAPI = async (email: string, token: string, code: string) => {
+  const parsedOTP = parseInt(code);
   const response = await fetch(`${API_URL}/v2/auth/email-verification`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "email-verification-token": token,
     },
-    body: JSON.stringify({ email, otp: parseInt(code) }),
+    body: JSON.stringify({ email, otp: parsedOTP }),
   });
   return response.json();
 };

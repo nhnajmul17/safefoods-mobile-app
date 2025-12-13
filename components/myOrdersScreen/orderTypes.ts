@@ -44,7 +44,7 @@ export type Order = {
   deliveryCharge: number;
   deliveryZoneId: string;
   total: number;
-  preferredDeliveryDateAndTime: string;
+  preferredDeliveryDateAndTime: string | null;
   paymentMethodId: string;
   paymentMethodTitle: string;
   transactionNo: string | null;

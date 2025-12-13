@@ -18,7 +18,7 @@ export interface GuestOrder {
   deliveryCharge: number;
   deliveryZoneId: string;
   total: number;
-  preferredDeliveryDateAndTime: string;
+  preferredDeliveryDateAndTime: string | null;
   paymentMethodId: string;
   paymentMethodTitle?: string;
   transactionNo: string | null;
@@ -74,8 +74,11 @@ export interface GuestOrder {
 }
 
 // Function to get payment method title by ID (you might need to adjust this)
-const getPaymentMethodTitle = (paymentMethodId: string, paymentMethods: any[] = []): string => {
-  const method = paymentMethods.find(pm => pm.id === paymentMethodId);
+const getPaymentMethodTitle = (
+  paymentMethodId: string,
+  paymentMethods: any[] = []
+): string => {
+  const method = paymentMethods.find((pm) => pm.id === paymentMethodId);
   return method?.title || "Unknown Payment Method";
 };
 
@@ -86,11 +89,14 @@ export const saveGuestOrder = async (
   paymentMethods: any[] = []
 ): Promise<void> => {
   try {
-    const { order, productOrders, guestUserInfo, guestUserAddressInfo } = orderResponse.data;
-    
+    const { order, productOrders, guestUserInfo, guestUserAddressInfo } =
+      orderResponse.data;
+
     // Enhance product orders with cart item details
     const enhancedProductOrders = productOrders.map((productOrder: any) => {
-      const cartItem = cartItems.find(item => item.variantId === productOrder.variantProductId);
+      const cartItem = cartItems.find(
+        (item) => item.variantId === productOrder.variantProductId
+      );
       return {
         ...productOrder,
         productTitle: cartItem?.name || "Unknown Product",
@@ -102,7 +108,10 @@ export const saveGuestOrder = async (
     // Create the guest order object
     const guestOrder: GuestOrder = {
       ...order,
-      paymentMethodTitle: getPaymentMethodTitle(order.paymentMethodId, paymentMethods),
+      paymentMethodTitle: getPaymentMethodTitle(
+        order.paymentMethodId,
+        paymentMethods
+      ),
       productOrders: enhancedProductOrders,
       guestUserInfo,
       guestUserAddressInfo,
@@ -110,16 +119,19 @@ export const saveGuestOrder = async (
 
     // Get existing orders
     const existingOrders = await getGuestOrders();
-    
+
     // Add new order to the beginning of the array
     const updatedOrders = [guestOrder, ...existingOrders];
-    
+
     // Keep only the last 5 orders
     const ordersToKeep = updatedOrders.slice(0, MAX_GUEST_ORDERS);
-    
+
     // Save to AsyncStorage
-    await AsyncStorage.setItem(GUEST_ORDERS_STORAGE_KEY, JSON.stringify(ordersToKeep));
-    
+    await AsyncStorage.setItem(
+      GUEST_ORDERS_STORAGE_KEY,
+      JSON.stringify(ordersToKeep)
+    );
+
     console.log(`Guest order saved. Total orders: ${ordersToKeep.length}`);
   } catch (error) {
     console.error("Error saving guest order:", error);
@@ -138,10 +150,12 @@ export const getGuestOrders = async (): Promise<GuestOrder[]> => {
 };
 
 // Get a specific guest order by ID
-export const getGuestOrderById = async (orderId: string): Promise<GuestOrder | null> => {
+export const getGuestOrderById = async (
+  orderId: string
+): Promise<GuestOrder | null> => {
   try {
     const orders = await getGuestOrders();
-    return orders.find(order => order.id === orderId) || null;
+    return orders.find((order) => order.id === orderId) || null;
   } catch (error) {
     console.error("Error getting guest order by ID:", error);
     return null;
@@ -208,7 +222,7 @@ export const convertGuestOrderToOrderFormat = (guestOrder: GuestOrder): any => {
     isDeleted: guestOrder.isDeleted,
     createdAt: guestOrder.createdAt,
     updatedAt: guestOrder.updatedAt,
-    productList: guestOrder.productOrders.map(productOrder => ({
+    productList: guestOrder.productOrders.map((productOrder) => ({
       id: productOrder.id,
       variantProductId: productOrder.variantProductId,
       productId: productOrder.variantProductId, // Using variantProductId as productId
@@ -217,7 +231,9 @@ export const convertGuestOrderToOrderFormat = (guestOrder: GuestOrder): any => {
       orderId: productOrder.orderId,
       quantity: productOrder.quantity,
       price: productOrder.price,
-      media: productOrder.productImage ? [{ id: "", url: productOrder.productImage }] : [],
+      media: productOrder.productImage
+        ? [{ id: "", url: productOrder.productImage }]
+        : [],
     })),
     orderHistory: [
       {
@@ -225,7 +241,7 @@ export const convertGuestOrderToOrderFormat = (guestOrder: GuestOrder): any => {
         status: guestOrder.orderStatus,
         changedBy: "system",
         createdAt: guestOrder.createdAt,
-      }
+      },
     ],
   };
 };
