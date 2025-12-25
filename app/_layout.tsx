@@ -20,6 +20,7 @@ import {
   SHARED_HEADER_OPTIONS,
 } from "@/constants/headerConfig";
 import { CustomHeader } from "@/components/common/customHeader";
+import { UpdateManager } from "@/utils/updateManager";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -53,7 +54,7 @@ export default function RootLayout() {
   }
 
   return (
-    <>
+    <UpdateManager>
       <ThemeProvider
         value={colorScheme === "dark" ? DefaultTheme : DefaultTheme}
       >
@@ -116,6 +117,6 @@ export default function RootLayout() {
         <StatusBar style="auto" />
       </ThemeProvider>
       <Toast />
-    </>
+    </UpdateManager>
   );
 }
