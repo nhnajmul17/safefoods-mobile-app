@@ -81,7 +81,7 @@ export const OrderSummarySection = ({
             </View>
 
             <View style={styles.orderSummary}>
-              <Text style={styles.totalText}>Total</Text>
+              <Text style={styles.totalText}>Total Approx</Text>
               <Text style={styles.totalPrice}>
                 ৳ {formatWithThousandSeparator(subtotal + deliveryCharge)}
               </Text>

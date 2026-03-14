@@ -117,7 +117,7 @@ export default function UnifiedCheckoutScreen({
   const [couponId, setCouponId] = useState<string>("");
 
   const [preferredDeliveryDateTime, setPreferredDeliveryDateTime] =
-    useState<Date | null>(new Date());
+    useState<Date | null>(null); //(new Date());
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
@@ -128,7 +128,7 @@ export default function UnifiedCheckoutScreen({
   // Authenticated user addresses
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
-    null
+    null,
   );
 
   // Guest details state
@@ -181,12 +181,12 @@ export default function UnifiedCheckoutScreen({
         if (paymentData.success) {
           setPaymentMethods(paymentData.data);
           const activePaymentMethod = paymentData.data.find(
-            (method: PaymentMethod) => method.isActive
+            (method: PaymentMethod) => method.isActive,
           );
           setSelectedPaymentMethodId(
             activePaymentMethod
               ? activePaymentMethod.id
-              : paymentData.data[0]?.id || null
+              : paymentData.data[0]?.id || null,
           );
         }
       } catch (error) {
@@ -198,16 +198,18 @@ export default function UnifiedCheckoutScreen({
       if (!isGuest && userId) {
         try {
           const addressResponse = await fetch(
-            `${API_URL}/v1/addresses/user/${userId}`
+            `${API_URL}/v1/addresses/user/${userId}`,
           );
           const addressData = await addressResponse.json();
           if (addressData.success) {
             setAddresses(addressData.data);
             const activeAddress = addressData.data.find(
-              (addr: Address) => addr.isActive
+              (addr: Address) => addr.isActive,
             );
             setSelectedAddressId(
-              activeAddress ? activeAddress.id : addressData.data[0]?.id || null
+              activeAddress
+                ? activeAddress.id
+                : addressData.data[0]?.id || null,
             );
           }
         } catch (error) {
@@ -232,7 +234,7 @@ export default function UnifiedCheckoutScreen({
   const handleCouponApplied = (
     discount: number,
     discountType: string,
-    id: string
+    id: string,
   ) => {
     setAppliedDiscount(discount);
     setDiscountType(discountType);
@@ -260,7 +262,7 @@ export default function UnifiedCheckoutScreen({
 
   const handleGuestDetailsChange = (
     field: keyof GuestDetails,
-    value: string
+    value: string,
   ) => {
     setGuestDetails((prev) => ({
       ...prev,
@@ -271,7 +273,7 @@ export default function UnifiedCheckoutScreen({
   const handleAccountCreated = async (
     userId: string,
     accessToken: string,
-    refreshToken: string
+    refreshToken: string,
   ) => {
     try {
       // Extract user info from the token or make an API call to get user details
@@ -289,7 +291,7 @@ export default function UnifiedCheckoutScreen({
       // Fetch the user's address to set as selected address
       try {
         const addressResponse = await fetch(
-          `${API_URL}/v1/addresses/user/${userId}`
+          `${API_URL}/v1/addresses/user/${userId}`,
         );
         const addressData = await addressResponse.json();
         if (addressData.success && addressData.data.length > 0) {
@@ -309,7 +311,7 @@ export default function UnifiedCheckoutScreen({
       "id" | "createdAt" | "updatedAt" | "userId" | "isActive"
     > & {
       isActive?: boolean;
-    }
+    },
   ) => {
     const currentUserId = guestBecameAuthenticated ? newUserId : userId;
     if (!currentUserId) {
@@ -373,7 +375,7 @@ export default function UnifiedCheckoutScreen({
         if (!isGuest && (userId || newUserId)) {
           try {
             const addressResponse = await fetch(
-              `${API_URL}/v1/addresses/user/${currentUserId}`
+              `${API_URL}/v1/addresses/user/${currentUserId}`,
             );
             const addressData = await addressResponse.json();
             if (addressData.success) {
@@ -581,23 +583,23 @@ export default function UnifiedCheckoutScreen({
           renderItem={renderSection}
           keyExtractor={(item) => item.key}
           contentContainerStyle={styles.content}
-          ListHeaderComponent={
-            <View style={styles.datePickerHeader}>
-              <Text style={styles.datePickerTitle}>
-                Preferred Delivery Date & Time
-              </Text>
-              <TouchableOpacity
-                style={styles.datePickerButton}
-                onPress={() => setDatePickerVisibility(true)}
-              >
-                <Text style={styles.datePickerText}>
-                  {preferredDeliveryDateTime
-                    ? preferredDeliveryDateTime.toLocaleString()
-                    : "Select Delivery Date & Time"}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          }
+          // ListHeaderComponent={
+          //   <View style={styles.datePickerHeader}>
+          //     <Text style={styles.datePickerTitle}>
+          //       Preferred Delivery Date & Time
+          //     </Text>
+          //     <TouchableOpacity
+          //       style={styles.datePickerButton}
+          //       onPress={() => setDatePickerVisibility(true)}
+          //     >
+          //       <Text style={styles.datePickerText}>
+          //         {preferredDeliveryDateTime
+          //           ? preferredDeliveryDateTime.toLocaleString()
+          //           : "Select Delivery Date & Time"}
+          //       </Text>
+          //     </TouchableOpacity>
+          //   </View>
+          // }
           keyboardShouldPersistTaps="handled"
         />
         {(!isGuest || guestBecameAuthenticated) && (

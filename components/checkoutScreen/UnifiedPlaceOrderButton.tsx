@@ -69,7 +69,7 @@ interface UnifiedPlaceOrderButtonProps {
   onAccountCreated?: (
     userId: string,
     accessToken: string,
-    refreshToken: string
+    refreshToken: string,
   ) => void;
 }
 
@@ -376,7 +376,7 @@ export const UnifiedPlaceOrderButton: React.FC<
 
   const validateTransactionDetails = (): boolean => {
     const selectedPaymentMethod = paymentMethods.find(
-      (method) => method.id === paymentMethodId
+      (method) => method.id === paymentMethodId,
     );
 
     if (!selectedPaymentMethod) return true;
@@ -498,7 +498,7 @@ export const UnifiedPlaceOrderButton: React.FC<
       total,
       paymentStatus: "unpaid",
       orderStatus: "pending",
-      preferredDeliveryDateAndTime: preferredDeliveryDateTime?.toISOString(),
+      preferredDeliveryDateAndTime: "", //preferredDeliveryDateTime?.toISOString(),
       paymentMethodId,
       productOrders: productOrders.map((item) => ({
         ...item,
@@ -547,7 +547,7 @@ export const UnifiedPlaceOrderButton: React.FC<
 
   const placeOrderAsAuthenticatedUser = async (
     userIdToUse: string,
-    addressIdToUse: string
+    addressIdToUse: string,
   ) => {
     try {
       const orderData = {
@@ -695,7 +695,7 @@ export const UnifiedPlaceOrderButton: React.FC<
   return (
     <View style={styles.container}>
       <View style={styles.totalContainer}>
-        <Text style={styles.totalLabel}>Total Amount:</Text>
+        <Text style={styles.totalLabel}>Total Approx Amount:</Text>
         <Text style={styles.totalAmount}>
           ৳{formatWithThousandSeparator(total)}
         </Text>
