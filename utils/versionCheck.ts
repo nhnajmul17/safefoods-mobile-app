@@ -66,7 +66,7 @@ async function fetchVersionFromAPI(): Promise<VersionConfig | null> {
 function getHardcodedVersionConfig(): VersionConfig {
   return {
     minimumVersion: "1.0.5", // Force update below this version
-    latestVersion: "1.0.7", // Optional update below this version
+    latestVersion: "1.0.8", // Optional update below this version
   };
 }
 
@@ -75,7 +75,7 @@ function getHardcodedVersionConfig(): VersionConfig {
  * Priority: API → Hardcoded values
  */
 export async function checkVersionGate(
-  useAPI: boolean = true
+  useAPI: boolean = true,
 ): Promise<VersionCheckResult> {
   try {
     let config: VersionConfig | null = null;
