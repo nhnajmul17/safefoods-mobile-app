@@ -35,14 +35,15 @@ export default function HomeBestDeal() {
         const response = await fetch(`${API_URL}/v1/products?bestDeal=true`);
         const data = await response.json();
         if (data.success) {
+          console.log("products", data.data[0].variants);
           setProducts(data.data);
           setSelectedVariants(
             Object.fromEntries(
               data.data.map((product: ShopNowProduct) => [
                 product.id,
                 product.variants[0] || null,
-              ])
-            )
+              ]),
+            ),
           );
         } else {
           setError("Failed to load best-selling products.");
@@ -61,7 +62,7 @@ export default function HomeBestDeal() {
   const handleAddToCartLocal = async (
     item: ShopNowProduct,
     selectedVariant: ProductVariant,
-    newQuantity: number
+    newQuantity: number,
   ) => {
     await handleAddToCart({
       productId: item.id,
@@ -71,7 +72,7 @@ export default function HomeBestDeal() {
         ? selectedVariant.mediaItems[0].mediaUrl.startsWith("http://")
           ? selectedVariant.mediaItems[0].mediaUrl.replace(
               "http://",
-              "https://"
+              "https://",
             )
           : selectedVariant.mediaItems[0].mediaUrl
         : "https://via.placeholder.com/50",

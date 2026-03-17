@@ -48,14 +48,14 @@ const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
-    null
+    null,
   );
   const { cartItems } = useCartStore();
 
   // Find if this product variant is already in cart
   const cartItem = cartItems.find(
     (cartItem) =>
-      cartItem.id === product?.id && cartItem.variantId === selectedVariant?.id
+      cartItem.id === product?.id && cartItem.variantId === selectedVariant?.id,
   );
 
   const quantity = cartItem ? cartItem.quantity : 0;
@@ -159,7 +159,7 @@ const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
       scrollY.value,
       [0, HEADER_SCROLL_DISTANCE],
       [HEADER_MAX_HEIGHT, HEADER_MIN_HEIGHT],
-      Extrapolation.CLAMP
+      Extrapolation.CLAMP,
     );
     return {
       height,
@@ -172,7 +172,7 @@ const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
       scrollY.value,
       [0, HEADER_SCROLL_DISTANCE],
       [HEADER_MAX_HEIGHT, HEADER_MIN_HEIGHT],
-      Extrapolation.CLAMP
+      Extrapolation.CLAMP,
     );
     return {
       top: headerHeight,
@@ -184,7 +184,7 @@ const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
       scrollY.value,
       [0, HEADER_SCROLL_DISTANCE],
       [HEADER_MAX_HEIGHT, HEADER_MIN_HEIGHT],
-      Extrapolation.CLAMP
+      Extrapolation.CLAMP,
     );
     // Add fixed info height (~100px for title + price section)
     return {
@@ -239,10 +239,15 @@ const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
             onError={(e) =>
               console.log(
                 `Product image load error (${product.title}):`,
-                e.nativeEvent.error
+                e.nativeEvent.error,
               )
             }
           />
+          {!selectedVariant.inStock && (
+            <View style={styles.outOfStockBadge}>
+              <Text style={styles.outOfStockText}>Out of Stock</Text>
+            </View>
+          )}
         </Animated.View>
 
         {/* Fixed Product Info Section */}
@@ -252,10 +257,21 @@ const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
             <Animated.View style={addToCartStyle}>
               {quantity === 0 ? (
                 <TouchableOpacity
-                  style={styles.addToCartButton}
+                  style={[
+                    styles.addToCartButton,
+                    !selectedVariant.inStock && styles.disabledButton,
+                  ]}
                   onPress={() => handleAddToCart(1)}
+                  disabled={!selectedVariant.inStock}
                 >
-                  <Text style={styles.addToCartText}>Add to cart</Text>
+                  <Text
+                    style={[
+                      styles.addToCartText,
+                      !selectedVariant.inStock && styles.disabledText,
+                    ]}
+                  >
+                    {!selectedVariant.inStock ? "Out of Stock" : "Add to cart"}
+                  </Text>
                 </TouchableOpacity>
               ) : (
                 <View style={styles.cartQuantityContainer}>
@@ -268,9 +284,20 @@ const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
                   <Text style={styles.cartQuantity}>{quantity}</Text>
                   <TouchableOpacity
                     onPress={handleIncrease}
-                    style={styles.cartQuantityButton}
+                    style={[
+                      styles.cartQuantityButton,
+                      !selectedVariant.inStock && styles.disabledQuantityButton,
+                    ]}
+                    disabled={!selectedVariant.inStock}
                   >
-                    <Text style={styles.cartQuantityText}>+</Text>
+                    <Text
+                      style={[
+                        styles.cartQuantityText,
+                        !selectedVariant.inStock && styles.disabledQuantityText,
+                      ]}
+                    >
+                      +
+                    </Text>
                   </TouchableOpacity>
                 </View>
               )}
@@ -512,6 +539,33 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#666",
     flex: 1,
+  },
+  outOfStockBadge: {
+    position: "absolute",
+    top: 20,
+    right: 20,
+    backgroundColor: "rgba(255, 0, 0, 0.8)",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+    zIndex: 10,
+  },
+  outOfStockText: {
+    color: "white",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  disabledButton: {
+    backgroundColor: "#ccc",
+  },
+  disabledText: {
+    color: "#666",
+  },
+  disabledQuantityButton: {
+    opacity: 0.5,
+  },
+  disabledQuantityText: {
+    color: "#ccc",
   },
 });
 

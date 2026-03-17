@@ -30,7 +30,7 @@ interface onSaleProductCardProps {
   handleAddToCart: (
     item: ShopNowProduct,
     selectedVariant: ProductVariant,
-    newQuantity: number
+    newQuantity: number,
   ) => void;
 }
 
@@ -50,7 +50,7 @@ const OnSaleProductCard = ({
   // Find if this product variant is already in cart
   const cartItem = cartItems.find(
     (cartItem) =>
-      cartItem.id === item.id && cartItem.variantId === selectedVariant.id
+      cartItem.id === item.id && cartItem.variantId === selectedVariant.id,
   );
   const currentQuantity = cartItem ? cartItem.quantity : 0;
 
@@ -87,9 +87,11 @@ const OnSaleProductCard = ({
   return (
     <Animated.View style={[styles.productCard, cardStyle]}>
       {/* On Sale Badge */}
-      <View style={styles.saleBadge}>
-        <Text style={styles.saleBadgeText}>On Sale</Text>
-      </View>
+      {selectedVariant.inStock && (
+        <View style={styles.saleBadge}>
+          <Text style={styles.saleBadgeText}>On Sale</Text>
+        </View>
+      )}
       <TouchableOpacity
         onPress={() =>
           navigation.push(`/(tabs)/home/(product-details)/${item.slug}` as any)
@@ -98,7 +100,7 @@ const OnSaleProductCard = ({
         <Image
           source={{
             uri: getOptimizedImageUrl(
-              selectedVariant.mediaItems?.[0]?.mediaUrl
+              selectedVariant.mediaItems?.[0]?.mediaUrl,
             ),
           }}
           style={styles.productImage}
@@ -107,10 +109,15 @@ const OnSaleProductCard = ({
           onError={(e) =>
             console.log(
               `Product image load error (${item.title}):`,
-              e.nativeEvent.error
+              e.nativeEvent.error,
             )
           }
         />
+        {!selectedVariant.inStock && (
+          <View style={styles.outOfStockBadge}>
+            <Text style={styles.outOfStockText}>Out of Stock</Text>
+          </View>
+        )}
       </TouchableOpacity>
       <View style={styles.contentContainer}>
         <Link
@@ -160,10 +167,21 @@ const OnSaleProductCard = ({
         <View style={styles.cartSection}>
           {currentQuantity === 0 ? (
             <TouchableOpacity
-              style={styles.addButton}
+              style={[
+                styles.addButton,
+                !selectedVariant.inStock && styles.disabledButton,
+              ]}
               onPress={handleAddToCartDirect}
+              disabled={!selectedVariant.inStock}
             >
-              <Text style={styles.addButtonText}>ADD</Text>
+              <Text
+                style={[
+                  styles.addButtonText,
+                  !selectedVariant.inStock && styles.disabledText,
+                ]}
+              >
+                {!selectedVariant.inStock ? "Out of Stock" : "ADD"}
+              </Text>
             </TouchableOpacity>
           ) : (
             <View style={styles.quantityContainer}>
@@ -176,9 +194,17 @@ const OnSaleProductCard = ({
               <Text style={styles.quantityText}>{currentQuantity}</Text>
               <TouchableOpacity
                 onPress={handleIncrease}
-                style={styles.quantityButton}
+                style={[
+                  styles.quantityButton,
+                  !selectedVariant.inStock && styles.disabledQuantityButton,
+                ]}
+                disabled={!selectedVariant.inStock}
               >
-                <Icon name="add" size={15} color={yellowColor} />
+                <Icon
+                  name="add"
+                  size={15}
+                  color={!selectedVariant.inStock ? "#ccc" : yellowColor}
+                />
               </TouchableOpacity>
             </View>
           )}
@@ -203,6 +229,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 6,
     backgroundColor: Colors.light.background,
+    position: "relative",
   },
   saleBadge: {
     position: "absolute",
@@ -317,5 +344,28 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: yellowColor,
     marginHorizontal: 6,
+  },
+  outOfStockBadge: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    backgroundColor: "rgba(255, 0, 0, 0.8)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  outOfStockText: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  disabledButton: {
+    backgroundColor: "#ccc",
+  },
+  disabledText: {
+    color: "#666",
+  },
+  disabledQuantityButton: {
+    opacity: 0.5,
   },
 });

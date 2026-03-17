@@ -26,6 +26,7 @@ export interface ProductVariant {
   bestDeal: boolean;
   discountedSale: boolean;
   unitTitle: string;
+  inStock: boolean;
   mediaItems?: Array<{
     id: string;
     mediaId: string;
@@ -48,7 +49,7 @@ type ProductCardProps = {
   onAddToCart: (
     item: ShopNowProduct,
     selectedVariant: ProductVariant,
-    quantity: number
+    quantity: number,
   ) => void;
 };
 
@@ -59,7 +60,7 @@ const cardWidth = screenWidth - 16 - 80 - 8; // 16: padding, 80: category list w
 const ShopNowProductCard = ({ item, onAddToCart }: ProductCardProps) => {
   const { cartItems } = useCartStore();
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(
-    item.variants[0]
+    item.variants[0],
   );
   const cardOpacity = useSharedValue(0);
   const cardScale = useSharedValue(0.95);
@@ -67,7 +68,7 @@ const ShopNowProductCard = ({ item, onAddToCart }: ProductCardProps) => {
   // Find if this product variant is already in cart
   const cartItem = cartItems.find(
     (cartItem) =>
-      cartItem.id === item.id && cartItem.variantId === selectedVariant.id
+      cartItem.id === item.id && cartItem.variantId === selectedVariant.id,
   );
 
   const quantity = cartItem ? cartItem.quantity : 0;
@@ -110,16 +111,22 @@ const ShopNowProductCard = ({ item, onAddToCart }: ProductCardProps) => {
       style={[styles.productCard, cardStyle, { width: cardWidth }]}
     >
       {/* Discount badge */}
-      {hasDiscount && (
+      {selectedVariant.inStock && hasDiscount && (
         <View style={styles.discountBadge}>
           <Text style={styles.discountText}>
             {Math.round(
               ((selectedVariant.originalPrice - selectedVariant.price) /
                 selectedVariant.originalPrice) *
-                100
+                100,
             )}
             % OFF
           </Text>
+        </View>
+      )}
+
+      {!selectedVariant.inStock && (
+        <View style={styles.outOfStockBadge}>
+          <Text style={styles.outOfStockText}>Out of Stock</Text>
         </View>
       )}
 
@@ -204,10 +211,21 @@ const ShopNowProductCard = ({ item, onAddToCart }: ProductCardProps) => {
             <View style={styles.cartSection}>
               {quantity === 0 ? (
                 <TouchableOpacity
-                  style={styles.addButton}
+                  style={[
+                    styles.addButton,
+                    !selectedVariant.inStock && styles.disabledButton,
+                  ]}
                   onPress={handleAddToCartDirect}
+                  disabled={!selectedVariant.inStock}
                 >
-                  <Text style={styles.addButtonText}>ADD</Text>
+                  <Text
+                    style={[
+                      styles.addButtonText,
+                      !selectedVariant.inStock && styles.disabledText,
+                    ]}
+                  >
+                    ADD
+                  </Text>
                 </TouchableOpacity>
               ) : (
                 <View style={styles.quantityContainer}>
@@ -220,9 +238,17 @@ const ShopNowProductCard = ({ item, onAddToCart }: ProductCardProps) => {
                   <Text style={styles.quantityText}>{quantity}</Text>
                   <TouchableOpacity
                     onPress={handleIncrease}
-                    style={styles.quantityButton}
+                    style={[
+                      styles.quantityButton,
+                      !selectedVariant.inStock && styles.disabledQuantityButton,
+                    ]}
+                    disabled={!selectedVariant.inStock}
                   >
-                    <Icon name="add" size={15} color={yellowColor} />
+                    <Icon
+                      name="add"
+                      size={15}
+                      color={!selectedVariant.inStock ? "#ccc" : yellowColor}
+                    />
                   </TouchableOpacity>
                 </View>
               )}
@@ -362,5 +388,29 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: yellowColor,
     marginHorizontal: 6,
+  },
+  outOfStockBadge: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    backgroundColor: "#FF4757",
+    borderRadius: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    zIndex: 1,
+  },
+  outOfStockText: {
+    color: "white",
+    fontSize: 10,
+    fontWeight: "bold",
+  },
+  disabledButton: {
+    backgroundColor: "#ccc",
+  },
+  disabledText: {
+    color: "#666",
+  },
+  disabledQuantityButton: {
+    opacity: 0.5,
   },
 });
