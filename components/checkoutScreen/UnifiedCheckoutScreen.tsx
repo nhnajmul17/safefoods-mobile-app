@@ -15,6 +15,7 @@ import { DeliveryZoneSection } from "@/components/checkoutScreen/deliveryZoneSec
 import { CouponSection } from "@/components/checkoutScreen/couponSection";
 import { OrderSummarySection } from "@/components/checkoutScreen/orderSummary";
 import { PaymentMethodSection } from "@/components/checkoutScreen/paymentMethods";
+import type { PaymentMethod } from "@/components/checkoutScreen/paymentMethods";
 import { UnifiedPlaceOrderButton } from "@/components/checkoutScreen/UnifiedPlaceOrderButton";
 import {
   API_URL,
@@ -45,16 +46,6 @@ interface ProductOrder {
   warehouseId: string;
   price: string;
   quantity: string;
-}
-
-export interface PaymentMethod {
-  id: string;
-  title: string;
-  description: string;
-  isActive: boolean;
-  isDeleted: boolean;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface Address {

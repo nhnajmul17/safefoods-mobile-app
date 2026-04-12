@@ -15,22 +15,13 @@ import { formatWithThousandSeparator } from "@/utils/helperFunctions";
 import { clearCartInDatabaseInOrderPlaced } from "@/utils/cartUtils";
 import { saveGuestOrder } from "@/utils/guestOrderStorage";
 import { OTPVerificationModal } from "@/components/checkoutScreen/OTPVerificationModal";
+import type { PaymentMethod } from "@/components/checkoutScreen/paymentMethods";
 
 interface ProductOrder {
   variantProductId: string;
   warehouseId: string;
   price: string;
   quantity: string;
-}
-
-interface PaymentMethod {
-  id: string;
-  title: string;
-  description: string;
-  isActive: boolean;
-  isDeleted: boolean;
-  createdAt: string;
-  updatedAt: string;
 }
 
 interface GuestDetails {
