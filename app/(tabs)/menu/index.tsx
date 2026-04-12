@@ -8,12 +8,15 @@ import {
   TouchableOpacity,
   Image,
   SafeAreaView,
+  Alert,
 } from "react-native";
+import { useState } from "react";
 
 export default function ProfileScreen() {
   const router = useRouter();
   const { logout, userId, userName } = useAuthStore();
   const { clearCart } = useCartStore();
+  const [tapCount, setTapCount] = useState(0);
 
   const menuItems = [
     ...(userId
@@ -131,6 +134,22 @@ export default function ProfileScreen() {
           />
         </TouchableOpacity>
       ))}
+      <TouchableOpacity
+        style={styles.hiddenItem}
+        onPress={() => {
+          setTapCount((prev) => {
+            const newCount = prev + 1;
+            if (newCount === 5) {
+              Alert.alert(
+                "Developer Info",
+                "This app was developed by Najmul Hasan.\n\nContact: nhnajmul17@gmail.com\n\n",
+              );
+              return 0; // Reset counter
+            }
+            return newCount;
+          });
+        }}
+      />
     </SafeAreaView>
   );
 }
@@ -188,5 +207,13 @@ const styles = StyleSheet.create({
   chevronIcon: {
     width: 15,
     height: 15,
+  },
+  hiddenItem: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 50,
+    opacity: 0,
   },
 });
