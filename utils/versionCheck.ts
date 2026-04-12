@@ -83,13 +83,13 @@ export async function checkVersionGate(
 
     // Try API if requested
     if (useAPI) {
-      console.log("Trying API version check...");
+      // console.log("Trying API version check...");
       config = await fetchVersionFromAPI();
       if (config) {
         source = "api"; // Set source to API if successful
-        console.log("Using API for version check");
+        // console.log("Using API for version check");
       } else {
-        console.log("Using hardcoded version config");
+        // console.log("Using hardcoded version config");
         config = getHardcodedVersionConfig();
       }
     } else {
@@ -100,12 +100,12 @@ export async function checkVersionGate(
     const latest = config.latestVersion;
     const current = getCurrentVersion();
 
-    console.log("Version Check Result:", {
-      minimum,
-      latest,
-      current,
-      source, // Now accurately reflects the source
-    });
+    // console.log("Version Check Result:", {
+    //   minimum,
+    //   latest,
+    //   current,
+    //   source, // Now accurately reflects the source
+    // });
 
     if (compareVersions(current, minimum) < 0) {
       return { action: "force_update", minimum, current };

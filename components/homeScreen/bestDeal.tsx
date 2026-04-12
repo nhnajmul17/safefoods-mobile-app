@@ -35,7 +35,7 @@ export default function HomeBestDeal() {
         const response = await fetch(`${API_URL}/v1/products?bestDeal=true`);
         const data = await response.json();
         if (data.success) {
-          console.log("products", data.data[0].variants);
+          // console.log("products", data.data[0].variants);
           setProducts(data.data);
           setSelectedVariants(
             Object.fromEntries(
