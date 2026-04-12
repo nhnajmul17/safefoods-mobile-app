@@ -1,6 +1,9 @@
-export const isProduction = process.env.NODE_ENV === "production";
-export const isDevelopment = process.env.NODE_ENV === "development";
-export const API_URL = "https://api.safefoods.com.bd/api"; // process.env.API_URL;
+export const isProduction = !__DEV__;
+export const isDevelopment = __DEV__;
+export const API_URL = "https://api.safefoods.com.bd/api";
+export const UPLOADED_CDN_BASE_URL = "https://cdn.safefoods.com.bd";
+const DEFAULT_FILE_UPLOAD_URL = "https://safefoods.com.bd/api/r2-fileupload";
+export const FILE_UPLOAD_URL = DEFAULT_FILE_UPLOAD_URL;
 
 //categories
 export const PROTEINS = "proteins";

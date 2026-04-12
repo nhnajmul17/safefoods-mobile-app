@@ -24,6 +24,7 @@ export interface GuestOrder {
   transactionNo: string | null;
   transactionPhoneNo: string | null;
   transactionDate: string | null;
+  paymentProof: string | null;
   paymentStatus: string;
   orderStatus: string;
   isDeleted: boolean;
@@ -76,7 +77,7 @@ export interface GuestOrder {
 // Function to get payment method title by ID (you might need to adjust this)
 const getPaymentMethodTitle = (
   paymentMethodId: string,
-  paymentMethods: any[] = []
+  paymentMethods: any[] = [],
 ): string => {
   const method = paymentMethods.find((pm) => pm.id === paymentMethodId);
   return method?.title || "Unknown Payment Method";
@@ -86,7 +87,7 @@ const getPaymentMethodTitle = (
 export const saveGuestOrder = async (
   orderResponse: any,
   cartItems: CartItem[],
-  paymentMethods: any[] = []
+  paymentMethods: any[] = [],
 ): Promise<void> => {
   try {
     const { order, productOrders, guestUserInfo, guestUserAddressInfo } =
@@ -95,7 +96,7 @@ export const saveGuestOrder = async (
     // Enhance product orders with cart item details
     const enhancedProductOrders = productOrders.map((productOrder: any) => {
       const cartItem = cartItems.find(
-        (item) => item.variantId === productOrder.variantProductId
+        (item) => item.variantId === productOrder.variantProductId,
       );
       return {
         ...productOrder,
@@ -110,7 +111,7 @@ export const saveGuestOrder = async (
       ...order,
       paymentMethodTitle: getPaymentMethodTitle(
         order.paymentMethodId,
-        paymentMethods
+        paymentMethods,
       ),
       productOrders: enhancedProductOrders,
       guestUserInfo,
@@ -129,7 +130,7 @@ export const saveGuestOrder = async (
     // Save to AsyncStorage
     await AsyncStorage.setItem(
       GUEST_ORDERS_STORAGE_KEY,
-      JSON.stringify(ordersToKeep)
+      JSON.stringify(ordersToKeep),
     );
 
     console.log(`Guest order saved. Total orders: ${ordersToKeep.length}`);
@@ -151,7 +152,7 @@ export const getGuestOrders = async (): Promise<GuestOrder[]> => {
 
 // Get a specific guest order by ID
 export const getGuestOrderById = async (
-  orderId: string
+  orderId: string,
 ): Promise<GuestOrder | null> => {
   try {
     const orders = await getGuestOrders();
@@ -201,6 +202,7 @@ export const convertGuestOrderToOrderFormat = (guestOrder: GuestOrder): any => {
     transactionNo: guestOrder.transactionNo,
     transactionPhoneNo: guestOrder.transactionPhoneNo,
     transactionDate: guestOrder.transactionDate,
+    paymentProof: guestOrder.paymentProof,
     address: {
       id: guestOrder.guestUserAddressInfo.id,
       flatNo: guestOrder.guestUserAddressInfo.flatNo,

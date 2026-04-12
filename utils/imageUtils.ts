@@ -21,7 +21,7 @@ export const ensureHttps = (url: string): string => {
  */
 export const getSafeImageUrl = (
   url: string | null | undefined,
-  fallback: string = "https://via.placeholder.com/150"
+  fallback: string = "https://via.placeholder.com/150",
 ): string => {
   if (!url) {
     return fallback;
@@ -41,7 +41,7 @@ export const getSafeImageUrl = (
 export const optimizeCloudinaryImage = (
   url: string,
   width: number = 800,
-  quality: number = 60
+  quality: number = 60,
 ): string => {
   const secureUrl = ensureHttps(url);
 
@@ -70,7 +70,7 @@ export const optimizeCloudinaryImage = (
  * @returns Optimized URL safe for memory-constrained rendering
  */
 export const getOptimizedImageUrl = (
-  url: string | null | undefined
+  url: string | null | undefined,
 ): string => {
   if (!url) {
     return "https://via.placeholder.com/150";

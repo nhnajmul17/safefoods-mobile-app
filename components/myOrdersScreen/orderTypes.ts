@@ -50,6 +50,7 @@ export type Order = {
   transactionNo: string | null;
   transactionPhoneNo: string | null;
   transactionDate: string | null;
+  paymentProof: string | null;
   address: Address;
   paymentStatus: string;
   orderStatus: string;

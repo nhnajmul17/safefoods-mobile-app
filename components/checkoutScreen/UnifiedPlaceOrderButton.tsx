@@ -65,6 +65,7 @@ interface UnifiedPlaceOrderButtonProps {
   transactionNo: string;
   transactionPhoneNo: string;
   transactionDate: Date | null;
+  paymentProof: string;
   createAccount?: boolean; // For guest account creation
   onAccountCreated?: (
     userId: string,
@@ -93,6 +94,7 @@ export const UnifiedPlaceOrderButton: React.FC<
   transactionNo,
   transactionPhoneNo,
   transactionDate,
+  paymentProof,
   createAccount = false,
   onAccountCreated,
 }) => {
@@ -518,6 +520,7 @@ export const UnifiedPlaceOrderButton: React.FC<
       (baseOrderData as any).transactionPhoneNo = transactionPhoneNo;
     if (transactionDate)
       (baseOrderData as any).transactionDate = transactionDate.toISOString();
+    if (paymentProof) (baseOrderData as any).paymentProof = paymentProof;
 
     if (isGuest && guestDetails) {
       // Guest order data

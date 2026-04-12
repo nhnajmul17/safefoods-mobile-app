@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
 import {
-  SafeAreaView,
   FlatList,
   StyleSheet,
   TouchableOpacity,
@@ -9,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useCartStore } from "@/store/cartStore";
 import { useAuthStore } from "@/store/authStore";
 import { DeliveryZoneSection } from "@/components/checkoutScreen/deliveryZoneSection";
@@ -152,6 +152,7 @@ export default function UnifiedCheckoutScreen({
   const [transactionDate, setTransactionDate] = useState<Date | null>(null);
   const [isTransactionDatePickerVisible, setTransactionDatePickerVisibility] =
     useState(false);
+  const [paymentProof, setPaymentProof] = useState<string>("");
 
   // Address modal state
   const [showAddressModal, setShowAddressModal] = useState(false);
@@ -520,9 +521,11 @@ export default function UnifiedCheckoutScreen({
             transactionNo={transactionNo}
             transactionPhoneNo={transactionPhoneNo}
             transactionDate={transactionDate}
+            paymentProof={paymentProof}
             onTransactionNoChange={setTransactionNo}
             onTransactionPhoneNoChange={setTransactionPhoneNo}
             onTransactionDateChange={setTransactionDatePickerVisibility}
+            onPaymentProofChange={setPaymentProof}
           />
         ) : null;
       case "placeOrder":
@@ -547,6 +550,7 @@ export default function UnifiedCheckoutScreen({
             transactionNo={transactionNo}
             transactionPhoneNo={transactionPhoneNo}
             transactionDate={transactionDate}
+            paymentProof={paymentProof}
             createAccount={createAccount}
             onAccountCreated={handleAccountCreated}
           />
