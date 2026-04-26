@@ -23,10 +23,12 @@ export interface ProductVariant {
   price: number;
   originalPrice: number;
   description: string;
+  shortDescription: string;
   bestDeal: boolean;
   discountedSale: boolean;
   unitTitle: string;
   inStock: boolean;
+  youtubeVideoUrl?: string;
   mediaItems?: Array<{
     id: string;
     mediaId: string;

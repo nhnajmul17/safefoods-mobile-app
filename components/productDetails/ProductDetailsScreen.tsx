@@ -33,11 +33,19 @@ import RelatedProducts from "./RelatedProducts";
 import RenderHTML from "react-native-render-html";
 import { ensureHttps } from "@/utils/imageUtils";
 import { handleAddToCart as handleAddToCartUtil } from "@/utils/cartUtils";
+import YoutubeIframe from "react-native-youtube-iframe";
 
 interface ProductDetailsScreenProps {
   /** The tab context for navigation (home, category, shop-now) */
   tabContext: "home" | "category" | "shop-now";
 }
+
+const getYouTubeVideoId = (url: string) => {
+  const match = url.match(
+    /(?:youtube\.com\/(?:shorts\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/,
+  );
+  return match ? match[1] : null;
+};
 
 const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
   tabContext,
@@ -323,6 +331,17 @@ const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
           style={styles.scrollView}
         >
           <Animated.View style={scrollContentStyle}>
+            {/* Short Description Section */}
+            {selectedVariant.shortDescription && (
+              <View style={styles.shortDescriptionContainer}>
+                <RenderHTML
+                  contentWidth={300}
+                  source={{ html: selectedVariant.shortDescription }}
+                  baseStyle={styles.htmlContent}
+                />
+              </View>
+            )}
+
             {/* Description Section */}
             <View style={styles.descriptionContainer}>
               <RenderHTML
@@ -331,6 +350,19 @@ const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
                 baseStyle={styles.htmlContent}
               />
             </View>
+
+            {/* Video Section */}
+            {selectedVariant.youtubeVideoUrl && (
+              <View style={styles.videoContainer}>
+                {/* <Text style={styles.videoTitle}>Product Video</Text> */}
+                <YoutubeIframe
+                  videoId={getYouTubeVideoId(selectedVariant.youtubeVideoUrl)}
+                  height={200}
+                  play={false}
+                  onError={(error) => console.log("YouTube error:", error)}
+                />
+              </View>
+            )}
 
             {/* Related Products Section */}
             <RelatedProducts
@@ -509,10 +541,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 40,
   },
+  shortDescriptionContainer: {
+    marginTop: 16,
+    // marginBottom: 5,
+    paddingHorizontal: 16,
+    paddingTop: 40,
+  },
   htmlContent: {
     fontSize: 14,
     color: "#666",
     lineHeight: 20,
+  },
+  videoContainer: {
+    marginTop: 5,
+    marginBottom: 20,
+    paddingHorizontal: 16,
+  },
+  videoTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 10,
   },
   infoGrid: {
     flexDirection: "row",
