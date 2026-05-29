@@ -16,7 +16,10 @@ import { CouponSection } from "@/components/checkoutScreen/couponSection";
 import { OrderSummarySection } from "@/components/checkoutScreen/orderSummary";
 import { PaymentMethodSection } from "@/components/checkoutScreen/paymentMethods";
 import type { PaymentMethod } from "@/components/checkoutScreen/paymentMethods";
-import { UnifiedPlaceOrderButton } from "@/components/checkoutScreen/UnifiedPlaceOrderButton";
+import {
+  UnifiedPlaceOrderButton,
+  type UnifiedPlaceOrderButtonHandle,
+} from "@/components/checkoutScreen/UnifiedPlaceOrderButton";
 import {
   API_URL,
   PAYMENT_METHOD_CASH_ON_DELIVERY,
@@ -29,6 +32,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import { deepGreenColor, yellowColor } from "@/constants/Colors";
 import { GuestDetailsSection } from "@/components/checkoutScreen/guestDetails";
 import Toast from "react-native-toast-message";
+import { OTPVerificationModal } from "@/components/checkoutScreen/OTPVerificationModal";
 
 export interface DeliveryZone {
   id: string;
@@ -148,6 +152,12 @@ export default function UnifiedCheckoutScreen({
   // Address modal state
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
+
+  // OTP modal state (kept at top level to avoid keyboard flicker)
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otpPhoneNumber, setOtpPhoneNumber] = useState("");
+  const [otpToken, setOtpToken] = useState("");
+  const placeOrderButtonRef = useRef<UnifiedPlaceOrderButtonHandle>(null);
 
   useEffect(() => {
     const fetchDeliveryZones = async () => {
@@ -522,6 +532,7 @@ export default function UnifiedCheckoutScreen({
       case "placeOrder":
         return (
           <UnifiedPlaceOrderButton
+            ref={placeOrderButtonRef}
             isGuest={isGuest && !guestBecameAuthenticated}
             selectedZoneId={selectedZoneId}
             deliveryCharge={deliveryCharge}
@@ -543,6 +554,16 @@ export default function UnifiedCheckoutScreen({
             transactionDate={transactionDate}
             paymentProof={paymentProof}
             createAccount={createAccount}
+            onOtpRequested={(phoneNumber, token) => {
+              setOtpPhoneNumber(phoneNumber);
+              setOtpToken(token);
+              setShowOtpModal(true);
+            }}
+            onOtpClear={() => {
+              setShowOtpModal(false);
+              setOtpToken("");
+              setOtpPhoneNumber("");
+            }}
             onAccountCreated={handleAccountCreated}
           />
         );
@@ -608,6 +629,20 @@ export default function UnifiedCheckoutScreen({
             initialData={editingAddress}
           />
         )}
+        <OTPVerificationModal
+          visible={showOtpModal}
+          phoneNumber={otpPhoneNumber}
+          token={otpToken}
+          onClose={() => {
+            setShowOtpModal(false);
+            setOtpToken("");
+            setOtpPhoneNumber("");
+            placeOrderButtonRef.current?.handleOtpClose();
+          }}
+          onVerifySuccess={async (response) => {
+            await placeOrderButtonRef.current?.handleOTPVerifySuccess(response);
+          }}
+        />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
