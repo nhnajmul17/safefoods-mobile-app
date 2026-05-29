@@ -65,8 +65,8 @@ async function fetchVersionFromAPI(): Promise<VersionConfig | null> {
  */
 function getHardcodedVersionConfig(): VersionConfig {
   return {
-    minimumVersion: "1.0.5", // Force update below this version
-    latestVersion: "1.1.0", // Optional update below this version
+    minimumVersion: "1.2.0", // Force update below this version
+    latestVersion: "1.2.0", // Optional update below this version
   };
 }
 
