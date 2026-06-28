@@ -57,6 +57,7 @@ interface UnifiedPlaceOrderButtonProps {
   transactionDate: Date | null;
   paymentProof: string;
   createAccount?: boolean; // For guest account creation
+  deliveryNotes?: string;
   onOtpRequested?: (phoneNumber: string, token: string) => void;
   onOtpClear?: () => void;
   onAccountCreated?: (
@@ -96,6 +97,7 @@ export const UnifiedPlaceOrderButton = forwardRef<
       transactionDate,
       paymentProof,
       createAccount = false,
+      deliveryNotes,
       onOtpRequested,
       onOtpClear,
       onAccountCreated,
@@ -182,13 +184,15 @@ export const UnifiedPlaceOrderButton = forwardRef<
       if (!guestDetails) return null;
 
       try {
-        const addressData = {
+        const addressData: Record<string, string> = {
           userId: userId,
           addressLine: guestDetails.addressLine,
           name: guestDetails.fullName,
           phoneNo: guestDetails.phoneNumber,
           city: guestDetails.city,
         };
+        if (guestDetails.deliveryNotes)
+          addressData.deliveryNotes = guestDetails.deliveryNotes;
 
         const response = await fetch(`${API_URL}/v1/addresses`, {
           method: "POST",
@@ -571,6 +575,7 @@ export const UnifiedPlaceOrderButton = forwardRef<
           ...baseOrderData,
           userId,
           addressId,
+          deliveryNotes: deliveryNotes || "",
         };
       }
     };
@@ -593,7 +598,6 @@ export const UnifiedPlaceOrderButton = forwardRef<
         delete (orderData as any).flatNo;
         delete (orderData as any).floorNo;
         delete (orderData as any).addressLine;
-        delete (orderData as any).deliveryNotes;
         delete (orderData as any).city;
         delete (orderData as any).state;
         delete (orderData as any).country;

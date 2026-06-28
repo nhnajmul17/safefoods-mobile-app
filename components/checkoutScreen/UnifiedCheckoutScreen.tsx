@@ -545,6 +545,12 @@ export default function UnifiedCheckoutScreen({
             addressId={
               guestBecameAuthenticated ? newUserAddressId : selectedAddressId
             }
+            deliveryNotes={
+              guestBecameAuthenticated
+                ? guestDetails.deliveryNotes
+                : addresses.find((a) => a.id === selectedAddressId)
+                    ?.deliveryNotes || ""
+            }
             productOrders={mapCartToProductOrders()}
             userId={guestBecameAuthenticated ? newUserId : userId}
             couponId={couponId}
