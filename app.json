@@ -2,7 +2,7 @@
   "expo": {
     "name": "Safe Food",
     "slug": "Safe-Foods-App",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo-safefood.png",
     "scheme": "myapp",
@@ -19,7 +19,7 @@
     },
     "android": {
       "package": "safefoods.com.bd",
-      "versionCode": 13,
+      "versionCode": 14,
       "permissions": ["android.permission.INTERNET"],
       "usesCleartextTraffic": true,
       "softwareKeyboardLayoutMode": "pan",
